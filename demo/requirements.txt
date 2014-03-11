@@ -1,0 +1,3 @@
+django
+pyzmail
+#and django_yubin of course

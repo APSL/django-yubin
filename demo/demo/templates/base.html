@@ -1,0 +1,58 @@
+{% load static i18n %}{% load url from future %}<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# profile: http://ogp.me/ns/profile#">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="imagetoolbar" content="false" />
+    <title>{% block head_title_base %}{% block head_title %}{% endblock %} | {% trans "Project Name" %}{% endblock %}</title>
+    <link rel="shortcut icon" href="{% static "favicon.ico" %}" />
+    <meta name="description" content="{% block meta_description %}{% endblock %}">
+
+    {% block style_base %}
+        {% block extra_style %}{% endblock %}
+    {% endblock %}
+
+    {% block extra_head_base %}
+        {% block extra_head %}{% endblock %}
+        {% block analytics %}
+        {% endblock analytics %}
+    {% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}"
+    {% block body_attrs %}{% endblock %}
+    id="{% block body_id %}{% endblock %}">
+    <div class="container">
+        {% block topbar_base %}
+        {% endblock %}
+
+        <div class="container">
+            {% block ieprompt %}{% endblock %}
+            <div id="loading" class="loader" style="display: none;">{% trans "Loading" %}…</div>
+
+            {% block page_header_base %}
+                {% block page_header %}{% endblock %}
+            {% endblock %}
+
+            <div class="row-fluid">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+
+        <div id="push"></div>{# sticky footer push #}
+    </div>{# /wrap #}
+
+    {% block footer_base %}
+    {% endblock %}
+
+    {% block script_base %}
+        {% block extra_script %}{% endblock %}
+    {% endblock %}
+
+    {% block extra_body_base %}
+        {% block extra_body %}{% endblock %}
+    {% endblock %}
+
+    {% block modal_base %}{% endblock %}
+</body>
+</html>

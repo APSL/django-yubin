@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% load i18n %}
+{% block content %}
+<h1>{% trans "Message List" %}</h1>
+<table border="1">
+    <tr><th>{% trans "id" %}</th><th>{% trans "From" %}</th><th>{% trans "To" %}</th><th>{% trans "Subject" %}</th><th>{% trans "Created" %}</th></tr>
+    {% for mail in object_list %}
+    <tr>
+          <td><a href="{% url mail_detail mail.pk %}">{{mail.pk}}</a></td>
+          <td>{{mail.from_address}}</td>
+          <td>{{mail.to_address}}</td>
+          <td>{{mail.subject}}</td>
+          <td>{{mail.date_created}}</td>
+    </tr>
+    {% endfor %}
+ </table>
+
+{% if is_paginated %}
+        {% if page_obj.has_previous %}
+          <a href="{% url 'home' %}?page={{ page_obj.previous_page_number }}">
+              {% trans "Previous" %}</a>
+        {% endif %}
+            <!-- current page -->
+            {% trans "Page" %} {{ page_obj.number }} {% trans "of" %} {{ page_obj.paginator.num_pages }}.
+            <!-- end current page -->
+        {% if page_obj.has_next %}
+         <a href="{% url 'home' %}?page={{ page_obj.next_page_number }}">
+             {% trans "Next" %}</a>
+         {% endif %}
+{% endif %}
+
+ {% endblock content %}
