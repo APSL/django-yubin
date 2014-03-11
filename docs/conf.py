@@ -40,8 +40,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'django-mailer2'
-copyright = u'2013, Tauber, Beaven & APSL'
+project = u'django-yubin'
+copyright = u'2014, Tauber, Beaven, Disqus & APSL'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
