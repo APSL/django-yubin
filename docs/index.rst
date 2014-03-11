@@ -2,9 +2,12 @@
 django_yubin
 ===============
 
-Django mailer is used to queue e-mails. This allows the emails to be sent
+Django Yubin is used to queue e-mails. This allows the emails to be sent
 asynchronously (by the use of a command extension) rather than blocking the
 response.
+
+It also provides with some classes that allows you to compose e-mails in the same way you compose your django
+templates, using different templates for subject, body and html content.
 
 Contents:
 
@@ -33,13 +36,8 @@ Chris Beaven started a fork of django-mailer and it got to the point when it
 would be rather difficult to merge back. The fork was then renamed to the 
 completely unimaginative "django mailer 2".
 
-In hindsight, this was a bad naming choice as it wasn't supposed to reflect
-that this is a "2.0" version or the like, simply an alternative.
-
-
-8-mar-2014
-    added `MailViews`__ code as always found myself using this project with the mailviews classes, so
-I adapted some of the mailviews to add priority and some convenience classes.
+As always found myself using this project with the mailviews__ classes, we
+adapted some of the mailviews to add priority and some convenience classes.
 
 .. __: https://github.com/disqus/django-mailviews
 
@@ -86,5 +84,7 @@ Napoleone and Jannis Leidel.
 Original branch and the django-mailer-2 hard work comes from Chris Beaven.
 
 django-mailviews from Disqus
+
+The name django-yubin was suggested by @morenosan, he says it means "postal mail" in japanesse, but who nows! :)
 
 
