@@ -21,10 +21,10 @@ setup(
         'django_yubin.management.commands',
     ],
     classifiers=[
-        'Development Status :: 4 - Alfa',
+        'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: Apache2',
+        'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Framework :: Django',

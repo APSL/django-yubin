@@ -345,6 +345,7 @@ class TemplatedAttachmentEmailMessageView(TemplatedHTMLEmailMessageView):
         :returns: A message instance.
         :rtype: :attr:`.message_class`
         """
+
         message = super(TemplatedHTMLEmailMessageView, self) \
             .render_to_message(extra_context, *args, **kwargs)
 

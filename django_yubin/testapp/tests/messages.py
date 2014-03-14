@@ -24,7 +24,8 @@ using_test_templates = override_settings(
     ),
     TEMPLATE_LOADERS=(
         'django.template.loaders.filesystem.Loader',
-    )
+    ),
+    EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 )
 
 
@@ -292,6 +293,16 @@ class TemplatedAttachmentEmailMessageViewTestCase(TemplatedEmailMessageViewTestC
         self.assertEqual(message.alternatives, [(self.html_body, 'text/html')])
         self.assertEqual(len(message.attachments), 1)
 
+    def test_send_message(self):
+        """Test we can send an attachment using the send command"""
+        self.add_templates_to_message()
+        attachment = os.path.join(os.path.dirname(__file__), 'files/attachment.pdf')
+        self.message.send(self.context_dict,
+                          attachment=attachment,
+                          mimetype="application/pdf",
+                          to=('attachment@example.com',))
+        self.assertOutboxLengthEquals(1)
+
 
 class TestEmailOptions(EmailMessageViewTestCase):
     message_class = TemplatedEmailMessageView
@@ -315,9 +326,9 @@ class TestEmailOptions(EmailMessageViewTestCase):
         self.context = Context(self.context_dict)
 
         self.render_subject = functools.partial(self.message.render_subject,
-            context=self.context)
+                                                context=self.context)
         self.render_body = functools.partial(self.message.render_body,
-            context=self.context)
+                                             context=self.context)
 
     def add_templates_to_message(self):
         """

@@ -26,3 +26,10 @@ If you want to run the test you'll need a test smtpd server, you can find one in
 
 run it in a different console and execute `runtests.py`
 
+You can read the package documentation at http://django-yubin.readthedocs.org/en/latest/
+
+History
+-------
+
+0.1.1       Updated documentation and unit tests.
+

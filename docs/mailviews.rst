@@ -96,7 +96,7 @@ In our example, we could write:
 
     NewsletterView().send()
 
-Supose now that we wan't to send a second newsletter, the monthly one for exaple, then we could just write
+Supose now that we wan't to send a second newsletter, the monthly one for example, then we could just write
 
 .. code:: python
 
@@ -114,9 +114,52 @@ Sending HTML Emails
 
 In the previous example we have sent just text emails. If we want to send HTML email we need also an additional template
 to render the HTML content. You just have to inherit your class from `TemplatedHTMLEmailMessageView` and write the
-template you're going to use in `html_body_template_name`, so usually we'll have somethins
+template you're going to use in `html_body_template_name`, so usually we'll have something like
 
+.. code:: python
 
+    from django_yubin.messages import TemplatedHTMLEmailMessageView
+    import datetime
+
+    class NewsletterView(TemplatedHTMLEmailMessageView):
+        subject_template_name = 'emails/newsletter/subject.txt'
+        body_template_name = 'emails/newsletter/body.txt'
+        html_body_template_name = 'emails/newsletter/body_html.html'
+
+        def render_to_message(self, extra_context=None, **kwargs):
+            kwargs['to'] = ('mynewsletter@example.com',)
+            kwargs['from_email'] = 'no-reply@example.com'
+            return super(TemplatedHTMLEmailMessageView, self).render_to_message(extra_context=None, **kwargs)
+
+        def get_context_data(self, **kwargs):
+            """
+            here we can get the addtional data we want
+            """
+            context = super(NewsletterView, self).get_context_data(**kwargs)
+            context['day'] = datetime.date.today()
+            return context
+
+    # Instantiate and send a message.
+
+    NewsletterView().send()
+
+Usually in a HTML mail you're going to refer to files in your site, so in the context you'll find `MEDIA_URL` and `STATIC_URL`
+as variables you can use in your template. Please note that these values a full urls, so they contain your default
+site url, so this means you have to have `django.contrib.sites` in your `SETTINGS.py`, and have the
+`SITE_ID` with a value to your site.
+
+Attachments
+-----------
+
+To add an attachment to your mail you just have to remember that `render_to_message` returns a `EmailMessage` instance,
+so you can use https://docs.djangoproject.com/en/dev/topics/email/
+
+As usually we sent just an attachment, we have created a class thats tries to save your time allowing to sent an
+attachent just passing the file name or a file object
+
+.. code:: python
+
+    TemplatedAttachmentEmailMessageView
 
 Sending mail to a user
 ----------------------
