@@ -10,8 +10,8 @@ easily compose messages in a structured and clear manner.
 
 The idea behind the method is identhical to the template class based view: you can select the template to use, in our
 case one for the subject and one for the body (and one extra for the html), you can pass the data you need overriding
-the `get_context_data` method and the message rendering is made in `render_to_message` where you can also customize
-the parameters as sender, cc, cco, etc. or delay the decision to the `send` method.
+the ``get_context_data`` method and the message rendering is made in ``render_to_message`` where you can also customize
+the parameters as sender, cc, cco, etc. or delay the decision to the ``send`` method.
 
 Managing mails could become a crazy thing quite fast, so the idea is to be able to organize the mail templates in folders
 and use the mailview classes to provide them with the data you need.
@@ -46,7 +46,7 @@ to be able to render the e-mail
 
     NewsletterView().send(to=('mynewsletter@example.com',) )
 
-This would render and send a message to the newsletter with the DEFAULT_FROM_EMAIL` emails settings. Sometimes we'd like
+This would render and send a message to the newsletter with the ``DEFAULT_FROM_EMAIL`` emails settings. Sometimes we'd like
 to send it with different e-mail, so we can customize it as
 
 .. code:: python
@@ -56,15 +56,15 @@ to send it with different e-mail, so we can customize it as
 
 
 Any keywords you pass in send will be forwarded to the django mail calss, so you can use the same parameters you have
-in the Django `EmailMessage` class documentation:
+in the Django ``EmailMessage`` class documentation:
 
 * **from_email**: The sender’s address. Both fred@example.com and Fred <fred@example.com> forms are legal. If omitted, the DEFAULT_FROM_EMAIL setting is used.
 * **to**: A list or tuple of recipient addresses.
 * **bcc**: A list or tuple of addresses used in the “Bcc” header when sending the email.
 * **cc**: A list or tuple of recipient addresses used in the “Cc” header when sending the email.
 
-Instead of using `send` you can use `render_to_message` method. It's parameters are the same as the `send` method, but
-instead of sending the e-mail it will return you an instance of `EmailMessage` that you can use to customize the
+Instead of using ``send`` you can use ``render_to_message`` method. It's parameters are the same as the ``send`` method, but
+instead of sending the e-mail it will return you an instance of ``EmailMessage`` that you can use to customize the
 e-mail before sending it.
 
 In our example, we could write:
@@ -113,8 +113,8 @@ Sending HTML Emails
 -------------------
 
 In the previous example we have sent just text emails. If we want to send HTML email we need also an additional template
-to render the HTML content. You just have to inherit your class from `TemplatedHTMLEmailMessageView` and write the
-template you're going to use in `html_body_template_name`, so usually we'll have something like
+to render the HTML content. You just have to inherit your class from ``TemplatedHTMLEmailMessageView`` and write the
+template you're going to use in ``html_body_template_name``, so usually we'll have something like
 
 .. code:: python
 
@@ -168,7 +168,7 @@ Sending mail to a user
 
     from django_yubin.messages import TemplatedEmailMessageView
 
-    # Subclass the `TemplatedEmailMessageView`, adding the templates you want to render.
+    # Subclass the ``TemplatedEmailMessageView``, adding the templates you want to render.
     class WelcomeMessageView(EmailMessageView):
         subject_template_name = 'emails/welcome/subject.txt'
         body_template_name = 'emails/welcome/body.txt'

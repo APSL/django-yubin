@@ -22,7 +22,7 @@ Django Mailer fork
 ==================
 
 django-mailer-2 is a fork form Chris Beaven fort to of James Tauber's 
-`django-mailer`.__
+`django-mailer`__
 
 This document is readthedocs version of the fork that Chris and James made 
 the original document with some additional information.

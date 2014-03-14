@@ -9,7 +9,12 @@ minimum supported version.
 Installing django_yubin
 ==========================
 
-Download and install from http://github.com/APSL/django-yubin.git
+You can install the latest version from Pypi::
+
+    pip install django-yubin
+
+
+or you can download and install from sources http://github.com/APSL/django-yubin.git
 
 If you're using pip__ and a virtual environment, this usually looks like::
 
@@ -27,8 +32,10 @@ Configuring your project
 ========================
 
 In your Django project's settings module, add django_yubin to your
-``INSTALLED_APPS`` setting::
-    
+``INSTALLED_APPS`` setting
+
+.. code:: python
+
     INSTALLED_APPS = (
         ...
         'django_yubin',
@@ -39,7 +46,9 @@ In your Django project's settings module, add django_yubin to your
 Note that django yubin doesn't implicitly queue all django mail (unless you
 tell it to).
 
-To queue all django mail you must configure the mail backend as::
+To queue all django mail you must configure the mail backend as
+
+.. code:: python
 
     EMAIL_BACKEND = 'django_yubin.smtp_queue.EmailBackend'
 

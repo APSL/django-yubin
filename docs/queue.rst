@@ -2,7 +2,7 @@
 Usage
 =====
 
-django-mailer-2 is asynchronous so in addition to putting mail on the queue you
+django-yubin is asynchronous so in addition to putting mail on the queue you
 need to periodically tell it to clear the queue and actually send the mail.
 
 The latter is done via a command extension.
@@ -13,21 +13,25 @@ Putting Mail On The Queue (Django 1.3 or higher)
 
 In settings.py, configure Django's EMAIL_BACKEND setting like so:
 
+.. code:: python
+
     EMAIL_BACKEND = 'django_yubin.smtp_queue.EmailBackend'
 
 If you don't need message priority support you can call send_mail like
-you normally would in Django::
+you normally would in Django
+
+.. code:: python
 
     send_mail(subject, message_body, settings.DEFAULT_FROM_EMAIL, recipients)
 
 If you need prioritized messages, create an instance of EmailMessage
-and specify {'X-Mail-Queue-Priority': '<value>'} in the ``headers`` parameter,
+and specify ``{'X-Mail-Queue-Priority': '<value>'}`` in the ``headers`` parameter,
 where <value> is one of:
 
-    'now' - do not queue, send immediately
-    'high' - high priority
-    'normal' - standard priority - this is the default.
-    'low' - low priority
+    - 'now' - do not queue, send immediately
+    - 'high' - high priority
+    - 'normal' - standard priority - this is the default.
+    - 'low' - low priority
 
 If you don't specify a priority, the message is sent at 'normal' priority.
 
@@ -38,17 +42,17 @@ Command Extensions
 With mailer in your INSTALLED_APPS, there will be four new manage.py commands
 you can run:
 
- * ``send_mail`` will clear the current message queue. If there are any
+ - ``send_mail`` will clear the current message queue. If there are any
    failures, they will be marked deferred and will not be attempted again by
    ``send_mail``.
 
- * ``retry_deferred`` will move any deferred mail back into the normal queue
+ - ``retry_deferred`` will move any deferred mail back into the normal queue
    (so it will be attempted again on the next ``send_mail``).
 
- * ``cleanup_mail`` will delete mails created before an X number of days
+ - ``cleanup_mail`` will delete mails created before an X number of days
    (defaults to 90).
 
- * ``status_mail`` the intent of this commant is to allow systems as nagios to
+ - ``status_mail`` the intent of this commant is to allow systems as nagios to
     be able to ask the queue about its status. It returns as string with than
     can be parses as ``(?P<queued>\d+)/(?P<deferred>\d+)/(?P<seconds>\d+)``
 
