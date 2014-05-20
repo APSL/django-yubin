@@ -1,11 +1,10 @@
-<<<<<<< HEAD
 #!/usr/bin/env python
 # encoding: utf-8
 # ----------------------------------------------------------------------------
 
 import logging
 
-VERSION = (0, 1, 1)
+VERSION = (0, 1, 4)
 
 logger = logging.getLogger('django_yubin')
 logger.setLevel(logging.DEBUG)
@@ -167,12 +166,3 @@ def restore_django_mail():
     EmailMessage.send = actual_send
     del EmailMessage._actual_send
     return True
-=======
-# -*- coding: utf-8 -*-
-
-VERSION = ('0', '1', '1')
-
-
-def get_version():
-    return '.'.join(VERSION)
->>>>>>> 98300f318dcba5808c9ad566efe5ea93f2c3db5c
