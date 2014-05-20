@@ -1,5 +1,4 @@
 *.pyc
-_*
 /build/*
 /dist/*
 /django_yubin.egg-info/dependency_links.txt
