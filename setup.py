@@ -20,6 +20,7 @@ setup(
         'django_yubin.management',
         'django_yubin.management.commands',
     ],
+    include_package_data=True,
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
