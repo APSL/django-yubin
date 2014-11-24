@@ -2,7 +2,10 @@
 # encoding: utf-8
 # ----------------------------------------------------------------------------
 
-import urlparse
+try:
+    import urlparse
+except ImportError:
+    import urllib.parse as urlparse
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -11,7 +14,7 @@ from django.template import Context, Template
 from django.template.loader import get_template, select_template
 from django.contrib.sites.models import Site
 
-from mail_utils import unescape
+from django_yubin.mail_utils import unescape
 
 
 
