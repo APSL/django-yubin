@@ -50,7 +50,12 @@ class Message(admin.ModelAdmin):
 
     def detail_view(self, request, pk):
         instance = models.Message.objects.get(pk=pk)
-        payload_str = instance.encoded_message.encode('utf-8')
+
+        try:
+            payload_str = str(instance.encoded_message.encode('utf-8'), 'utf-8')
+        except TypeError:
+            payload_str = instance.encoded_message.encode('utf-8')
+
         msg = message_from_string(payload_str)
         context = {}
         context['subject'] = msg.get_subject()
@@ -78,7 +83,12 @@ class Message(admin.ModelAdmin):
 
     def html_view(self, request, pk):
         msg = models.Message.objects.get(pk=pk)
-        payload_str = msg.encoded_message.encode('utf-8')
+
+        try:
+            payload_str = str(msg.encoded_message.encode('utf-8'), 'utf-8')
+        except TypeError:
+            payload_str = msg.encoded_message.encode('utf-8')
+
         msg = message_from_string(payload_str)
         msg_html = msg.html_part.get_payload() if msg.html_part else None
         context = {}
