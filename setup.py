@@ -14,7 +14,7 @@ setup(
     author='Antoni Aloy',
     author_email='aaloy@apsl.net',
     url='http://github.com/APSL/django-yubin',
-    install_requires = ["pyzmail", ],
+    install_requires = ["pyzmail", "lockfile"],
     packages=[
         'django_yubin',
         'django_yubin.management',
