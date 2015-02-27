@@ -188,7 +188,7 @@ def send_queued_message(queued_message, smtp_connection=None, blacklist=None,
         except (SocketError, smtplib.SMTPSenderRefused,
                 smtplib.SMTPRecipientsRefused,
                 smtplib.SMTPAuthenticationError,
-                UnicodeEncodeError), err:
+                UnicodeEncodeError) as err:
             queued_message.defer()
             logger.warning("Message to %s deferred due to failure: %s" %
                             (message.to_address.encode("utf-8"), err))
@@ -231,7 +231,7 @@ def send_message(email_message, smtp_connection=None):
     except (SocketError, smtplib.SMTPSenderRefused,
             smtplib.SMTPRecipientsRefused,
             smtplib.SMTPAuthenticationError,
-            UnicodeEncodeError), err:
+            UnicodeEncodeError) as err:
         result = constants.RESULT_FAILED
         logger.warning("Message from %s failed due to: %s" %
                             (email_message.from_email, err))
