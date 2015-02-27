@@ -30,8 +30,8 @@ You can read the package documentation at http://django-yubin.readthedocs.org/en
 History
 -------
 
-0.1.1       Updated documentation and unit tests.
-0.1.2       Fixed Templates
-0.1.3       Fixed Python3 compatibility, thanks Marc
-0.1.4       Uptaded README 
+* 0.1.1       Updated documentation and unit tests.
+* 0.1.2       Fixed Templates
+* 0.1.3       Fixed Python3 compatibility, thanks Marc
+* 0.1.4       Uptated README 
 
