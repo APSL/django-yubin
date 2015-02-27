@@ -8,7 +8,7 @@ emails, form Quora.
 django-mailer-2 by is a Chris Beaven fork from a fork of
 James Tauber's django-mailer and is a reusable Django app for queuing the sending of email.
 
-django-mailviews from Quora, allows you to compose e-mails using templates in
+django-mailviews from Disqus, allows you to compose e-mails using templates in
 the same way you compose your html templates, and allows you to preview the
 e-mails.
 
