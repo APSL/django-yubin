@@ -9,8 +9,16 @@ parent = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, parent)
 os.environ['DJANGO_SETTINGS_MODULE'] = 'django_yubin.testapp.settings'
 
-from django.test.simple import DjangoTestSuiteRunner
 
+# Django 1.7 and later requires a separate .setup() call
+
+import django
+try:
+    django.setup()
+except AttributeError:
+    pass
+
+from django.test.simple import DjangoTestSuiteRunner
 
 def runtests(*test_args):
     test_args = test_args or ['testapp']

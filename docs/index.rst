@@ -85,6 +85,6 @@ Original branch and the django-mailer-2 hard work comes from Chris Beaven.
 
 django-mailviews from Disqus
 
-The name django-yubin was suggested by @morenosan, he says it means "postal mail" in japanesse, but who nows! :)
+The name django-yubin was suggested by @morenosan, he says it means "postal mail" in japanesse, but who knows! :)
 
 
