@@ -18,7 +18,12 @@ in the queue is just 2 seconds old.
 from django.core.management.base import NoArgsCommand
 from django_yubin.models import QueuedMessage
 import sys
-import datetime
+try:
+    from django.utils.timezone import now
+except ImportError:
+    import datetime
+    now = datetime.datetime.now
+
 try:
     from django.core.mail import get_connection
     EMAIL_BACKEND_SUPPORT = True
@@ -35,7 +40,7 @@ class Command(NoArgsCommand):
         queued = QueuedMessage.objects.non_deferred().count()
         deferred = QueuedMessage.objects.deferred().count()
         oldest = QueuedMessage.objects.non_deferred().order_by('date_queued')[0]
-        queue_time = datetime.datetime.now() - oldest.date_queued.replace(tzinfo=None)
-        seconds = (datetime.datetime.now() - oldest.date_queued.replace(tzinfo=None)).seconds
+        #queue_time = now() - oldest.date_queued.replace(tzinfo=None)
+        seconds = (now() - oldest.date_queued.replace(tzinfo=None)).seconds
         sys.stdout.write('%s/%s/%s\n"' % (queued, deferred, seconds))
         sys.exit()

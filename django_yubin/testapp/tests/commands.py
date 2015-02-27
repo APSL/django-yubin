@@ -8,6 +8,11 @@ from django_yubin import models
 from base import MailerTestCase
 import datetime
 
+try:
+    from django.utils.timezone import now
+except ImportError:
+    now = datetime.datetime.now
+
 
 class TestCommands(MailerTestCase):
     """
@@ -26,9 +31,8 @@ class TestCommands(MailerTestCase):
         self.queue_message()
         self.queue_message()
         self.queue_message(subject='deferred')
-        models.QueuedMessage.objects\
-                    .filter(message__subject__startswith='deferred')\
-                    .update(deferred=datetime.datetime.now())
+        models.QueuedMessage.objects.filter(
+            message__subject__startswith='deferred').update(deferred=now())
         queued_messages = models.QueuedMessage.objects.all()
         self.assertEqual(queued_messages.count(), 3)
         self.assertEqual(len(mail.outbox), 0)
@@ -45,9 +49,8 @@ class TestCommands(MailerTestCase):
         self.queue_message(subject='deferred')
         self.queue_message(subject='deferred 2')
         self.queue_message(subject='deferred 3')
-        models.QueuedMessage.objects\
-                    .filter(message__subject__startswith='deferred')\
-                    .update(deferred=datetime.datetime.now())
+        models.QueuedMessage.objects.filter(
+            message__subject__startswith='deferred').update(deferred=now())
         non_deferred_messages = models.QueuedMessage.objects.non_deferred()
         # Deferred messages are returned to the queue (nothing is sent).
         self.assertEqual(non_deferred_messages.count(), 1)
@@ -55,15 +58,12 @@ class TestCommands(MailerTestCase):
         self.assertEqual(non_deferred_messages.count(), 4)
         self.assertEqual(len(mail.outbox), 0)
         # Check the --max-retries logic.
-        models.QueuedMessage.objects\
-                    .filter(message__subject='deferred')\
-                    .update(deferred=datetime.datetime.now(), retries=2)
-        models.QueuedMessage.objects\
-                    .filter(message__subject='deferred 2')\
-                    .update(deferred=datetime.datetime.now(), retries=3)
-        models.QueuedMessage.objects\
-                    .filter(message__subject='deferred 3')\
-                    .update(deferred=datetime.datetime.now(), retries=4)
+        models.QueuedMessage.objects.filter(
+            message__subject='deferred').update(deferred=now(), retries=2)
+        models.QueuedMessage.objects.filter(
+            message__subject='deferred 2').update(deferred=now(), retries=3)
+        models.QueuedMessage.objects.filter(
+            message__subject='deferred 3').update(deferred=now(), retries=4)
         self.assertEqual(non_deferred_messages.count(), 1)
         call_command('retry_deferred', verbosity='0', max_retries=3)
         self.assertEqual(non_deferred_messages.count(), 3)
@@ -78,16 +78,15 @@ class TestCommands(MailerTestCase):
         from cStringIO import StringIO
         import time
 
-        re_string  = r"(?P<queued>\d+)/(?P<deferred>\d+)/(?P<seconds>\d+)"
+        re_string = r"(?P<queued>\d+)/(?P<deferred>\d+)/(?P<seconds>\d+)"
         p = re.compile(re_string)
 
         self.queue_message(subject="test")
         self.queue_message(subject='deferred')
         self.queue_message(subject='deferred 2')
         self.queue_message(subject='deferred 3')
-        models.QueuedMessage.objects\
-                    .filter(message__subject__startswith='deferred')\
-                    .update(deferred=datetime.datetime.now())
+        models.QueuedMessage.objects.filter(
+            message__subject__startswith='deferred').update(deferred=now())
         non_deferred_messages = models.QueuedMessage.objects.non_deferred()
         time.sleep(1)
         # Deferred messages are returned to the queue (nothing is sent).
@@ -102,7 +101,7 @@ class TestCommands(MailerTestCase):
         v = m.groupdict()
         self.assertTrue(v['queued'], "1")
         self.assertEqual(v['deferred'], "3")
-        self.assertTrue(int(v['seconds'])>=1)
+        self.assertTrue(int(v['seconds']) >= 1)
 
     def test_cleanup_mail(self):
         """
