@@ -48,15 +48,18 @@ class Message(admin.ModelAdmin):
                                    name="mail_html"))
         return custom_urls + urls
 
-    def detail_view(self, request, pk):
-        instance = models.Message.objects.get(pk=pk)
-
+    def get_msg(self, instance):
         try:
             payload_str = str(instance.encoded_message.encode('utf-8'), 'utf-8')
         except TypeError:
             payload_str = instance.encoded_message.encode('utf-8')
 
         msg = message_from_string(payload_str)
+        return msg
+
+    def detail_view(self, request, pk):
+        instance = models.Message.objects.get(pk=pk)
+        msg = self.get_msg(instance)
         context = {}
         context['subject'] = msg.get_subject()
         context['from'] = msg.get_address('from')
@@ -72,11 +75,10 @@ class Message(admin.ModelAdmin):
         return render(request, 'django_yubin/message_detail.html', context)
 
     def download_view(self, request, pk, firma):
-        payload_str = models.Message.objects.get(
-            pk=pk).encoded_message.encode('utf-8')
-        msg = message_from_string(payload_str)
+        instance = models.Message.objects.get(pk=pk)
+        msg = self.get_msg(instance)
         arx = get_attachment(msg, key=firma)
-        response = HttpResponse(mimetype=arx.tipus)
+        response = HttpResponse(content_type=arx.tipus)
         response['Content-Disposition'] = 'filename=' + arx.filename
         response.write(arx.payload)
         return response
