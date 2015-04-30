@@ -192,7 +192,10 @@ def send_queued_message(queued_message, smtp_connection=None, blacklist=None,
             queued_message.defer()
             logger.warning("Message to %s deferred due to failure: %s" %
                             (message.to_address.encode("utf-8"), err))
-            log_message = unicode(err)
+            try:
+                log_message = unicode(err)
+            except NameError:
+                log_message = err
             result = constants.RESULT_FAILED
     if log:
         models.Log.objects.create(message=message, result=result,
