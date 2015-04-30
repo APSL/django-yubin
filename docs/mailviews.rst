@@ -30,7 +30,7 @@ to be able to render the e-mail
     from django_yubin.messages import TemplatedEmailMessageView
     import datetime
 
-    class NewsletterView(EmailMessageView):
+    class NewsletterView(TemplatedEmailMessageView):
         subject_template_name = 'emails/newsletter/subject.txt'
         body_template_name = 'emails/newsletter/body.txt'
 
@@ -75,7 +75,7 @@ In our example, we could write:
     from django_yubin.messages import TemplatedEmailMessageView
     import datetime
 
-    class NewsletterView(EmailMessageView):
+    class NewsletterView(TemplatedEmailMessageView):
         subject_template_name = 'emails/newsletter/subject.txt'
         body_template_name = 'emails/newsletter/body.txt'
 
@@ -100,9 +100,7 @@ Supose now that we wan't to send a second newsletter, the monthly one for exampl
 
 .. code:: python
 
-    from django_yubin.messages import TemplatedEmailMessageView
-    import datetime
-
+    
     class MonthlyNewsletterView(NewsletterView):
         subject_template_name = 'emails/newsletter/monthly_subject.txt'
         body_template_name = 'emails/newsletter/monthly_body.txt'
@@ -160,6 +158,37 @@ attachent just passing the file name or a file object
 .. code:: python
 
     TemplatedAttachmentEmailMessageView
+
+
+So if we want to send in our newsletter a pdf file we could do
+
+
+.. code:: python
+
+    class NewsletterView(TemplatedAttachmentEmailMessageView):
+        subject_template_name = 'emails/newsletter/subject.txt'
+        body_template_name = 'emails/newsletter/body.txt'
+        html_body_template_name = 'emails/newsletter/body_html.html'
+
+        def render_to_message(self, extra_context=None, **kwargs):
+            kwargs['to'] = ('mynewsletter@example.com',)
+            kwargs['from_email'] = 'no-reply@example.com'
+            return super(TemplatedHTMLEmailMessageView, self).render_to_message(extra_context=None, **kwargs)
+
+        def get_context_data(self, **kwargs):
+            """
+            here we can get the addtional data we want
+            """
+            context = super(NewsletterView, self).get_context_data(**kwargs)
+            context['day'] = datetime.date.today()
+            return context
+
+    # Instantiate and send a message.
+    attachment = os.path.join(OUR_ROOT_FILES_PATH, 'newsletter/attachment.pdf')
+    NewsletterView().send(attachment=attachment, mimetype="application/pdf")
+
+As an attachment you must provide the full file path or the data stream.
+
 
 Sending mail to a user
 ----------------------
