@@ -39,8 +39,10 @@ class Command(NoArgsCommand):
         # If this is just a count request the just calculate, report and exit.
         queued = QueuedMessage.objects.non_deferred().count()
         deferred = QueuedMessage.objects.deferred().count()
-        oldest = QueuedMessage.objects.non_deferred().order_by('date_queued')[0]
-        #queue_time = now() - oldest.date_queued.replace(tzinfo=None)
-        seconds = (now() - oldest.date_queued.replace(tzinfo=None)).seconds
+        try:
+            oldest = QueuedMessage.objects.non_deferred().order_by('date_queued')[0]
+            seconds = (now() - oldest.date_queued.replace(tzinfo=None)).seconds
+        except (IndexError, QueuedMessage.DoesNotExist):
+            seconds = 0
         sys.stdout.write('%s/%s/%s\n"' % (queued, deferred, seconds))
         sys.exit()
