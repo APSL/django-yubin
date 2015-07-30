@@ -27,11 +27,12 @@ run it in a different console and execute `runtests.py`
 
 You can read the package documentation at http://django-yubin.readthedocs.org/en/latest/
 
-History
+Changelog
 -------
-
-* 0.1.1       Updated documentation and unit tests.
-* 0.1.2       Fixed Templates.
-* 0.1.3       Fixed Python3 compatibility, thanks Marc, Cesc & Dani.
+* 0.1.6       Bugfixes.
+* 0.1.5       Bugfixes .
 * 0.1.4       Uptated README. 
+* 0.1.3       Fixed Python3 compatibility, thanks Marc, Cesc & Dani.
+* 0.1.2       Fixed Templates.
+* 0.1.1       Updated documentation and unit tests.
 
