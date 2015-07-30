@@ -30,7 +30,7 @@ You can read the package documentation at http://django-yubin.readthedocs.org/en
 Changelog
 -------
 * 0.1.6       Bugfixes.
-* 0.1.5       Bugfixes .
+* 0.1.5       Bugfixes.
 * 0.1.4       Uptated README. 
 * 0.1.3       Fixed Python3 compatibility, thanks Marc, Cesc & Dani.
 * 0.1.2       Fixed Templates.
