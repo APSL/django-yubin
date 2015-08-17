@@ -25,6 +25,7 @@ RESULT_CODES = (
 )
 
 
+@python_2_unicode_compatible
 class Message(models.Model):
     """
     An email message.
@@ -45,7 +46,6 @@ class Message(models.Model):
     class Meta:
         ordering = ('date_created',)
 
-    @python_2_unicode_compatible
     def __str__(self):
         return '%s: %s' % (self.to_address, self.subject)
 
