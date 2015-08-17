@@ -3,7 +3,9 @@
 # ----------------------------------------------------------------------------
 
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from django_yubin import constants, managers
+
 try:
     from django.utils.timezone import now
 except ImportError:
@@ -43,7 +45,8 @@ class Message(models.Model):
     class Meta:
         ordering = ('date_created',)
 
-    def __unicode__(self):
+    @python_2_unicode_compatible
+    def __str__(self):
         return '%s: %s' % (self.to_address, self.subject)
 
 
