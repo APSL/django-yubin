@@ -10,7 +10,7 @@ def create_handler(verbosity, message='%(message)s'):
     level output depends on the verbosity level).
     """
     handler = logging.StreamHandler()
-    handler.setLevel(LOGGING_LEVEL[verbosity])
+    handler.setLevel(LOGGING_LEVEL[str(verbosity)])
     formatter = logging.Formatter(message)
     handler.setFormatter(formatter)
     return handler
