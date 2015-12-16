@@ -28,7 +28,9 @@ run it in a different console and execute `runtests.py`
 You can read the package documentation at http://django-yubin.readthedocs.org/en/latest/
 
 Changelog
--------
+---------
+* 0.1.8       Added migrations for Django 1.9 compatibility. See http://django-yubin.readthedocs.org/en/latest/install.html#upgrading-from-previous-versions
+* 0.1.7       Support for Django 1.8.
 * 0.1.6       Bugfixes.
 * 0.1.5       Bugfixes.
 * 0.1.4       Uptated README. 

@@ -4,7 +4,7 @@
 
 import logging
 
-VERSION = (0, 1, 7)
+VERSION = (0, 1, 8)
 
 logger = logging.getLogger('django_yubin')
 logger.setLevel(logging.DEBUG)

@@ -53,3 +53,16 @@ To queue all django mail you must configure the mail backend as
     EMAIL_BACKEND = 'django_yubin.smtp_queue.EmailBackend'
 
 More details can be found in the queue documentation.
+
+
+Upgrading from previous versions
+================================
+
+Version 0.1.8 has added support for Django 1.9 and syncdb command no longer
+exists. If you are upgrading from a version < 0.1.8 and your models are
+already created you should execute::
+
+    python manage.py migrate django_yubin --fake-initial
+
+
+More details in https://docs.djangoproject.com/en/1.9/topics/migrations/#adding-migrations-to-apps
