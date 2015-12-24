@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 # ----------------------------------------------------------------------------
+from __future__ import absolute_import, unicode_literals
 
 from django.conf import settings as django_settings
 from django.core import mail
