@@ -10,6 +10,8 @@ INSTALL_REQUIRES = [
     'lockfile',
 ]
 
+TEST_REQUIREMENTS = []
+
 
 with open('docs/index.rst') as docs_index:
     long_description = docs_index.read()
@@ -31,6 +33,9 @@ setup(
         'django_yubin.management.commands',
     ],
     include_package_data=True,
+    # tests
+    tests_require=TEST_REQUIREMENTS,
+    test_suite='runtests.runtests',
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
