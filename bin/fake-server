@@ -1,4 +1,4 @@
 #!/bin/bash
-echo "Runing a fake smptp server on localhost:1020"
+echo "Running a fake smtp server on localhost:1025"
 
 python -m smtpd -n -c DebuggingServer localhost:1025
