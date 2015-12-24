@@ -9,8 +9,9 @@ from io import StringIO
 
 from django.test import TestCase
 
+from lockfile import FileLock
+
 from django_yubin import engine, settings
-from django_yubin.lockfile import FileLock
 
 
 class LockTest(TestCase):
