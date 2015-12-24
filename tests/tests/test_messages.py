@@ -25,7 +25,7 @@ using_test_templates = override_settings(
     TEMPLATE_LOADERS=(
         'django.template.loaders.filesystem.Loader',
     ),
-    EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+    EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend'
 )
 
 

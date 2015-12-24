@@ -7,8 +7,8 @@ import sys
 
 
 def runtests(*args):
-    parent = os.path.dirname(os.path.abspath(__file__))
-    sys.path.insert(0, parent)
+    test_dir = os.path.dirname(__file__)
+    sys.path.insert(0, test_dir)
     os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
 
     import django

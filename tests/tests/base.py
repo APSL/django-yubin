@@ -8,6 +8,7 @@ from django_yubin import queue_email_message
 from django.core.mail.backends.base import BaseEmailBackend
 from django.core.mail import backends
 
+
 class FakeConnection(object):
     """
     A fake SMTP connection which diverts emails to the test buffer rather than
@@ -19,7 +20,7 @@ class FakeConnection(object):
         Divert an email to the test buffer.
 
         """
-        #FUTURE: the EmailMessage attributes could be found by introspecting
+        # FUTURE: the EmailMessage attributes could be found by introspecting
         # the encoded message.
         message = mail.EmailMessage('SUBJECT', 'BODY', 'FROM', ['TO'])
         mail.outbox.append(message)
