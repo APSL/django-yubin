@@ -4,3 +4,4 @@
 /django_yubin.egg-info/
 /docs/_build
 .idea/*
+.eggs/

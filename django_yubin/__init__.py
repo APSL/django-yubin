@@ -1,21 +1,14 @@
 #!/usr/bin/env python
 # encoding: utf-8
 # ----------------------------------------------------------------------------
-
 import logging
+from pkg_resources import get_distribution
 
-VERSION = (0, 1, 8)
+
+version = __version__ = get_distribution('django-yubin').version
 
 logger = logging.getLogger('django_yubin')
 logger.setLevel(logging.DEBUG)
-
-
-def get_version():
-    bits = [str(bit) for bit in VERSION]
-    version = bits[0]
-    for bit in bits[1:]:
-        version += (bit.isdigit() and '.' or '') + bit
-    return version
 
 
 def send_mail(subject, message, from_email, recipient_list,

@@ -3,18 +3,28 @@
 # ----------------------------------------------------------------------------
 
 from setuptools import setup
-from django_yubin import get_version
+
+
+INSTALL_REQUIRES = [
+    'pyzmail',
+    'lockfile',
+]
+
+
+with open('docs/index.rst') as docs_index:
+    long_description = docs_index.read()
+
 
 setup(
     name='django-yubin',
-    version=get_version(),
+    version='0.2.0',
     description=("A reusable Django app for composing and queueing emails "
                  "Adds django-mailer2 + django-mailviews + others"),
-    long_description=open('docs/index.rst').read(),
+    long_description=long_description,
     author='Antoni Aloy',
     author_email='aaloy@apsl.net',
     url='http://github.com/APSL/django-yubin',
-    install_requires = ["pyzmail", "lockfile"],
+    install_requires=INSTALL_REQUIRES,
     packages=[
         'django_yubin',
         'django_yubin.management',
