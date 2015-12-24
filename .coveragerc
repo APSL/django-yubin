@@ -1,0 +1,12 @@
+[run]
+branch = True
+source = django_yubin
+
+[report]
+omit = */migrations/*,*/tests/*
+exclude_lines =
+    pragma: no cover
+    noqa
+
+[html]
+directory = cover

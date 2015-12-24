@@ -20,7 +20,7 @@ def runtests(*args):
     TestRunner = get_runner(settings)
     test_runner = TestRunner(verbosity=2, interactive=True, failfast=False)
     failures = test_runner.run_tests(args)
-    sys.exist(failures)
+    sys.exit(failures)
 
 
 if __name__ == '__main__':
