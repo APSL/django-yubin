@@ -4,8 +4,9 @@
 
 from django.conf import settings as django_settings
 from django.core import mail
+
 from django_yubin import models, constants, queue_email_message
-from base import MailerTestCase
+from .base import MailerTestCase
 
 
 class TestBackend(MailerTestCase):
