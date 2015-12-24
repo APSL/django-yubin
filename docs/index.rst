@@ -17,14 +17,15 @@ Contents:
     queue
     mailviews
     settings
+    contributing
 
 Django Mailer fork
 ==================
 
-django-mailer-2 is a fork form Chris Beaven fort to of James Tauber's 
+django-mailer-2 is a fork form Chris Beaven fort to of James Tauber's
 `django-mailer`__
 
-This document is readthedocs version of the fork that Chris and James made 
+This document is readthedocs version of the fork that Chris and James made
 the original document with some additional information.
 
 .. __: http://github.com/jtauber/django-mailer
@@ -33,7 +34,7 @@ History
 -------
 
 Chris Beaven started a fork of django-mailer and it got to the point when it
-would be rather difficult to merge back. The fork was then renamed to the 
+would be rather difficult to merge back. The fork was then renamed to the
 completely unimaginative "django mailer 2".
 
 As always found myself using this project with the mailviews__ classes, we
@@ -51,7 +52,7 @@ Some of the larger differences in django_yubin:
 
 * It saves a rendered version of the email instead - so HTML and other
   attachments are handled fine
-  
+
 * The models were completely refactored for a better logical separation of
   data.
 
