@@ -70,7 +70,7 @@ class QueueQuerySet(QueueMethods, models.query.QuerySet):
 class QueueManager(QueueMethods, models.Manager):
     use_for_related_fields = True
 
-    def get_query_set(self):
+    def get_queryset(self):
         return QueueQuerySet(self.model, using=self._db)
 
     def retry_deferred(self, max_retries=None, new_priority=None):
