@@ -10,7 +10,9 @@ INSTALL_REQUIRES = [
     'lockfile',
 ]
 
-TEST_REQUIREMENTS = []
+TEST_REQUIREMENTS = [
+    'six'
+]
 
 
 with open('docs/index.rst') as docs_index:
