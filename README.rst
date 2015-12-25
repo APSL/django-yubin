@@ -1,6 +1,19 @@
 django-yubin
 ============
 
+.. image:: https://travis-ci.org/sergei-maertens/django-yubin.svg
+    :target: https://travis-ci.org/sergei-maertens/django-yubin
+
+.. image:: https://travis-ci.org/sergei-maertens/django-yubin.svg
+    :target: https://travis-ci.org/sergei-maertens/django-yubin
+
+.. image:: https://coveralls.io/repos/sergei-maertens/django-yubin/badge.svg
+  :target: https://coveralls.io/r/sergei-maertens/django-yubin
+
+.. image:: https://img.shields.io/pypi/v/django-yubin.svg
+  :target: https://pypi.python.org/pypi/django-yubin
+
+
 In our projects we use always two django packages for dealing with emails:
 django-mailer2 (our own fork in APSL) and django-mailviews to compose the
 emails.
@@ -33,7 +46,7 @@ Changelog
 * 0.1.7       Support for Django 1.8.
 * 0.1.6       Bugfixes.
 * 0.1.5       Bugfixes.
-* 0.1.4       Uptated README. 
+* 0.1.4       Uptated README.
 * 0.1.3       Fixed Python3 compatibility, thanks Marc, Cesc & Dani.
 * 0.1.2       Fixed Templates.
 * 0.1.1       Updated documentation and unit tests.

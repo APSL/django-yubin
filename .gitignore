@@ -5,3 +5,8 @@
 /docs/_build
 .idea/*
 .eggs/
+
+# tests related
+.tox
+.coverage
+cover

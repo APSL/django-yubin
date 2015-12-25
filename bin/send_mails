@@ -1,7 +1,7 @@
 #!/bin/bash
 # replace {{username}} with the user who is going to execute the task
 # the sample assumes you have virtualenv and virtualenvwrapper installed
-# and that the applicacion is installed in src
+# and that the application is installed in src
 
 USER={{usern{{username}}
 export WORKON_HOME=/$HOME/.virtualenvs

@@ -23,7 +23,7 @@ class QueueMethods(object):
         Exclude future time-delayed messages.
 
         """
-        return self.exclude(date_queued__gt=now)
+        return self.exclude(date_queued__gt=now())
 
     def high_priority(self):
         """

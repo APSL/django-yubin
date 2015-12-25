@@ -5,30 +5,24 @@
 import os
 import sys
 
-parent = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, parent)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'django_yubin.testapp.settings'
 
+def runtests(*args):
+    test_dir = os.path.dirname(__file__)
+    sys.path.insert(0, test_dir)
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
 
-# Django 1.7 and later requires a separate .setup() call
+    import django
+    from django.test.utils import get_runner
+    from django.conf import settings
 
-import django
-try:
-    django.setup()
-except AttributeError:
-    pass
+    django.setup()  # only 1.7 and up are supported
 
-from django.test.simple import DjangoTestSuiteRunner
-
-def runtests(*test_args):
-    test_args = test_args or ['testapp']
-    parent = os.path.dirname(os.path.abspath(__file__))
-    sys.path.insert(0, parent)
-    runner = DjangoTestSuiteRunner(verbosity=2, interactive=True,
-                                   failfast=False)
-    failures = runner.run_tests(test_args)
+    TestRunner = get_runner(settings)
+    test_runner = TestRunner(verbosity=2, interactive=True, failfast=False)
+    failures = test_runner.run_tests(args)
     sys.exit(failures)
 
 
 if __name__ == '__main__':
+    # TODO: forward sys.argv?
     runtests()

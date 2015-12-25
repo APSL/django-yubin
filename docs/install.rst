@@ -28,6 +28,11 @@ and run the ``setup.py`` installation script::
     python setup.py install
 
 
+.. warning:: ``easy_install`` is untested and not recommended, especially if you
+   mix it with pip. You might run into ``ImportError`` because the app
+   cannot figure out which version is installed.
+
+
 Configuring your project
 ========================
 

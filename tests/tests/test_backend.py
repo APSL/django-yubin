@@ -1,11 +1,16 @@
 #!/usr/bin/env python
 # encoding: utf-8
 # ----------------------------------------------------------------------------
+from __future__ import absolute_import, unicode_literals
+
+from unittest import skipIf
 
 from django.conf import settings as django_settings
 from django.core import mail
+
+import six
 from django_yubin import models, constants, queue_email_message
-from base import MailerTestCase
+from .base import MailerTestCase
 
 
 class TestBackend(MailerTestCase):
@@ -81,6 +86,7 @@ class TestBackend(MailerTestCase):
             self.assertEqual(queued_message.priority,
                              constants.PRIORITY_NORMAL)
 
+    @skipIf(six.PY3, 'RFC 6532 is not properly supported in Django/Py3')
     def testUnicodeQueuedMessage(self):
         """
         Checks that we capture unicode errors on mail
