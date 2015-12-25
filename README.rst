@@ -4,8 +4,8 @@ django-yubin
 .. image:: https://travis-ci.org/sergei-maertens/django-yubin.svg
     :target: https://travis-ci.org/sergei-maertens/django-yubin
 
-.. image:: https://travis-ci.org/sergei-maertens/django-yubin.svg
-    :target: https://travis-ci.org/sergei-maertens/django-yubin
+.. image:: https://codecov.io/github/sergei-maertens/django-yubin/coverage.svg?branch=develop
+    :target: https://codecov.io/github/sergei-maertens/django-yubin?branch=develop
 
 .. image:: https://coveralls.io/repos/sergei-maertens/django-yubin/badge.svg
   :target: https://coveralls.io/r/sergei-maertens/django-yubin
