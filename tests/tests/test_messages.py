@@ -1,21 +1,21 @@
 #!/usr/bin/env python
 # encoding: utf-8
 # ----------------------------------------------------------------------------
+from __future__ import absolute_import, unicode_literals
 
 import functools
 import os
 
-from django.core.exceptions import ImproperlyConfigured
 from django.core import mail
-from django.test import TestCase
+from django.core.exceptions import ImproperlyConfigured
+from django.test import TestCase, override_settings
 from django.template import Context, Template, TemplateDoesNotExist
 from django.template.loader import get_template
 
-from django_yubin.messages import (TemplatedEmailMessageView,
-                                    TemplatedHTMLEmailMessageView,
-                                    TemplatedAttachmentEmailMessageView)
-
-from django.test.utils import override_settings
+from django_yubin.messages import (
+    TemplatedEmailMessageView, TemplatedHTMLEmailMessageView,
+    TemplatedAttachmentEmailMessageView
+)
 
 
 using_test_templates = override_settings(
@@ -25,7 +25,7 @@ using_test_templates = override_settings(
     TEMPLATE_LOADERS=(
         'django.template.loaders.filesystem.Loader',
     ),
-    EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+    EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend'
 )
 
 
@@ -165,7 +165,6 @@ class TemplatedEmailMessageViewTestCase(EmailMessageViewTestCase):
         self.assertEqual(rendered.extra_headers['X-Mail-Queue-Priority'], 'low')
 
 
-
 class TemplatedHTMLEmailMessageViewTestCase(TemplatedEmailMessageViewTestCase):
     message_class = TemplatedHTMLEmailMessageView
 
@@ -222,41 +221,6 @@ class TemplatedHTMLEmailMessageViewTestCase(TemplatedEmailMessageViewTestCase):
         self.add_templates_to_message()
         self.message.send(self.context_dict, to=('ted@disqus.com',))
         self.assertOutboxLengthEquals(1)
-
-
-class TemplatedAttachmentEmailMessageViewTestCase(TemplatedEmailMessageViewTestCase):
-    message_class = TemplatedAttachmentEmailMessageView
-
-    def setUp(self):
-        super(TemplatedAttachmentEmailMessageViewTestCase, self).setUp()
-
-        self.html_body = 'html body'
-        self.html_body_template = Template('{{ html }}')
-
-        self.context_dict['html'] = self.html_body
-        self.context['html'] = self.html_body
-
-        self.render_html_body = functools.partial(
-            self.message.render_html_body,
-            context=self.context)
-
-    def add_templates_to_message(self):
-        """
-        Adds templates to the fixture message, ensuring it can be rendered.
-        """
-        super(TemplatedAttachmentEmailMessageViewTestCase, self)\
-            .add_templates_to_message()
-        self.message.html_body_template = self.html_body_template
-
-    def test_render_to_message(self):
-        self.add_templates_to_message()
-        attachment = os.path.join(os.path.dirname(__file__), 'files/attachment.pdf'),
-        message = self.message.render_to_message(extra_context=self.context_dict, attachment=attachment,
-                                                 mimetype="application/pdf")
-        self.assertEqual(message.subject, self.subject)
-        self.assertEqual(message.body, self.body)
-        self.assertEqual(message.alternatives, [(self.html_body, 'text/html')])
-        self.assertEqual(len(message.attachments), 1)
 
 
 class TemplatedAttachmentEmailMessageViewTestCase(TemplatedEmailMessageViewTestCase):
@@ -368,4 +332,3 @@ class TestEmailOptions(EmailMessageViewTestCase):
 
         rendered = self.message.render_to_message()
         self.assertEqual(rendered.extra_headers['X-Mail-Queue-Priority'], 'low')
-

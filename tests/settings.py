@@ -3,7 +3,7 @@
 # ----------------------------------------------------------------------------
 
 EMAIL_PORT = 1025
-ROOT_URLCONF = 'django_yubin.apptest.urls'
+ROOT_URLCONF = 'tests.urls'
 
 SECRET_KEY = 'yo secret yo'
 SITE_ID = 1
@@ -11,7 +11,7 @@ SITE_ID = 1
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'django_yubin.sqlite',
+        'NAME': ':memory:',
     },
 }
 
@@ -20,6 +20,5 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sites',
     'django_yubin',
-    'django_yubin.testapp'
+    'tests.app',
 )
-

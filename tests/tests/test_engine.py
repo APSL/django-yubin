@@ -1,13 +1,17 @@
 #!/usr/bin/env python
 # encoding: utf-8
 # ----------------------------------------------------------------------------
+from __future__ import absolute_import, unicode_literals
 
-from django.test import TestCase
-from django_yubin import engine, settings
-from django_yubin.lockfile import FileLock
-from StringIO import StringIO
 import logging
 import time
+from io import StringIO
+
+from django.test import TestCase
+
+from lockfile import FileLock
+
+from django_yubin import engine, settings
 
 
 class LockTest(TestCase):
@@ -17,7 +21,7 @@ class LockTest(TestCase):
     """
 
     def setUp(self):
-        # Create somewhere to store the log debug output. 
+        # Create somewhere to store the log debug output.
         self.output = StringIO()
         # Create a log handler which can capture the log debug output.
         self.handler = logging.StreamHandler(self.output)
@@ -27,7 +31,7 @@ class LockTest(TestCase):
         # Add the log handler.
         logger = logging.getLogger('django_yubin')
         logger.addHandler(self.handler)
-        
+
         # Set the LOCK_WAIT_TIMEOUT to the default value.
         self.original_timeout = settings.LOCK_WAIT_TIMEOUT
         settings.LOCK_WAIT_TIMEOUT = 0

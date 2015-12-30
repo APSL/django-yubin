@@ -1,17 +1,16 @@
 #!/usr/bin/env python
 # encoding: utf-8
 # ----------------------------------------------------------------------------
+from __future__ import absolute_import, unicode_literals
+import datetime
 
 from django.core import mail
 from django.core.management import call_command
-from django_yubin import models
-from base import MailerTestCase
-import datetime
+from django.utils.timezone import now
 
-try:
-    from django.utils.timezone import now
-except ImportError:
-    now = datetime.datetime.now
+from django_yubin import models
+
+from .base import MailerTestCase
 
 
 class TestCommands(MailerTestCase):
@@ -75,8 +74,8 @@ class TestCommands(MailerTestCase):
         """
         import re
         import sys
-        from cStringIO import StringIO
         import time
+        from io import StringIO
 
         re_string = r"(?P<queued>\d+)/(?P<deferred>\d+)/(?P<seconds>\d+)"
         p = re.compile(re_string)
@@ -110,7 +109,7 @@ class TestCommands(MailerTestCase):
         """
         today = datetime.date.today()
         self.assertEqual(models.Message.objects.count(), 0)
-        #new message (not to be deleted)
+        # new message (not to be deleted)
         models.Message.objects.create()
         prev = today - datetime.timedelta(31)
         # new message (old)

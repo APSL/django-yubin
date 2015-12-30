@@ -14,22 +14,13 @@ Example:
 means we have 2 queued messages, 0 defered messaged and than the oldest message
 in the queue is just 2 seconds old.
 """
+from __future__ import unicode_literals
+
+import sys
 
 from django.core.management.base import NoArgsCommand
 from django_yubin.models import QueuedMessage
-import sys
-try:
-    from django.utils.timezone import now
-except ImportError:
-    import datetime
-    now = datetime.datetime.now
-
-try:
-    from django.core.mail import get_connection
-    EMAIL_BACKEND_SUPPORT = True
-except ImportError:
-    # Django version < 1.2
-    EMAIL_BACKEND_SUPPORT = False
+from django.utils.timezone import now
 
 
 class Command(NoArgsCommand):

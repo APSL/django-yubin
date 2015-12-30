@@ -4,3 +4,9 @@
 /django_yubin.egg-info/
 /docs/_build
 .idea/*
+.eggs/
+
+# tests related
+.tox
+.coverage
+cover
