@@ -6,6 +6,7 @@ from django.core.management.base import NoArgsCommand
 from django_yubin import models
 from django_yubin.management.commands import create_handler
 from optparse import make_option
+from django.db import connection
 import logging
 
 
@@ -30,3 +31,4 @@ class Command(NoArgsCommand):
                        (count, count != 1 and 's' or ''))
 
         logger.removeHandler(handler)
+        connection.close()

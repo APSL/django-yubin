@@ -1,14 +1,14 @@
 django-yubin
 ============
 
-.. image:: https://travis-ci.org/sergei-maertens/django-yubin.svg
-    :target: https://travis-ci.org/sergei-maertens/django-yubin
+.. image:: https://travis-ci.org/APSL/django-yubin.svg
+    :target: https://travis-ci.org/APSL/django-yubin
 
-.. image:: https://codecov.io/github/sergei-maertens/django-yubin/coverage.svg?branch=develop
-    :target: https://codecov.io/github/sergei-maertens/django-yubin?branch=develop
+.. image:: https://codecov.io/github/APSL/django-yubin/coverage.svg?branch=develop
+    :target: https://codecov.io/github/APSL/django-yubin?branch=develop
 
-.. image:: https://coveralls.io/repos/sergei-maertens/django-yubin/badge.svg
-  :target: https://coveralls.io/r/sergei-maertens/django-yubin
+.. image:: https://coveralls.io/repos/APSL/django-yubin/badge.svg
+  :target: https://coveralls.io/r/APSL/django-yubin
 
 .. image:: https://img.shields.io/pypi/v/django-yubin.svg
   :target: https://pypi.python.org/pypi/django-yubin
@@ -42,11 +42,13 @@ You can read the package documentation at http://django-yubin.readthedocs.org/en
 
 Changelog
 ---------
+* 0.2.1       Updated links to CI and Code Coverage Services
+* 0.2.0       Merged  sergei-maertens contribution.
 * 0.1.8       Added migrations for Django 1.9 compatibility. See http://django-yubin.readthedocs.org/en/latest/install.html#upgrading-from-previous-versions
 * 0.1.7       Support for Django 1.8.
 * 0.1.6       Bugfixes.
 * 0.1.5       Bugfixes.
-* 0.1.4       Uptated README.
+* 0.1.4       Updated README.
 * 0.1.3       Fixed Python3 compatibility, thanks Marc, Cesc & Dani.
 * 0.1.2       Fixed Templates.
 * 0.1.1       Updated documentation and unit tests.
