@@ -13,6 +13,10 @@ django-yubin
 .. image:: https://img.shields.io/pypi/v/django-yubin.svg
   :target: https://pypi.python.org/pypi/django-yubin
 
+.. image:: https://readthedocs.org/projects/django-yubin/badge/?version=latest
+  :target: http://django-yubin.readthedocs.org/en/latest/?badge=latest
+  :alt: Documentation Status
+
 
 In our projects we use always two django packages for dealing with emails:
 django-mailer2 (our own fork in APSL) and django-mailviews to compose the
