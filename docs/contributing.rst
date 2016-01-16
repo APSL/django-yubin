@@ -2,7 +2,25 @@
 Contributing
 ============
 
-This section of the docs is work in progress.
+django-yubin is an open source project and imporvements and bug reports are
+very appreciated.
+
+You can contribute in many ways:
+
+* Filling a bug on github
+* Creating a patch and sending the pull request
+* Help on testing and documenting
+
+When sending a pull request, please be sure that all tests and builds passes. On
+the next section you'll find information about how to write the test.
+
+Please follow the PEP8 coventions and in case you write additional features don't
+forget to write the tests for them.
+
+At http://apsl.net we use yubin for most of our own projects, so we'll try to 
+mantain it as bug free as stable as possible. That said we can't not guarantee
+that we could patch the program in the way you like, add that new feature, etc.
+
 
 
 Running the tests
