@@ -9,8 +9,6 @@ response.
 It also provides with some classes that allows you to compose e-mails in the same way you compose your django
 templates, using different templates for subject, body and html content.
 
-Contents:
-
 .. toctree::
 
     install
@@ -19,10 +17,10 @@ Contents:
     settings
     contributing
 
-Django Mailer fork
-==================
+It's a fork!
+=============
 
-django-mailer-2 is a fork form Chris Beaven fort to of James Tauber's
+Yes, it's a fork, fork, comes from django-mailer-2 fork which is a fork form Chris Beaven fork to of James Tauber's
 `django-mailer`__
 
 This document is readthedocs version of the fork that Chris and James made
@@ -74,6 +72,8 @@ Some of the larger differences in django_yubin:
   the database and shows django-mailer in the admin.
 
 * Integrated django-mailviews classes
+
+* Added to CI and code coverage.
 
 Credit
 ------
