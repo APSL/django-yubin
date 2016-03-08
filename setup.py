@@ -21,7 +21,7 @@ with open('docs/index.rst') as docs_index:
 
 setup(
     name='django-yubin',
-    version='0.2.1',
+    version='0.2.2',
     description=("A reusable Django app for composing and queueing emails "
                  "Adds django-mailer2 + django-mailviews + others"),
     long_description=long_description,
@@ -33,6 +33,8 @@ setup(
         'django_yubin',
         'django_yubin.management',
         'django_yubin.management.commands',
+        'django_yubin.migrations',
+        'django_yubin.migrations',
     ],
     include_package_data=True,
     # tests
