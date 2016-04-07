@@ -46,7 +46,7 @@ Differences
 
 Some of the larger differences in django_yubin:
 
-* Needs Django 1.3+ in order to support mailviews
+* Needs Django 1.5+
 
 * It saves a rendered version of the email instead - so HTML and other
   attachments are handled fine
