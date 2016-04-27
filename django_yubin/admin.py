@@ -15,7 +15,7 @@ from pyzmail.parse import message_from_string
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse
-
+from django.db import IntegrityError
 from .mail_utils import get_attachments, get_attachment
 
 
@@ -33,10 +33,27 @@ class Message(admin.ModelAdmin):
                      'encoded_message',)
     date_hierarchy = 'date_created'
     ordering = ('-date_created',)
+    actions = ['re_send',]
+
+    def re_send(self, request, queryset):
+        """
+        Re sends a previus sent e-mail. The messages shouldn't be in the queue and
+        is put in the NORMAL priority
+        """
+        messages_sent = 0
+        for selected_mail in queryset:
+            qm = models.QueuedMessage(message=selected_mail)
+            try:
+                qm.save()
+                messages_sent += 1 
+            except IntegrityError:
+                self.message_user(request, 'Message %s is already in the queue' % selected_mail.id)
+        self.message_user(request, "%s messages had been re-sent" % messages_sent)
+    re_send.short_description = 're-send selected emails'
 
     def get_urls(self):
-        urls = super(Message, self).get_urls()
-        custom_urls = patterns('',
+        urls=super(Message, self).get_urls()
+        custom_urls=patterns('',
                                url(r'^mail/(?P<pk>\d+)/$',
                                    self.admin_site.admin_view(self.detail_view),
                                    name='mail_detail'),
