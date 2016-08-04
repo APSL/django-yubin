@@ -5,6 +5,7 @@
 /docs/_build
 .idea/*
 .eggs/
+.DS_Store
 
 # tests related
 .tox

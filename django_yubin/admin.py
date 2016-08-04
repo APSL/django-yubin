@@ -2,20 +2,16 @@
 # encoding: utf-8
 # ----------------------------------------------------------------------------
 
+from django.conf.urls import url
 from django.contrib import admin
-
-from django_yubin import models
-
-
-try:
-    from django.conf.urls import patterns, url
-except ImportError:
-    from django.conf.urls.defaults import *
-from pyzmail.parse import message_from_string
-from django.shortcuts import render
-from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError
+from django.http import HttpResponse
+from django.shortcuts import render
+
+from django_yubin import models
+from pyzmail.parse import message_from_string
+
 from .mail_utils import get_attachments, get_attachment
 
 
@@ -52,17 +48,18 @@ class Message(admin.ModelAdmin):
     re_send.short_description = 're-send selected emails'
 
     def get_urls(self):
-        urls=super(Message, self).get_urls()
-        custom_urls=patterns('',
-                               url(r'^mail/(?P<pk>\d+)/$',
-                                   self.admin_site.admin_view(self.detail_view),
-                                   name='mail_detail'),
-                               url('^mail/attachment/(?P<pk>\d+)/(?P<firma>[0-9a-f]{32})/$',
-                                   self.admin_site.admin_view(self.download_view),
-                                   name="mail_download"),
-                               url('^mail/html/(?P<pk>\d+)/$',
-                                   self.admin_site.admin_view(self.html_view),
-                                   name="mail_html"))
+        urls = super(Message, self).get_urls()
+        custom_urls = [
+            url(r'^mail/(?P<pk>\d+)/$',
+                self.admin_site.admin_view(self.detail_view),
+                name='mail_detail'),
+            url('^mail/attachment/(?P<pk>\d+)/(?P<firma>[0-9a-f]{32})/$',
+                self.admin_site.admin_view(self.download_view),
+                name="mail_download"),
+            url('^mail/html/(?P<pk>\d+)/$',
+                self.admin_site.admin_view(self.html_view),
+                name="mail_html"),
+        ]
         return custom_urls + urls
 
     def get_msg(self, instance):

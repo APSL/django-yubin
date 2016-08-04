@@ -8,6 +8,7 @@ from setuptools import setup
 INSTALL_REQUIRES = [
     'pyzmail',
     'lockfile',
+    'pytz',
 ]
 
 TEST_REQUIREMENTS = [
@@ -34,7 +35,6 @@ setup(
         'django_yubin.management',
         'django_yubin.management.commands',
         'django_yubin.migrations',
-        'django_yubin.migrations',
     ],
     include_package_data=True,
     # tests
@@ -53,8 +53,8 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Framework :: Django',
-        'Framework :: Django :: 1.7',
         'Framework :: Django :: 1.8',
         'Framework :: Django :: 1.9',
+        'Framework :: Django :: 1.10',
     ]
 )

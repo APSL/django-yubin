@@ -1,4 +1,5 @@
 django
-pyzmail
 django-extensions
-#and django_yubin of course
+pytz
+pyzmail
+# and django_yubin of course
