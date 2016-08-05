@@ -22,7 +22,7 @@ with open('docs/index.rst') as docs_index:
 
 setup(
     name='django-yubin',
-    version='0.2.4',
+    version='0.3.0',
     description=("A reusable Django app for composing and queueing emails "
                  "Adds django-mailer2 + django-mailviews + others"),
     long_description=long_description,
@@ -41,14 +41,13 @@ setup(
     tests_require=TEST_REQUIREMENTS,
     test_suite='runtests.runtests',
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
