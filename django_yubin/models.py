@@ -4,13 +4,9 @@
 
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.timezone import now
 from django_yubin import constants, managers
 
-try:
-    from django.utils.timezone import now
-except ImportError:
-    import datetime
-    now = datetime.datetime.now
 
 PRIORITIES = (
     (constants.PRIORITY_HIGH, 'high'),

@@ -60,3 +60,12 @@ If you need to dive into a single test file or test case, you can also run the
 tests via ``manage.py``::
 
     $ python tests/manage.py test tests.tests.test_backend.TestBackend
+
+
+
+Demo Project
+============
+
+A demo project is provided for manual tests and checks, specially for the admin
+site. It is configured to send mails with the same mail fake-server used for
+tests. Username and password for the superuser is "yubin".

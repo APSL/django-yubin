@@ -81,6 +81,7 @@ You can read the package documentation at http://django-yubin.readthedocs.org/en
 
 Changelog
 ---------
+* 0.3.0       Support Django >= 1.8 and <=1.10, Python 2.7, 3.3, 3.4 and 3.5. Re-send mails admin action. Fix bug in status_mail command. Demo project configured to send mails with the same mail fake-server used for tests.
 * 0.2.3       Removed {% load url from future %} to support Django 1.9. Now Django < 1.5 is not supported.
 * 0.2.2       Include migrations directory in .tar.gz in PyPi.
 * 0.2.1       Updated links to CI and Code Coverage Services
