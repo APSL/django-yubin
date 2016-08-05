@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 """
 This command returns the status of the queue in the format:
     queued/deferred/seconds
@@ -18,22 +20,23 @@ from __future__ import unicode_literals
 
 import sys
 
-from django.core.management.base import NoArgsCommand
+from django.core.management.base import BaseCommand
 from django_yubin.models import QueuedMessage
 from django.utils.timezone import now
 
 
-class Command(NoArgsCommand):
-    help = "Returns a strig with the queue status as queued/deferred/seconds"
+class Command(BaseCommand):
+    help = "Returns a string with the queue status as queued/deferred/seconds"
 
-    def handle_noargs(self, *args, **kwargs):
+    def handle(self, *args, **kwargs):
         # If this is just a count request the just calculate, report and exit.
         queued = QueuedMessage.objects.non_deferred().count()
         deferred = QueuedMessage.objects.deferred().count()
         try:
-            oldest = QueuedMessage.objects.non_deferred().order_by('date_queued')[0]
-            seconds = (now() - oldest.date_queued.replace(tzinfo=None)).seconds
+            oldest = QueuedMessage.objects.non_deferred().order_by(
+                'date_queued')[0]
+            seconds = (now() - oldest.date_queued).seconds
         except (IndexError, QueuedMessage.DoesNotExist):
             seconds = 0
-        sys.stdout.write('%s/%s/%s\n"' % (queued, deferred, seconds))
+        sys.stdout.write('%s/%s/%s\n' % (queued, deferred, seconds))
         sys.exit()

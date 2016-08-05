@@ -2,6 +2,10 @@
 # encoding: utf-8
 # ----------------------------------------------------------------------------
 
+import six
+from distutils.version import StrictVersion
+
+import django
 from django.core import mail
 from django.test import TestCase
 
@@ -40,3 +44,15 @@ class MailerTestCase(TestCase):
         email_message = mail.EmailMessage(subject, message, from_email,
                                           recipient_list)
         return queue_email_message(email_message, priority=priority)
+
+
+def rfc_6532_support():
+    """
+    RFC 6532 is not properly supported in Django < 1.10 with Python 3.
+    """
+    django_version = django.get_version()
+    return (six.PY2 or
+            six.PY3 and StrictVersion(django_version) >= StrictVersion("1.10"))
+
+
+RFC_6532_SUPPORT = rfc_6532_support()
