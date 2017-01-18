@@ -2,4 +2,5 @@ django
 django-extensions
 pytz
 pyzmail
+django-rq
 # and django_yubin of course
