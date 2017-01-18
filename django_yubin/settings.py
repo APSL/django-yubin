@@ -30,5 +30,5 @@ LOCK_PATH = getattr(settings, "MAILER_LOCK_PATH", None)
 
 # Allows select a queue system for send messages. All queue interfaces are
 # in django_yubin.queues
-YUBIN_QUEUE_SYSTEM = getattr(settings, "YUBIN_QUEUE_SYSTEM",
-                             "django_yubin.queues.internal")
+YUBIN_QUEUE_SYSTEM_NAME = getattr(settings, "YUBIN_QUEUE_SYSTEM_NAME",
+                                  "internal")
