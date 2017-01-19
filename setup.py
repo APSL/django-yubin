@@ -12,7 +12,8 @@ INSTALL_REQUIRES = [
 ]
 
 TEST_REQUIREMENTS = [
-    'six'
+    'six',
+    'django-rq'
 ]
 
 
