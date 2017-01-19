@@ -1,6 +1,6 @@
 language: python
 install:
-  - pip install coverage codecov coveralls tox
+  - pip install coverage codecov coveralls tox django_rq
 addons:
   apt:
     sources:
