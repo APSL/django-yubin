@@ -81,7 +81,7 @@ You can read the package documentation at http://django-yubin.readthedocs.org/en
 
 Changelog
 ---------
-* 0.3.2       Now is possible use external queues for send mails. Por example, djangorq. Take a look at settings section of documentation.
+* 0.3.2       Now is possible use external queues for send mails. For example, djangorq. Take a look at settings section of documentation.
 * 0.3.1       Delete unused template that caused an error with django-compressor offline. testmail command now generates HTML emails.
 * 0.3.0       Support Django >= 1.8 and <=1.10, Python 2.7, 3.3, 3.4 and 3.5. Re-send mails admin action. Fix bug in status_mail command. Demo project configured to send mails with the same mail fake-server used for tests.
 * 0.2.3       Removed {% load url from future %} to support Django 1.9. Now Django < 1.5 is not supported.
