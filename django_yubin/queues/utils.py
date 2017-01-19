@@ -45,5 +45,5 @@ def send_msg_or_internal_enqueue(msg, priority):
         logger.debug("Result of sent: {}".format(result))
 
         connection.close()
-    finally:
-        logger.debug("Email sending error")
+    except:
+        logger.error("Email sending error: {}".format(msg))
