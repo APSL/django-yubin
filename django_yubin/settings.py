@@ -33,8 +33,5 @@ LOCK_PATH = getattr(settings, "MAILER_LOCK_PATH", None)
 # Values availables
 #  - "internal": Internal queue system
 #  - "djangorq": Using django_rq
-YUBIN_QUEUE_SYSTEM_NAME = getattr(settings, "YUBIN_QUEUE_SYSTEM_NAME",
-                                  "internal")
-YUBIN_QUEUE_DJANGORQ_QUEUENAME = getattr(settings,
-                                         'YUBIN_QUEUE_DJANGORQ_QUEUENAME',
-                                         'default')
+QUEUE_SYSTEM_NAME = getattr(settings, "MAILER_QUEUE_SYSTEM_NAME", "internal")
+DJANGORQ_QUEUE = getattr(settings, "MAILER_DJANGORQ_QUEUE_NAME", "default")

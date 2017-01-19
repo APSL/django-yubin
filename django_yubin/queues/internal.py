@@ -2,11 +2,10 @@
 # encoding: utf-8
 # ----------------------------------------------------------------------------
 
-from django_yubin.queues.base import QueueBase
 from django_yubin.models import QueuedMessage
 
 
-class QueueSystem(QueueBase):
+class QueueSystem(object):
     """Use internal database model for enqueue messages"""
 
     def enqueue(self, message, priority):

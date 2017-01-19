@@ -119,7 +119,7 @@ def queue_email_message(email_message, fail_silently=False, priority=None):
 
     # Loading queue system
     module = import_module("django_yubin.queues.{}".format(
-        settings.YUBIN_QUEUE_SYSTEM_NAME))
+        settings.QUEUE_SYSTEM_NAME))
     qsystem = module.QueueSystem()
 
     for to_email in email_message.recipients():
