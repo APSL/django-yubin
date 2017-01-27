@@ -72,6 +72,8 @@ MAILER_TEST_MODE
 
 When MAILER_TEST_MODE is ``True``, recipient addresses of all sent messages are replaced with
 the value of the MAILER_TEST_EMAIL setting, before being sent.
+An additional header ``X-Yubin-Test-Original`` will be inserted, with the content of the original
+recipient addresses.
 
 Both, MAILER_TEST_MODE and MAILER_TEST_EMAIL, must evaluate to ``True`` to activate this mode.
 

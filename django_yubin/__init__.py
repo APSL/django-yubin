@@ -30,12 +30,14 @@ def send_mail(subject, message, from_email, recipient_list,
     from django.utils.encoding import force_text
     from django_yubin import settings
 
-    if settings.MAILER_TEST_MODE and settings.MAILER_TEST_EMAIL:
-        recipient_list = [settings.MAILER_TEST_EMAIL]
-
     subject = force_text(subject)
     email_message = EmailMessage(subject, message, from_email,
                                  recipient_list)
+
+    if settings.MAILER_TEST_MODE and settings.MAILER_TEST_EMAIL:
+        email_message = set_message_test_mode(email_message,
+                                              settings.MAILER_TEST_EMAIL)
+
     queue_email_message(email_message, priority=priority)
 
 
@@ -109,9 +111,8 @@ def queue_email_message(email_message, fail_silently=False, priority=None):
         priority = constants.PRIORITIES.get(priority.lower())
 
     if settings.MAILER_TEST_MODE and settings.MAILER_TEST_EMAIL:
-        email_message.to = [settings.MAILER_TEST_EMAIL]
-        email_message.cc = []
-        email_message.bcc = []
+        email_message = set_message_test_mode(email_message,
+                                              settings.MAILER_TEST_EMAIL)
 
     if priority == constants.PRIORITY_EMAIL_NOW:
         if constants.EMAIL_BACKEND_SUPPORT:
@@ -170,3 +171,17 @@ def restore_django_mail():
     EmailMessage.send = actual_send
     del EmailMessage._actual_send
     return True
+
+
+def set_message_test_mode(email_message, mailer_test_email):
+    """
+    Sets the headers of the message with test values used when
+    ``MAILER_TEST_MODE`` setting is ``True``
+
+    """
+    original_to = ','.join(email_message.to)
+    email_message.extra_headers['X-Yubin-Test-Original'] = original_to
+    email_message.to = [mailer_test_email]
+    email_message.cc = []
+    email_message.bcc = []
+    return email_message

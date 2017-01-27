@@ -140,6 +140,8 @@ class TestBackend(MailerTestCase):
 
         self.assertEqual('test_email@abc.com', queued_messages[0].message.to_address)
         self.assertTrue('test_email@abc.com' in queued_messages[0].message.encoded_message)
+        self.assertTrue('X-Yubin-Test-Original: mail_to@abc.com' in
+                        queued_messages[0].message.encoded_message)
 
     def testSendMessageAdminTestMode(self):
         # Test mode activated sending mail to admins
@@ -148,9 +150,12 @@ class TestBackend(MailerTestCase):
         mail_admins(subject='subject', message='message')
 
         queued_messages = models.QueuedMessage.objects.all()
+        recipient_list = [recipient[1] for recipient in django_settings.ADMINS]
 
         self.assertEqual('test_email@abc.com', queued_messages[0].message.to_address)
         self.assertTrue('test_email@abc.com' in queued_messages[0].message.encoded_message)
+        self.assertTrue('X-Yubin-Test-Original: {}'.format(','.join(recipient_list)) in
+                        queued_messages[0].message.encoded_message)
 
     def testSendMessageManagersTestMode(self):
         # Test mode activated sending mail to admins
@@ -159,6 +164,9 @@ class TestBackend(MailerTestCase):
         mail_managers(subject='subject', message='message')
 
         queued_messages = models.QueuedMessage.objects.all()
+        recipient_list = [recipient[1] for recipient in django_settings.MANAGERS]
 
         self.assertEqual('test_email@abc.com', queued_messages[0].message.to_address)
         self.assertTrue('test_email@abc.com' in queued_messages[0].message.encoded_message)
+        self.assertTrue('X-Yubin-Test-Original: {}'.format(','.join(recipient_list)) in
+                        queued_messages[0].message.encoded_message)
