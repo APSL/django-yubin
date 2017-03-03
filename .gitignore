@@ -6,6 +6,8 @@
 .idea/*
 .eggs/
 .DS_Store
+.vscode
+tags
 
 # tests related
 .tox

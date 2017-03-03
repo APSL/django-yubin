@@ -23,6 +23,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django_yubin',
     'tests.app',
+    'django_rq',
 )
 
 TEMPLATES = [
@@ -48,3 +49,14 @@ TEMPLATES = [
         },
     },
 ]
+
+# For django-rq
+RQ_QUEUES = {
+    'default': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        'PASSWORD': '',
+        'DEFAULT_TIMEOUT': 360,
+    },
+}

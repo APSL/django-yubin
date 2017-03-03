@@ -66,3 +66,22 @@ place.
 
 The default value is ``-1`` which means to never wait for the lock to be
 available.
+
+MAILER_QUEUE_SYSTEM_NAME
+------------------------
+
+Allows select a queue system for send messages. All queue interfaces are 
+in django_yubin.queues.
+
+Values availables
+
+* "internal": Internal queue system
+* "djangorq": Using django_rq
+
+The default value is ``internal``.
+
+MAILER_DJANGORQ_QUEUE_NAME
+--------------------------
+
+If you use ``djangorq`` queue system, you can set the default queue name
+

@@ -4,8 +4,9 @@
 from __future__ import absolute_import, unicode_literals
 
 import logging
-from pkg_resources import get_distribution
 
+from pkg_resources import get_distribution
+from importlib import import_module
 
 version = __version__ = get_distribution('django-yubin').version
 
@@ -113,16 +114,20 @@ def queue_email_message(email_message, fail_silently=False, priority=None):
             return (result == constants.RESULT_SENT)
         else:
             return email_message.send()
+
     count = 0
+
+    # Loading queue system
+    module = import_module("django_yubin.queues.{}".format(
+        settings.QUEUE_SYSTEM_NAME))
+    qsystem = module.QueueSystem()
+
     for to_email in email_message.recipients():
         message = models.Message.objects.create(
             to_address=to_email, from_address=email_message.from_email,
             subject=email_message.subject,
             encoded_message=email_message.message().as_string())
-        queued_message = models.QueuedMessage(message=message)
-        if priority:
-            queued_message.priority = priority
-        queued_message.save()
+        qsystem.enqueue(message, priority)
         count += 1
     return count
 

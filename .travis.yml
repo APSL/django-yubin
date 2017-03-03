@@ -1,6 +1,8 @@
 language: python
 install:
-  - pip install coverage codecov coveralls tox
+  - pip install coverage codecov coveralls tox django-rq
+services:
+  - redis-server
 addons:
   apt:
     sources:

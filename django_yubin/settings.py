@@ -27,3 +27,11 @@ LOCK_WAIT_TIMEOUT = max(getattr(settings, "MAILER_LOCK_WAIT_TIMEOUT", 0), 0)
 # An optional alternate lock path, potentially useful if you have multiple
 # projects running on the same server.
 LOCK_PATH = getattr(settings, "MAILER_LOCK_PATH", None)
+
+# Allows select a queue system for send messages. All queue interfaces are
+# in django_yubin.queues
+# Values availables
+#  - "internal": Internal queue system
+#  - "djangorq": Using django_rq
+QUEUE_SYSTEM_NAME = getattr(settings, "MAILER_QUEUE_SYSTEM_NAME", "internal")
+DJANGORQ_QUEUE = getattr(settings, "MAILER_DJANGORQ_QUEUE_NAME", "default")
