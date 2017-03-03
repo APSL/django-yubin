@@ -27,11 +27,17 @@ def send_mail(subject, message, from_email, recipient_list,
 
     """
     from django.core.mail import EmailMessage
-    from django.utils.encoding import force_unicode
+    from django.utils.encoding import force_text
+    from django_yubin import settings
 
-    subject = force_unicode(subject)
+    subject = force_text(subject)
     email_message = EmailMessage(subject, message, from_email,
                                  recipient_list)
+
+    if settings.MAILER_TEST_MODE and settings.MAILER_TEST_EMAIL:
+        email_message = set_message_test_mode(email_message,
+                                              settings.MAILER_TEST_EMAIL)
+
     queue_email_message(email_message, priority=priority)
 
 
@@ -47,13 +53,13 @@ def mail_admins(subject, message, fail_silently=False, priority=None):
 
     """
     from django.conf import settings as django_settings
-    from django.utils.encoding import force_unicode
+    from django.utils.encoding import force_text
     from django_yubin import settings
 
     if priority is None:
         settings.MAIL_ADMINS_PRIORITY
 
-    subject = django_settings.EMAIL_SUBJECT_PREFIX + force_unicode(subject)
+    subject = django_settings.EMAIL_SUBJECT_PREFIX + force_text(subject)
     from_email = django_settings.SERVER_EMAIL
     recipient_list = [recipient[1] for recipient in django_settings.ADMINS]
     send_mail(subject, message, from_email, recipient_list, priority=priority)
@@ -71,13 +77,13 @@ def mail_managers(subject, message, fail_silently=False, priority=None):
 
     """
     from django.conf import settings as django_settings
-    from django.utils.encoding import force_unicode
+    from django.utils.encoding import force_text
     from django_yubin import settings
 
     if priority is None:
         priority = settings.MAIL_MANAGERS_PRIORITY
 
-    subject = django_settings.EMAIL_SUBJECT_PREFIX + force_unicode(subject)
+    subject = django_settings.EMAIL_SUBJECT_PREFIX + force_text(subject)
     from_email = django_settings.SERVER_EMAIL
     recipient_list = [recipient[1] for recipient in django_settings.MANAGERS]
     send_mail(subject, message, from_email, recipient_list, priority=priority)
@@ -103,6 +109,10 @@ def queue_email_message(email_message, fail_silently=False, priority=None):
     if constants.PRIORITY_HEADER in email_message.extra_headers:
         priority = email_message.extra_headers.pop(constants.PRIORITY_HEADER)
         priority = constants.PRIORITIES.get(priority.lower())
+
+    if settings.MAILER_TEST_MODE and settings.MAILER_TEST_EMAIL:
+        email_message = set_message_test_mode(email_message,
+                                              settings.MAILER_TEST_EMAIL)
 
     if priority == constants.PRIORITY_EMAIL_NOW:
         if constants.EMAIL_BACKEND_SUPPORT:
@@ -161,3 +171,17 @@ def restore_django_mail():
     EmailMessage.send = actual_send
     del EmailMessage._actual_send
     return True
+
+
+def set_message_test_mode(email_message, mailer_test_email):
+    """
+    Sets the headers of the message with test values used when
+    ``MAILER_TEST_MODE`` setting is ``True``
+
+    """
+    original_to = ','.join(email_message.to)
+    email_message.extra_headers['X-Yubin-Test-Original'] = original_to
+    email_message.to = [mailer_test_email]
+    email_message.cc = []
+    email_message.bcc = []
+    return email_message

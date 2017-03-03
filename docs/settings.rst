@@ -30,7 +30,7 @@ MAILER_MAIL_ADMINS_PRIORITY
 ---------------------------
 
 The default priority for messages sent via the ``mail_admins`` function of
-Django Yubin. 
+Django Yubin.
 
 The default value is ``constants.PRIORITY_HIGH``. Valid values are ``None``
 or any of the priority from ``django_yubin.constants``:
@@ -51,10 +51,10 @@ The default value is ``None``. Valid values are the same as for
 MAILER_EMPTY_QUEUE_SLEEP
 ------------------------
 
-For use with the ``django_yubin.engine.send_loop`` helper function. 
+For use with the ``django_yubin.engine.send_loop`` helper function.
 
 When queue is empty, this setting controls how long to wait (in seconds)
-before checking again. Defaults to ``30``. 
+before checking again. Defaults to ``30``.
 
 
 MAILER_LOCK_WAIT_TIMEOUT
@@ -66,3 +66,22 @@ place.
 
 The default value is ``-1`` which means to never wait for the lock to be
 available.
+
+MAILER_TEST_MODE
+----------------
+
+When MAILER_TEST_MODE is ``True``, recipient addresses of all sent messages are replaced with
+the value of the MAILER_TEST_EMAIL setting, before being sent.
+An additional header ``X-Yubin-Test-Original`` will be inserted, with the content of the original
+recipient addresses.
+
+Both, MAILER_TEST_MODE and MAILER_TEST_EMAIL, must evaluate to ``True`` to activate this mode.
+
+Defaults to ``False``.
+
+MAILER_TEST_EMAIL
+-------------------------
+
+String with the email where all email are sent When MAILER_TEST_MODE is on.
+
+Defaults to ``''``.
