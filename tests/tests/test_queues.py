@@ -8,7 +8,7 @@ from django.test import TestCase
 
 from django_yubin import queue_email_message
 from django_yubin import settings
-from django_yubin.models import QueuedMessage
+from django_yubin.models import QueuedMessage, Message
 
 from django_rq import get_worker
 
@@ -25,6 +25,7 @@ class TestQueuesDjangoRq(TestCase):
         queue.empty()
         self.assertEqual(len(queue.jobs), 0)
         self.assertEqual(QueuedMessage.objects.all().count(), 0)
+        self.assertEqual(Message.objects.all().count(), 0)
 
         msg = mail.EmailMessage(
             subject='subject queue',
@@ -43,3 +44,4 @@ class TestQueuesDjangoRq(TestCase):
 
         self.assertEqual(len(queue.jobs), 0)
         self.assertEqual(QueuedMessage.objects.all().count(), 0)
+        self.assertEqual(Message.objects.all().count(), 1)
