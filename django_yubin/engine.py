@@ -108,7 +108,7 @@ def send_all(block_size=500, backend=None):
         logger.debug("Lock released.")
 
     logger.debug("")
-    if sent or deferred or skipped:
+    if deferred or skipped:
         log = logger.warning
     else:
         log = logger.info
