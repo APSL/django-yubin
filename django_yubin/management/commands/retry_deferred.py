@@ -31,8 +31,9 @@ class Command(BaseCommand):
         count = models.QueuedMessage.objects.retry_deferred(
                                             max_retries=options['max_retries'])
         logger = logging.getLogger('django_yubin.commands.retry_deferred')
-        logger.warning("%s deferred message%s placed back in the queue" %
-                       (count, count != 1 and 's' or ''))
+        if count:
+            logger.info("%s deferred message%s placed back in the queue" %
+                        (count, count != 1 and 's' or ''))
 
         logger.removeHandler(handler)
         connection.close()

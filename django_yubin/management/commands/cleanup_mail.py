@@ -31,6 +31,7 @@ class Command(BaseCommand):
         today = datetime.date.today()
         cutoff_date = today - datetime.timedelta(options['days'])
         count = Message.objects.filter(date_created__lt=cutoff_date).count()
-        Message.objects.filter(date_created__lt=cutoff_date).delete()
-        logger.warning("Deleted %s mails created before %s " %
-                       (count, cutoff_date))
+        if count:
+            Message.objects.filter(date_created__lt=cutoff_date).delete()
+            logger.info("Deleted %s mails created before %s " %
+                        (count, cutoff_date))
