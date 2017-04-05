@@ -122,7 +122,7 @@ def queue_email_message(email_message, fail_silently=False, priority=None):
             subject=email_message.subject,
             encoded_message=email_message.message().as_string())
         queued_message = models.QueuedMessage(message=message)
-        if priority and priority != constants.PRIORITY_EMAIL_NOW:
+        if priority:
             queued_message.priority = priority
         queued_message.save()
         count += 1
