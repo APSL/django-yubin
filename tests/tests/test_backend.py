@@ -101,6 +101,7 @@ class TestBackend(MailerTestCase):
         num_errors = models.Log.objects.filter(result=constants.RESULT_FAILED).count()
         self.assertEqual(num_errors, 1)
 
+    @skipIf(not RFC_6532_SUPPORT, 'RFC 6532 not supported')
     def testUnicodePriorityMessage(self):
         """
         Checks that we capture unicode errors on mail on priority.
@@ -113,10 +114,10 @@ class TestBackend(MailerTestCase):
                         headers={'X-Mail-Queue-Priority': 'now'})
         self.send_message(msg)
         queued_messages = models.QueuedMessage.objects.all()
-        self.assertEqual(queued_messages.count(), 0)
+        self.assertEqual(queued_messages.count(), 1)
         call_command('send_mail', verbosity='0')
         num_errors = models.Log.objects.filter(result=constants.RESULT_FAILED).count()
-        self.assertEqual(num_errors, 0)
+        self.assertEqual(num_errors, 1)
 
     def testSendMessageNowPriority(self):
         # NOW priority message
@@ -170,3 +171,28 @@ class TestBackend(MailerTestCase):
         self.assertTrue('test_email@abc.com' in queued_messages[0].message.encoded_message)
         self.assertTrue('X-Yubin-Test-Original: {}'.format(','.join(recipient_list)) in
                         queued_messages[0].message.encoded_message)
+
+
+    def testHighPriority(self):
+        self.assertEqual(models.QueuedMessage.objects.all().count(), 0)
+        self.assertEqual(models.Message.objects.all().count(), 0)
+        self.assertEqual(models.Log.objects.all().count(), 0)
+
+        # Test with default priority
+        msg = mail.EmailMessage(subject='subject 1', body='body',
+                                from_email='mail_from@abc.com', to=['mail_to@abc.com'])
+        self.send_message(msg)
+
+        self.assertEqual(models.Message.objects.all().count(), 1)
+        self.assertEqual(models.QueuedMessage.objects.all().count(), 1)
+        self.assertEqual(models.Log.objects.all().count(), 0)
+
+        # Test with high priority
+        msg = mail.EmailMessage(subject='subject 2', body='body',
+                                from_email='mail_from@abc.com', to=['mail_to@abc.com'],
+                                headers={'X-Mail-Queue-Priority': 'now'})
+        self.send_message(msg)
+
+        self.assertEqual(models.QueuedMessage.objects.all().count(), 1)
+        self.assertEqual(models.Message.objects.all().count(), 2)
+        self.assertEqual(models.Log.objects.all().count(), 1)
