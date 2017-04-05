@@ -52,7 +52,7 @@ def _message_queue(block_size):
         queue = get_block()
 
 
-def send_all(block_size=500, backend=None):
+def send_all(block_size=500, backend=None, messages=None):
     """
     Send all non-deferred messages in the queue.
 
@@ -92,7 +92,8 @@ def send_all(block_size=500, backend=None):
             connection = get_connection()
         blacklist = models.Blacklist.objects.values_list('email', flat=True)
         connection.open()
-        for message in _message_queue(block_size):
+        messages_list = messages or _message_queue(block_size)
+        for message in messages_list:
             result = send_queued_message(message, smtp_connection=connection,
                                   blacklist=blacklist)
             if result == constants.RESULT_SENT:
@@ -197,6 +198,7 @@ def send_queued_message(queued_message, smtp_connection=None, blacklist=None,
             except NameError:
                 log_message = err
             result = constants.RESULT_FAILED
+
     if log:
         models.Log.objects.create(message=message, result=result,
                                   log_message=log_message)
