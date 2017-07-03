@@ -12,6 +12,7 @@ PRIORITIES = (
     (constants.PRIORITY_HIGH, 'high'),
     (constants.PRIORITY_NORMAL, 'normal'),
     (constants.PRIORITY_LOW, 'low'),
+    (constants.PRIORITY_EMAIL_NOW, 'now'),
 )
 
 RESULT_CODES = (
