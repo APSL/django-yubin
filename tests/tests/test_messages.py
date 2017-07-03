@@ -73,9 +73,9 @@ class TemplatedEmailMessageViewTestCase(EmailMessageViewTestCase):
         self.context = Context(self.context_dict)
 
         self.render_subject = functools.partial(self.message.render_subject,
-            context=self.context)
+                                                context=self.context)
         self.render_body = functools.partial(self.message.render_body,
-            context=self.context)
+                                             context=self.context)
 
     def add_templates_to_message(self):
         """
@@ -99,7 +99,7 @@ class TemplatedEmailMessageViewTestCase(EmailMessageViewTestCase):
         self.assertTemplateExists(template)
 
         self.message.subject_template_name = template
-        self.assertEqual(self.render_subject(), self.subject)
+        self.assertEqual(self.render_subject(context=self.context_dict), self.subject)
 
     def test_subject_template(self):
         self.message.subject_template = self.subject_template
@@ -120,7 +120,7 @@ class TemplatedEmailMessageViewTestCase(EmailMessageViewTestCase):
         self.assertTemplateExists(template)
 
         self.message.body_template_name = template
-        self.assertEqual(self.render_body(), u"%s\n" % self.body)
+        self.assertEqual(self.render_body(context=self.context_dict), u"%s\n" % self.body)
 
     def test_body_template(self):
         self.message.body_template = self.body_template
@@ -204,7 +204,7 @@ class TemplatedHTMLEmailMessageViewTestCase(TemplatedEmailMessageViewTestCase):
         self.assertTemplateExists(template)
 
         self.message.html_body_template_name = template
-        self.assertEqual(self.render_html_body(), u"%s\n" % self.html_body)
+        self.assertEqual(self.render_html_body(context=self.context_dict), u"%s\n" % self.html_body)
 
     def test_html_body_template(self):
         self.message.html_body_template = self.html_body_template
@@ -250,7 +250,8 @@ class TemplatedAttachmentEmailMessageViewTestCase(TemplatedEmailMessageViewTestC
     def test_render_to_message(self):
         self.add_templates_to_message()
         attachment = os.path.join(os.path.dirname(__file__), 'files/attachment.pdf'),
-        message = self.message.render_to_message(extra_context=self.context_dict, attachment=attachment,
+        message = self.message.render_to_message(extra_context=self.context_dict,
+                                                 attachment=attachment,
                                                  mimetype="application/pdf")
         self.assertEqual(message.subject, self.subject)
         self.assertEqual(message.body, self.body)
@@ -290,9 +291,9 @@ class TestEmailOptions(EmailMessageViewTestCase):
         self.context = Context(self.context_dict)
 
         self.render_subject = functools.partial(self.message.render_subject,
-                                                context=self.context)
+                                                context=self.context_dict)
         self.render_body = functools.partial(self.message.render_body,
-                                             context=self.context)
+                                             context=self.context_dict)
 
     def add_templates_to_message(self):
         """

@@ -17,7 +17,7 @@ the next section you'll find information about how to write the test.
 Please follow the PEP8 coventions and in case you write additional features don't
 forget to write the tests for them.
 
-At http://apsl.net we use yubin for most of our own projects, so we'll try to 
+At http://apsl.net we use yubin for most of our own projects, so we'll try to
 mantain it as bug free as stable as possible. That said we can't not guarantee
 that we could patch the program in the way you like, add that new feature, etc.
 
@@ -50,7 +50,7 @@ of the Python versions you have installed in your system (Python 2.7, 3.2 until
 Run ``detox`` if you prefer parallelizing. To run a single environment, you have
 some options::
 
-    $ tox -e py27-django19  # run Python 2.7 and Django 1.9
+    $ tox -e py35-django111  # run Python 3.4 and Django 1.11
 
 or, in a virtualenv for example::
 

@@ -19,7 +19,7 @@ django-yubin
 
 Django Yubin allows the programmer to control when he wants to send the e-mail
 in this application, making the web application to answer fast as it not has to
-wait for the mail server. 
+wait for the mail server.
 
 As in our projects we use always two django packages for dealing with emails:
 django-mailer2 (our own fork in APSL) and django-mailviews to compose the
@@ -27,7 +27,7 @@ emails we decided to create this package to fit our own needs and share with
 the community.
 
 As you can see it seems django-mailer2 is not accepting patches, so in
-order to put a new version on pypi a new name was mandatory.  So django-yubin was born 
+order to put a new version on pypi a new name was mandatory.  So django-yubin was born
 (yubin is postal mail in japanese). The name attribution is for @morenosan.
 
 How it works
@@ -48,8 +48,8 @@ Advantages
 
 * Yubin allows to define prioritary queues, resend e-mails
 
-* Yubin helps in your development.  It's a good way to work when you're developping 
-  the application and you don't want to flood your test users with 
+* Yubin helps in your development.  It's a good way to work when you're developping
+  the application and you don't want to flood your test users with
   e-mails. With Django Yubin, and without running the cron commands, you can see how
   your e-mails are, retrieve them and even delete them with out sending it.
 
@@ -58,7 +58,7 @@ someting like
 
     * * * * * (cd $PROJECT; python manage.py send_mail >> $PROJECT/cron_mail.log 2>&1)
 
-This will send the queued e-mail every minute. 
+This will send the queued e-mail every minute.
 
 Django Yubin is a fork from django-mailer2 with some addtions from django-mailviews and
 additional improvements made from apsl.net that we need for our daly basis workd. It
@@ -81,6 +81,7 @@ You can read the package documentation at http://django-yubin.readthedocs.org/en
 
 Changelog
 ---------
+* 0.4.0       Support Django 1.11: subject and body are no longer unscaped, you need to add {% autoescape off %} to your non HTML templates.
 * 0.3.1       Delete unused template that caused an error with django-compressor offline. testmail command now generates HTML emails.
 * 0.3.0       Support Django >= 1.8 and <=1.10, Python 2.7, 3.3, 3.4 and 3.5. Re-send mails admin action. Fix bug in status_mail command. Demo project configured to send mails with the same mail fake-server used for tests.
 * 0.2.3       Removed {% load url from future %} to support Django 1.9. Now Django < 1.5 is not supported.

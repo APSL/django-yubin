@@ -14,9 +14,6 @@ from django.template import Context, Template
 from django.template.loader import get_template, select_template
 from django.contrib.sites.models import Site
 
-from django_yubin.mail_utils import unescape
-
-
 
 class EmailMessageView(object):
     """
@@ -196,35 +193,28 @@ class TemplatedEmailMessageView(EmailMessageView):
     #: will be used instead.
     body_template = property(_get_body_template, _set_body_template)
 
-
     def render_subject(self, context):
         """
         Renders the message subject for the given context.
-
-        The context data is automatically unescaped to avoid rendering HTML
-        entities in ``text/plain`` content.
 
         :param context: The context to use when rendering the subject template.
         :type context: :class:`~django.template.Context`
         :returns: A rendered subject.
         :rtype: :class:`str`
         """
-        rendered = self.subject_template.render(unescape(context))
+        rendered = self.subject_template.render(context)
         return rendered.strip()
 
     def render_body(self, context):
         """
         Renders the message body for the given context.
 
-        The context data is automatically unescaped to avoid rendering HTML
-        entities in ``text/plain`` content.
-
         :param context: The context to use when rendering the body template.
         :type context: :class:`~django.template.Context`
         :returns: A rendered body.
         :rtype: :class:`str`
         """
-        return self.body_template.render(unescape(context))
+        return self.body_template.render(context)
 
 
 class TemplatedHTMLEmailMessageView(TemplatedEmailMessageView):
