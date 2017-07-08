@@ -60,7 +60,7 @@ class Command(BaseCommand):
 
         # if PAUSE_SEND is turned on don't do anything.
         if not settings.PAUSE_SEND:
-            send_all(options['block_size'], backend=settings.USE_BACKEND, message_limit=message_limit)
+            send_all(options['block_size'], backend=settings.USE_BACKEND, message_limit=options['message_limit'])
         else:
             logger = logging.getLogger('django_yubin.commands.send_mail')
             logger.warning("Sending is paused, exiting without sending "
