@@ -31,7 +31,7 @@ LOCK_PATH = settings.LOCK_PATH or os.path.join(tempfile.gettempdir(),
 
 
 
-def _message_queue(block_size):
+def _message_queue(block_size, message_limit):
     """
     A generator which iterates queued messages in blocks so that new
     prioritised messages can be inserted during iteration of a large number of
@@ -43,16 +43,26 @@ def _message_queue(block_size):
     def get_block():
         queue = models.QueuedMessage.objects.non_deferred().select_related()
         if block_size:
-            queue = queue[:block_size]
+            if message_limit:
+                limit = min(block_size, message_limit)
+            else:
+                limit = block_size
+            queue = queue[:limit]
+        elif message_limit:
+            queue = queue[:message_limit]
         return queue
     queue = get_block()
+    messages_processed = 0
     while queue:
         for message in queue:
             yield message
+            messages_processed += 1
+        if message_limit and messages_processed >= message_limit:
+            break
         queue = get_block()
 
 
-def send_all(block_size=500, backend=None, messages=None):
+def send_all(block_size=500, backend=None, messages=None, message_limit=0):
     """
     Send all non-deferred messages in the queue.
 
@@ -92,7 +102,7 @@ def send_all(block_size=500, backend=None, messages=None):
             connection = get_connection()
         blacklist = models.Blacklist.objects.values_list('email', flat=True)
         connection.open()
-        messages_list = messages or _message_queue(block_size)
+        messages_list = messages or _message_queue(block_size, message_limit)
         for message in messages_list:
             result = send_queued_message(message, smtp_connection=connection,
                                   blacklist=blacklist)
