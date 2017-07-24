@@ -1,7 +1,7 @@
 import logging
 
 
-LOGGING_LEVEL = {'0': logging.ERROR, '1': logging.WARNING, '2': logging.DEBUG}
+LOGGING_LEVEL = {'0': logging.ERROR, '1': logging.WARNING, '2': logging.DEBUG, '3': logging.DEBUG}
 
 
 def create_handler(verbosity, message='%(message)s'):
