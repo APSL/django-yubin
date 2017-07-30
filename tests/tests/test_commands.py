@@ -38,6 +38,27 @@ class TestCommands(MailerTestCase):
         call_command('send_mail', verbosity='0')
         self.assertEqual(queued_messages.count(), 1)
 
+    def test_send_mail_limit(self):
+        """
+        The ``send_mail`` command initiates the sending of messages in the
+        queue. The number to send can be limited.
+
+        """
+        # No action is taken if there are no messages.
+        call_command('send_mail', verbosity='0')
+        # Only 1 (non-deferred) queued message will be sent.
+        self.queue_message()
+        self.queue_message()
+        self.queue_message()
+        self.queue_message(subject='deferred')
+        models.QueuedMessage.objects.filter(
+            message__subject__startswith='deferred').update(deferred=now())
+        queued_messages = models.QueuedMessage.objects.all()
+        self.assertEqual(queued_messages.count(), 4)
+        self.assertEqual(len(mail.outbox), 0)
+        call_command('send_mail', verbosity='0', message_limit=2)
+        self.assertEqual(queued_messages.count(), 2)
+
     def test_retry_deferred(self):
         """
         The ``retry_deferred`` command places deferred messages back in the
