@@ -25,6 +25,15 @@ class Command(BaseCommand):
                  'is being cleared).',
         )
         parser.add_argument(
+            '-l',
+            '--message_limit',
+            dest='message_limit',
+            type=int,
+            default=0,
+            help='The maximum number of messages to send from the queue in a single pass'
+                 ' (to avoid email rate throttles).',
+        )
+        parser.add_argument(
             '-c',
             '--count',
             dest='count',
@@ -51,7 +60,7 @@ class Command(BaseCommand):
 
         # if PAUSE_SEND is turned on don't do anything.
         if not settings.PAUSE_SEND:
-            send_all(options['block_size'], backend=settings.USE_BACKEND)
+            send_all(options['block_size'], backend=settings.USE_BACKEND, message_limit=options['message_limit'])
         else:
             logger = logging.getLogger('django_yubin.commands.send_mail')
             logger.warning("Sending is paused, exiting without sending "
