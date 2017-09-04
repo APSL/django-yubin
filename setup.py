@@ -6,7 +6,8 @@ from setuptools import setup
 
 
 INSTALL_REQUIRES = [
-    'pyzmail',
+    'pyzmail;python_version<"3.6"',
+    'pyzmail36;python_version>="3.6"',
     'lockfile',
     'pytz',
 ]
@@ -22,7 +23,7 @@ with open('docs/index.rst') as docs_index:
 
 setup(
     name='django-yubin',
-    version='0.5.0',
+    version='0.6.0',
     description=("A reusable Django app for composing and queueing emails "
                  "Adds django-mailer2 + django-mailviews + others"),
     long_description=long_description,
@@ -51,6 +52,7 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Framework :: Django',
         'Framework :: Django :: 1.8',
         'Framework :: Django :: 1.9',

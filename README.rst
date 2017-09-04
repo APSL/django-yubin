@@ -81,6 +81,7 @@ You can read the package documentation at http://django-yubin.readthedocs.org/en
 
 Changelog
 ---------
+* 0.6.0       Support for Pyhton 3.6.
 * 0.5.0       Limit nº of emails sent by send_mail command. Update the debug handlers options for verbosity to accept v3.
 * 0.4.0       Support Django 1.11: subject and body are no longer unscaped, you need to add {% autoescape off %} to your non HTML templates.
 * 0.3.1       Delete unused template that caused an error with django-compressor offline. testmail command now generates HTML emails.

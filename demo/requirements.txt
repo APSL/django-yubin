@@ -1,5 +1,6 @@
 django
 django-extensions
 pytz
-pyzmail
+pyzmail; python_version < '3.6'
+pyzmail36; python_version >= '3.6'
 # and django_yubin of course
