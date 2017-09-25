@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-    help = 'Generate fake mails for testing.'
+    help = 'Create fake mails for testing.'
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -13,7 +13,7 @@ class Command(BaseCommand):
             '--quantity',
             dest='quantity',
             default=1,
-            help='Number of fake mails to generate.',
+            help='Number of fake mails to create.',
         )
 
     def handle(self, *args, **options):
@@ -24,4 +24,4 @@ class Command(BaseCommand):
                       from_email='test@example.com',
                       recipient_list=['recipient%s@example.com' % i],
                       html_message='body <strong>%s</strong>' % i)
-        self.stdout.write('Generated')
+        self.stdout.write('Created')
