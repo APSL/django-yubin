@@ -9,12 +9,12 @@ import os
 from django.core import mail
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings
-from django.template import Context, Template, TemplateDoesNotExist
+from django.template import TemplateDoesNotExist
 from django.template.loader import get_template
 
 from django_yubin.messages import (
     TemplatedEmailMessageView, TemplatedHTMLEmailMessageView,
-    TemplatedAttachmentEmailMessageView
+    TemplatedAttachmentEmailMessageView, template_from_string,
 )
 
 
@@ -57,25 +57,21 @@ class TemplatedEmailMessageViewTestCase(EmailMessageViewTestCase):
     def setUp(self):
         self.message = self.message_class()
 
-        self.template = 'Hello, world!'
-
         self.subject = 'subject'
-        self.subject_template = Template('{{ subject }}')
+        self.subject_template = template_from_string(
+            '{% autoescape off %}{{ subject }}{% endautoescape %}')
 
         self.body = 'body'
-        self.body_template = Template('{{ body }}')
+        self.body_template = template_from_string(
+            '{% autoescape off %}{{ body }}{% endautoescape %}')
 
-        self.context_dict = {
+        self.context = {
             'subject': self.subject,
             'body': self.body,
         }
 
-        self.context = Context(self.context_dict)
-
-        self.render_subject = functools.partial(self.message.render_subject,
-                                                context=self.context)
-        self.render_body = functools.partial(self.message.render_body,
-                                             context=self.context)
+        self.render_subject = functools.partial(self.message.render_subject, context=self.context)
+        self.render_body = functools.partial(self.message.render_body, context=self.context)
 
     def add_templates_to_message(self):
         """
@@ -99,7 +95,7 @@ class TemplatedEmailMessageViewTestCase(EmailMessageViewTestCase):
         self.assertTemplateExists(template)
 
         self.message.subject_template_name = template
-        self.assertEqual(self.render_subject(context=self.context_dict), self.subject)
+        self.assertEqual(self.render_subject(), self.subject)
 
     def test_subject_template(self):
         self.message.subject_template = self.subject_template
@@ -120,7 +116,7 @@ class TemplatedEmailMessageViewTestCase(EmailMessageViewTestCase):
         self.assertTemplateExists(template)
 
         self.message.body_template_name = template
-        self.assertEqual(self.render_body(context=self.context_dict), u"%s\n" % self.body)
+        self.assertEqual(self.render_body(), u"%s\n" % self.body)
 
     def test_body_template(self):
         self.message.body_template = self.body_template
@@ -128,13 +124,13 @@ class TemplatedEmailMessageViewTestCase(EmailMessageViewTestCase):
 
     def test_render_to_message(self):
         self.add_templates_to_message()
-        message = self.message.render_to_message(self.context_dict)
+        message = self.message.render_to_message(self.context)
         self.assertEqual(message.subject, self.subject)
         self.assertEqual(message.body, self.body)
 
     def test_send(self):
         self.add_templates_to_message()
-        self.message.send(self.context_dict, to=('ted@disqus.com',))
+        self.message.send(self.context, to=('ted@disqus.com',))
         self.assertOutboxLengthEquals(1)
 
     def test_custom_headers(self):
@@ -156,7 +152,6 @@ class TemplatedEmailMessageViewTestCase(EmailMessageViewTestCase):
         """
         check if we can set the priority
         """
-
         self.add_templates_to_message()
         self.message.set_priority('low')
         self.assertEqual(self.message.headers['X-Mail-Queue-Priority'], 'low')
@@ -172,14 +167,11 @@ class TemplatedHTMLEmailMessageViewTestCase(TemplatedEmailMessageViewTestCase):
         super(TemplatedHTMLEmailMessageViewTestCase, self).setUp()
 
         self.html_body = 'html body'
-        self.html_body_template = Template('{{ html }}')
+        self.html_body_template = template_from_string('{{ html }}')
 
-        self.context_dict['html'] = self.html_body
         self.context['html'] = self.html_body
-
-        self.render_html_body = functools.partial(
-            self.message.render_html_body,
-            context=self.context)
+        self.render_html_body = functools.partial(self.message.render_html_body,
+                                                  context=self.context)
 
     def add_templates_to_message(self):
         """
@@ -204,7 +196,7 @@ class TemplatedHTMLEmailMessageViewTestCase(TemplatedEmailMessageViewTestCase):
         self.assertTemplateExists(template)
 
         self.message.html_body_template_name = template
-        self.assertEqual(self.render_html_body(context=self.context_dict), u"%s\n" % self.html_body)
+        self.assertEqual(self.render_html_body(), u"%s\n" % self.html_body)
 
     def test_html_body_template(self):
         self.message.html_body_template = self.html_body_template
@@ -212,14 +204,14 @@ class TemplatedHTMLEmailMessageViewTestCase(TemplatedEmailMessageViewTestCase):
 
     def test_render_to_message(self):
         self.add_templates_to_message()
-        message = self.message.render_to_message(self.context_dict)
+        message = self.message.render_to_message(self.context)
         self.assertEqual(message.subject, self.subject)
         self.assertEqual(message.body, self.body)
         self.assertEqual(message.alternatives, [(self.html_body, 'text/html')])
 
     def test_send(self):
         self.add_templates_to_message()
-        self.message.send(self.context_dict, to=('ted@disqus.com',))
+        self.message.send(self.context, to=('ted@disqus.com',))
         self.assertOutboxLengthEquals(1)
 
 
@@ -230,14 +222,12 @@ class TemplatedAttachmentEmailMessageViewTestCase(TemplatedEmailMessageViewTestC
         super(TemplatedAttachmentEmailMessageViewTestCase, self).setUp()
 
         self.html_body = 'html body'
-        self.html_body_template = Template('{{ html }}')
+        self.html_body_template = template_from_string('{{ html }}')
 
-        self.context_dict['html'] = self.html_body
         self.context['html'] = self.html_body
 
-        self.render_html_body = functools.partial(
-            self.message.render_html_body,
-            context=self.context)
+        self.render_html_body = functools.partial(self.message.render_html_body,
+                                                  context=self.context)
 
     def add_templates_to_message(self):
         """
@@ -250,7 +240,7 @@ class TemplatedAttachmentEmailMessageViewTestCase(TemplatedEmailMessageViewTestC
     def test_render_to_message(self):
         self.add_templates_to_message()
         attachment = os.path.join(os.path.dirname(__file__), 'files/attachment.pdf'),
-        message = self.message.render_to_message(extra_context=self.context_dict,
+        message = self.message.render_to_message(extra_context=self.context,
                                                  attachment=attachment,
                                                  mimetype="application/pdf")
         self.assertEqual(message.subject, self.subject)
@@ -262,7 +252,7 @@ class TemplatedAttachmentEmailMessageViewTestCase(TemplatedEmailMessageViewTestC
         """Test we can send an attachment using the send command"""
         self.add_templates_to_message()
         attachment = os.path.join(os.path.dirname(__file__), 'files/attachment.pdf')
-        self.message.send(self.context_dict,
+        self.message.send(self.context,
                           attachment=attachment,
                           mimetype="application/pdf",
                           to=('attachment@example.com',))
@@ -275,25 +265,21 @@ class TestEmailOptions(EmailMessageViewTestCase):
     def setUp(self):
         self.message = self.message_class()
 
-        self.template = 'Hello, world!'
-
         self.subject = 'subject'
-        self.subject_template = Template('{{ subject }}')
+        self.subject_template = template_from_string(
+            '{% autoescape off %}{{ subject }}{% endautoescape %}')
 
         self.body = 'body'
-        self.body_template = Template('{{ body }}')
+        self.body_template = template_from_string(
+            '{% autoescape off %}{{ body }}{% endautoescape %}')
 
-        self.context_dict = {
+        self.context = {
             'subject': self.subject,
             'body': self.body,
         }
 
-        self.context = Context(self.context_dict)
-
-        self.render_subject = functools.partial(self.message.render_subject,
-                                                context=self.context_dict)
-        self.render_body = functools.partial(self.message.render_body,
-                                             context=self.context_dict)
+        self.render_subject = functools.partial(self.message.render_subject, context=self.context)
+        self.render_body = functools.partial(self.message.render_body, context=self.context)
 
     def add_templates_to_message(self):
         """
@@ -304,7 +290,7 @@ class TestEmailOptions(EmailMessageViewTestCase):
 
     def test_send(self):
         self.add_templates_to_message()
-        self.message.send(self.context_dict, to=('ted@disqus.com',))
+        self.message.send(self.context, to=('ted@disqus.com',))
         self.assertOutboxLengthEquals(1)
 
     def test_custom_headers(self):
@@ -326,7 +312,6 @@ class TestEmailOptions(EmailMessageViewTestCase):
         """
         check if we can set the priority
         """
-
         self.add_templates_to_message()
         self.message.set_priority('low')
         self.assertEqual(self.message.headers['X-Mail-Queue-Priority'], 'low')
