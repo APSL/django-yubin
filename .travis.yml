@@ -1,34 +1,31 @@
 language: python
+matrix:
+  include:
+   - env: TOXENV=py27-dj18
+     python: 2.7
+   - env: TOXENV=py34-dj18
+     python: 3.4
+   - env: TOXENV=py35-dj18
+     python: 3.5
+   - env: TOXENV=py27-dj110
+     python: 2.7
+   - env: TOXENV=py34-dj110
+     python: 3.4
+   - env: TOXENV=py35-dj110
+     python: 3.5
+   - env: TOXENV=py27-dj111
+     python: 2.7
+   - env: TOXENV=py34-dj111
+     python: 3.4
+   - env: TOXENV=py35-dj111
+     python: 3.5
+   - env: TOXENV=py36-dj111
+     python: 3.6
 install:
   - pip install coverage codecov coveralls tox
-addons:
-  apt:
-    sources:
-      - deadsnakes
-    packages:
-      - python3.6
 script:
   - ./bin/fake-server &
   - tox
 after_success:
   - coveralls
   - codecov
-env:
-  - TOXENV=py27-django18
-  - TOXENV=py27-django19
-  - TOXENV=py27-django110
-  - TOXENV=py27-django111
-
-  - TOXENV=py33-django18
-
-  - TOXENV=py34-django18
-  - TOXENV=py34-django19
-  - TOXENV=py34-django110
-  - TOXENV=py34-django111
-
-  - TOXENV=py35-django18
-  - TOXENV=py35-django19
-  - TOXENV=py35-django110
-  - TOXENV=py35-django111
-
-  - TOXENV=py36-django111
