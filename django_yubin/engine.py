@@ -239,9 +239,10 @@ def send_message(email_message, smtp_connection=None):
 
     try:
         opened_connection = smtp_connection.open()
-        smtp_connection.connection.sendmail(email_message.from_email,
-                    email_message.recipients(),
-                    email_message.message().as_string())
+        if not settings.DEBUG or hasattr(smtp_connection, 'connection'):
+            smtp_connection.connection.sendmail(email_message.from_email,
+                        email_message.recipients(),
+                        email_message.message().as_string())
         result = constants.RESULT_SENT
     except (SocketError, smtplib.SMTPSenderRefused,
             smtplib.SMTPRecipientsRefused,
