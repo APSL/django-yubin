@@ -29,4 +29,5 @@ class Command(BaseCommand):
             content = 'Body test <strong>%s</strong> ✉️ 🙂 àäá.' % i
             message = BasicHTMLEmailMessageView(subject, content)
             message.send(from_email=from_email, to=to)
+
         self.stdout.write('Created %d email(s).' % number)

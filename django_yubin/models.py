@@ -7,6 +7,8 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.timezone import now
 from django_yubin import constants, managers
 
+from pyzmail.parse import message_from_string
+
 
 PRIORITIES = (
     (constants.PRIORITY_HIGH, 'high'),
@@ -45,6 +47,14 @@ class Message(models.Model):
 
     def __str__(self):
         return '%s: %s' % (self.to_address, self.subject)
+
+    def get_pyz_message(self):
+        try:
+            payload_str = str(self.encoded_message.encode('utf-8'), 'utf-8')
+        except TypeError:
+            payload_str = self.encoded_message.encode('utf-8')
+        msg = message_from_string(payload_str)
+        return msg
 
 
 class QueuedMessage(models.Model):

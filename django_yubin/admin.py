@@ -10,7 +10,6 @@ from django.http import HttpResponse
 from django.shortcuts import render
 
 from django_yubin import models
-from pyzmail.parse import message_from_string
 
 from .mail_utils import get_attachments, get_attachment
 
@@ -41,7 +40,7 @@ class Message(admin.ModelAdmin):
             qm = models.QueuedMessage(message=selected_mail)
             try:
                 qm.save()
-                messages_sent += 1 
+                messages_sent += 1
             except IntegrityError:
                 self.message_user(request, 'Message %s is already in the queue' % selected_mail.id)
         self.message_user(request, "%s messages had been re-sent" % messages_sent)
@@ -62,27 +61,16 @@ class Message(admin.ModelAdmin):
         ]
         return custom_urls + urls
 
-    def get_msg(self, instance):
-        try:
-            payload_str = str(instance.encoded_message.encode('utf-8'), 'utf-8')
-        except TypeError:
-            payload_str = instance.encoded_message.encode('utf-8')
-
-        msg = message_from_string(payload_str)
-        return msg
-
     def detail_view(self, request, pk):
         instance = models.Message.objects.get(pk=pk)
-        msg = self.get_msg(instance)
+        msg = instance.get_pyz_message()
         context = {}
         context['subject'] = msg.get_subject()
         context['from'] = msg.get_address('from')
         context['to'] = msg.get_addresses('to')
         context['cc'] = msg.get_addresses('cc')
-        msg_text = msg.text_part.get_payload() if msg.text_part else None
-        msg_html = msg.html_part.get_payload() if msg.html_part else None
-        context['msg_html'] = msg_html
-        context['msg_text'] = msg_text
+        context['msg_text'] = msg.text_part.part.get_payload() if msg.text_part else None
+        context['msg_html'] = msg.html_part.part.get_payload() if msg.html_part else None
         context['attachments'] = get_attachments(msg)
         context['is_popup'] = True
         context['object'] = instance
@@ -98,17 +86,9 @@ class Message(admin.ModelAdmin):
         return response
 
     def html_view(self, request, pk):
-        msg = models.Message.objects.get(pk=pk)
-
-        try:
-            payload_str = str(msg.encoded_message.encode('utf-8'), 'utf-8')
-        except TypeError:
-            payload_str = msg.encoded_message.encode('utf-8')
-
-        msg = message_from_string(payload_str)
-        msg_html = msg.html_part.get_payload() if msg.html_part else None
-        context = {}
-        context['msg_html'] = msg_html
+        instance = models.Message.objects.get(pk=pk)
+        msg = instance.get_pyz_message()
+        context = {'msg_html': msg.html_part.part.get_payload()}
         return render(request, 'django_yubin/html_detail.html', context)
 
 
