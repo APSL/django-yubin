@@ -166,7 +166,7 @@ class TemplatedHTMLEmailMessageViewTestCase(TemplatedEmailMessageViewTestCase):
     def setUp(self):
         super(TemplatedHTMLEmailMessageViewTestCase, self).setUp()
 
-        self.html_body = u'html body ✉️ 🙂 àäá.'
+        self.html_body = 'html body ✉️ 🙂 àäá.'
         self.html_body_template = template_from_string('{{ html }}')
 
         self.context['html'] = self.html_body
@@ -221,7 +221,7 @@ class TemplatedAttachmentEmailMessageViewTestCase(TemplatedEmailMessageViewTestC
     def setUp(self):
         super(TemplatedAttachmentEmailMessageViewTestCase, self).setUp()
 
-        self.html_body = u'html body ✉️ 🙂 àäá.'
+        self.html_body = 'html body ✉️ 🙂 àäá.'
         self.html_body_template = template_from_string('{{ html }}')
 
         self.context['html'] = self.html_body
