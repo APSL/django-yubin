@@ -50,7 +50,7 @@ of the Python versions you have installed in your system (Python 2.7, 3.2 until
 Run ``detox`` if you prefer parallelizing. To run a single environment, you have
 some options::
 
-    $ tox -e py35-django111  # run Python 3.4 and Django 1.11
+    $ tox -e py36-dj111  # run Python 3.6 and Django 1.11
 
 or, in a virtualenv for example::
 
