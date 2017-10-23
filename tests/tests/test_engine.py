@@ -7,11 +7,14 @@ import logging
 import time
 from io import StringIO
 
+from django.conf import settings as django_settings
 from django.test import TestCase
 
 from lockfile import FileLock
 
-from django_yubin import engine, settings
+from django_yubin import engine, settings, models, constants
+
+from .base import MailerTestCase
 
 
 class LockTest(TestCase):
@@ -76,12 +79,14 @@ class LockTest(TestCase):
         original_time = time.time
         global time_call_count
         time_call_count = 0
+
         def fake_time():
             global time_call_count
             time_call_count = time_call_count + 1
             if time_call_count >= 3:
                 time.time = original_time
             return 0
+
         time.time = fake_time
         try:
             engine.send_all()
@@ -90,3 +95,43 @@ class LockTest(TestCase):
                              'Lock already in place. Exiting.')
         finally:
             time.time = original_time
+
+
+class SendMessageTest(MailerTestCase):
+    """
+    Tests engine functions that send messages.
+    """
+
+    def setUp(self):
+        super(SendMessageTest, self).setUp()
+        if constants.EMAIL_BACKEND_SUPPORT:
+            if hasattr(django_settings, 'EMAIL_BACKEND'):
+                self.old_email_backend = django_settings.EMAIL_BACKEND
+            else:
+                self.old_email_backend = None
+            django_settings.EMAIL_BACKEND = 'django.core.mail.backends.smtp.' \
+                                            'EmailBackend'
+
+    def tearDown(self):
+        super(SendMessageTest, self).tearDown()
+        if constants.EMAIL_BACKEND_SUPPORT:
+            if self.old_email_backend:
+                django_settings.EMAIL_BACKEND = self.old_email_backend
+            else:
+                delattr(django_settings, 'EMAIL_BACKEND')
+
+    def test_send_queued_message(self):
+        self.queue_message()
+        self.assertEqual(models.QueuedMessage.objects.count(), 1)
+        q_message = models.QueuedMessage.objects.first()
+        result = engine.send_queued_message(q_message)
+        self.assertEqual(result, constants.RESULT_SENT)
+
+    def test_pause_queued_message(self):
+        self.queue_message()
+        self.assertEqual(models.QueuedMessage.objects.count(), 1)
+        q_message = models.QueuedMessage.objects.first()
+        _original, settings.PAUSE_SEND = settings.PAUSE_SEND, True
+        result = engine.send_queued_message(q_message)
+        settings.PAUSE_SEND = _original
+        self.assertEqual(result, constants.RESULT_SKIPPED)

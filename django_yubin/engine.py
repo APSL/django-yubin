@@ -30,7 +30,6 @@ LOCK_PATH = settings.LOCK_PATH or os.path.join(tempfile.gettempdir(),
                                                'send_mail')
 
 
-
 def _message_queue(block_size, message_limit):
     """
     A generator which iterates queued messages in blocks so that new
@@ -51,6 +50,7 @@ def _message_queue(block_size, message_limit):
         elif message_limit:
             queue = queue[:message_limit]
         return queue
+
     queue = get_block()
     messages_processed = 0
     while queue:
@@ -82,7 +82,7 @@ def send_all(block_size=500, backend=None, messages=None, message_limit=0):
         # is the default if it's not provided) systems which use a LinkFileLock
         # so ensure that it is never a negative number.
         lock.acquire(settings.LOCK_WAIT_TIMEOUT or 0)
-        #lock.acquire(settings.LOCK_WAIT_TIMEOUT)
+        # lock.acquire(settings.LOCK_WAIT_TIMEOUT)
     except AlreadyLocked:
         logger.debug("Lock already in place. Exiting.")
         return
@@ -105,7 +105,7 @@ def send_all(block_size=500, backend=None, messages=None, message_limit=0):
         messages_list = messages or _message_queue(block_size, message_limit)
         for message in messages_list:
             result = send_queued_message(message, smtp_connection=connection,
-                                  blacklist=blacklist)
+                                         blacklist=blacklist)
             if result == constants.RESULT_SENT:
                 sent += 1
             elif result == constants.RESULT_FAILED:
@@ -141,20 +141,20 @@ def send_loop(empty_queue_sleep=None):
     while True:
         while not models.QueuedMessage.objects.all():
             logger.debug("Sleeping for %s seconds before checking queue "
-                          "again." % empty_queue_sleep)
+                         "again." % empty_queue_sleep)
             time.sleep(empty_queue_sleep)
         send_all()
 
 
 def send_queued_message(queued_message, smtp_connection=None, blacklist=None,
-                 log=True):
+                        log=True):
     """
     Send a queued message, returning a response code as to the action taken.
 
     The response codes can be found in ``django_yubin.constants``. The
-    response will be either ``RESULT_SKIPPED`` for a blacklisted email,
-    ``RESULT_FAILED`` for a deferred message or ``RESULT_SENT`` for a
-    successful sent message.
+    response will be either ``RESULT_FAILED`` for a deferred message,
+    ``RESULT_SENT`` for a successful sent message or ``RESULT_SKIPPED`` for
+    blacklisted email or if ``settings.PAUSE_SEND`` is True.
 
     To allow optimizations if multiple messages are to be sent, an SMTP
     connection can be provided and a list of blacklisted email addresses.
@@ -183,18 +183,22 @@ def send_queued_message(queued_message, smtp_connection=None, blacklist=None,
     log_message = ''
     if blacklisted:
         logger.info("Not sending to blacklisted email: %s" %
-                     message.to_address.encode("utf-8"))
+                    message.to_address.encode("utf-8"))
         queued_message.delete()
+        result = constants.RESULT_SKIPPED
+    elif settings.PAUSE_SEND:
+        logger.info("Sending is paused, deferring email.")
+        queued_message.defer()
         result = constants.RESULT_SKIPPED
     else:
         try:
             logger.info("Sending message to %s: %s" %
-                         (message.to_address.encode("utf-8"),
-                          message.subject.encode("utf-8")))
+                        (message.to_address.encode("utf-8"),
+                         message.subject.encode("utf-8")))
             opened_connection = smtp_connection.open()
             smtp_connection.connection.sendmail(
                 message.from_address,
-                [message.to_address], 
+                [message.to_address],
                 smart_str(message.encoded_message).encode('utf-8'))
             queued_message.delete()
             result = constants.RESULT_SENT
@@ -204,7 +208,7 @@ def send_queued_message(queued_message, smtp_connection=None, blacklist=None,
                 UnicodeEncodeError) as err:
             queued_message.defer()
             logger.warning("Message to %s deferred due to failure: %s" %
-                            (message.to_address.encode("utf-8"), err))
+                           (message.to_address.encode("utf-8"), err))
             try:
                 log_message = unicode(err)
             except NameError:
@@ -225,8 +229,9 @@ def send_message(email_message, smtp_connection=None):
     Send an EmailMessage, returning a response code as to the action taken.
 
     The response codes can be found in ``django_yubin.constants``. The
-    response will be either ``RESULT_FAILED`` for a failed send or
-    ``RESULT_SENT`` for a successfully sent message.
+    response will be either ``RESULT_FAILED`` for a failed send,
+    ``RESULT_SENT`` for a successfully sent message or ``RESULT_SKIPPED`` if
+    ``settings.PAUSE_SEND`` is True.
 
     To allow optimizations if multiple messages are to be sent, an SMTP
     connection can be provided. Otherwise an SMTP connection will be opened
@@ -235,15 +240,20 @@ def send_message(email_message, smtp_connection=None):
     This function does not perform any queueing.
 
     """
+    if settings.PAUSE_SEND:
+        logger.warning("Sending is paused, exiting without sending message.")
+        return constants.RESULT_SKIPPED
+
     if smtp_connection is None:
         smtp_connection = get_connection()
     opened_connection = False
 
     try:
         opened_connection = smtp_connection.open()
-        smtp_connection.connection.sendmail(email_message.from_email,
-                    email_message.recipients(),
-                    email_message.message().as_string())
+        smtp_connection.connection.sendmail(
+            email_message.from_email,
+            email_message.recipients(),
+            email_message.message().as_string())
         result = constants.RESULT_SENT
     except (SocketError, smtplib.SMTPSenderRefused,
             smtplib.SMTPRecipientsRefused,
@@ -251,7 +261,7 @@ def send_message(email_message, smtp_connection=None):
             UnicodeEncodeError) as err:
         result = constants.RESULT_FAILED
         logger.warning("Message from %s failed due to: %s" %
-                            (email_message.from_email, err))
+                       (email_message.from_email, err))
     if opened_connection:
         smtp_connection.close()
     return result

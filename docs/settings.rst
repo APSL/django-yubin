@@ -13,8 +13,7 @@ MAILER_PAUSE_SEND
 Provides a way of temporarily pausing the sending of mail. Defaults to
 ``False``.
 
-If this setting is ``True``, mail will not be sent when the ``send_mail``
-command is called.
+If this setting is ``True``, mail will not be sent by any function.
 
 
 MAILER_USE_BACKEND
