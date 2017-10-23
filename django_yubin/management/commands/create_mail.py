@@ -30,4 +30,5 @@ class Command(BaseCommand):
             message = BasicHTMLEmailMessageView(subject, content)
             message.send(from_email=from_email, to=to)
 
-        self.stdout.write('Created %d email(s).' % number)
+        # This output is checked in tests.
+        self.stdout.write('Created email(s): %d' % number)

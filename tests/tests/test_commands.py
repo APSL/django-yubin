@@ -2,10 +2,14 @@
 # encoding: utf-8
 # ----------------------------------------------------------------------------
 from __future__ import absolute_import, unicode_literals
+
 import datetime
+import re
+import time
 
 from django.core import mail
 from django.core.management import call_command
+from django.utils.six import StringIO
 from django.utils.timezone import now
 
 from django_yubin import models
@@ -135,11 +139,6 @@ class TestCommands(MailerTestCase):
         The ``status_mail`` should return a string that matches:
             (?P<queued>\d+)/(?P<deferred>\d+)/(?P<seconds>\d+)
         """
-        import re
-        import sys
-        import time
-        from io import StringIO
-
         re_string = r"(?P<queued>\d+)/(?P<deferred>\d+)/(?P<seconds>\d+)"
         p = re.compile(re_string)
 
@@ -149,16 +148,13 @@ class TestCommands(MailerTestCase):
         self.queue_message(subject='deferred 3')
         models.QueuedMessage.objects.filter(
             message__subject__startswith='deferred').update(deferred=now())
-        non_deferred_messages = models.QueuedMessage.objects.non_deferred()
+        models.QueuedMessage.objects.non_deferred()
         time.sleep(1)
         # Deferred messages are returned to the queue (nothing is sent).
-        out, sys.stdout = sys.stdout, StringIO()
-        with self.assertRaises(SystemExit) as cm:
-            call_command('status_mail', verbosity='0')
-        sys.stdout.seek(0)
-        result = sys.stdout.read()
+        out = StringIO()
+        call_command('status_mail', verbosity='0', stdout=out)
+        result = out.getvalue()
         m = p.match(result)
-        sys.stdout = out
         self.assertTrue(m, "Output does not include expected r.e.")
         v = m.groupdict()
         self.assertTrue(v['queued'], "1")
@@ -179,3 +175,13 @@ class TestCommands(MailerTestCase):
         models.Message.objects.create(date_created=prev)
         call_command('cleanup_mail', days=30)
         self.assertEqual(models.Message.objects.count(), 1)
+
+    def test_create_mail(self):
+        """
+        The ``create_mail`` command create new mails.
+        """
+        out = StringIO()
+        quantity = 2
+        call_command('create_mail', quantity=quantity, stdout=out)
+        created = int(out.getvalue().split(':')[1])
+        self.assertEqual(quantity, created)

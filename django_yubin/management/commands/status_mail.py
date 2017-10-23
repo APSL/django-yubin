@@ -18,8 +18,6 @@ in the queue is just 2 seconds old.
 """
 from __future__ import unicode_literals
 
-import sys
-
 from django.core.management.base import BaseCommand
 from django_yubin.models import QueuedMessage
 from django.utils.timezone import now
@@ -38,5 +36,6 @@ class Command(BaseCommand):
             seconds = (now() - oldest.date_queued).seconds
         except (IndexError, QueuedMessage.DoesNotExist):
             seconds = 0
-        sys.stdout.write('%s/%s/%s\n' % (queued, deferred, seconds))
-        sys.exit()
+
+        # This output is checked in tests.
+        self.stdout.write('%s/%s/%s\n' % (queued, deferred, seconds))
