@@ -386,4 +386,5 @@ class BasicEmailMessageView(TemplateContextMixin, TemplatedEmailMessageView):
 
 
 class BasicHTMLEmailMessageView(TemplateContextMixin, TemplatedHTMLEmailMessageView):
-    html_body_template = template_from_string('{{ content|linebreaks }}')
+    html_body_template = template_from_string(
+        '{% autoescape off %}{{ content|linebreaks }}{% endautoescape %}')
