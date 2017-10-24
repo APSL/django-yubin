@@ -133,6 +133,7 @@ class QueuedMessage(MessageRelatedModelAdmin):
     list_display = ('id', 'message_link', 'message__to_address',
                     'message__from_address', 'message__subject',
                     'message__date_created', 'priority', 'not_deferred')
+    list_filter = ('priority', 'deferred')
 
 
 class Blacklist(admin.ModelAdmin):

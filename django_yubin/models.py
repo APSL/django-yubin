@@ -19,7 +19,7 @@ PRIORITIES = (
 
 RESULT_CODES = (
     (constants.RESULT_SENT, 'success'),
-    (constants.RESULT_SKIPPED, 'not sent (blacklisted)'),
+    (constants.RESULT_SKIPPED, 'not sent (blacklisted or paused)'),
     (constants.RESULT_FAILED, 'failure'),
 )
 
