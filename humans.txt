@@ -1,11 +1,13 @@
-Antoni Aloy (creator)
-Marc Tuduri
-Daniel Sastre
-Cesc Arpí (Farpi)
-Markus Törnqvist
-Andreu Vallbona (Andrew)
-Sergei Maertens
-Rob (the-mace)
-Dave Peake
-Alex de Landgraaf
-Juan Moreno
+Antoni Aloy (@aaloy) (creator)
+Daniel Sastre (@sastred) (current main maintainer)
+Sergei Maertens (@sergei-maertens)
+Cesc Arpí (@francescarpi)
+Marc Tuduri (@marctc)
+Alex de Landgraaf (@alextreme)
+Rob (@the-mace)
+Andreu Vallbona (@avallbona)
+Juan Moreno (@morenosan)
+Dave Peake (@davepeake)
+Grzegorz Bialy (@grzegorzbialy)
+
+https://github.com/APSL/django-yubin/graphs/contributors
