@@ -8,6 +8,7 @@ import time
 from io import StringIO
 
 from django.conf import settings as django_settings
+from django.core import mail
 from django.test import TestCase
 
 from lockfile import FileLock
@@ -133,5 +134,19 @@ class SendMessageTest(MailerTestCase):
         q_message = models.QueuedMessage.objects.first()
         _original, settings.PAUSE_SEND = settings.PAUSE_SEND, True
         result = engine.send_queued_message(q_message)
+        settings.PAUSE_SEND = _original
+        self.assertEqual(result, constants.RESULT_SKIPPED)
+
+    def test_send_message(self):
+        email_message = mail.EmailMessage('subject', 'body', 'from@email.com',
+                                          ['to@email.com'])
+        result = engine.send_message(email_message)
+        self.assertEqual(result, constants.RESULT_SENT)
+
+    def test_pause_send_message(self):
+        email_message = mail.EmailMessage('subject', 'body', 'from@email.com',
+                                          ['to@email.com'])
+        _original, settings.PAUSE_SEND = settings.PAUSE_SEND, True
+        result = engine.send_message(email_message)
         settings.PAUSE_SEND = _original
         self.assertEqual(result, constants.RESULT_SKIPPED)
