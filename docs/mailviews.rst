@@ -173,7 +173,7 @@ So if we want to send in our newsletter a pdf file we could do
         def render_to_message(self, extra_context=None, **kwargs):
             kwargs['to'] = ('mynewsletter@example.com',)
             kwargs['from_email'] = 'no-reply@example.com'
-            return super(TemplatedHTMLEmailMessageView, self).render_to_message(extra_context=None, **kwargs)
+            return super(NewsletterView, self).render_to_message(extra_context=None, **kwargs)
 
         def get_context_data(self, **kwargs):
             """
