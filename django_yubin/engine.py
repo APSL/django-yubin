@@ -81,8 +81,10 @@ def send_all(block_size=500, backend=None, messages=None, message_limit=0):
         # lockfile has a bug dealing with a negative LOCK_WAIT_TIMEOUT (which
         # is the default if it's not provided) systems which use a LinkFileLock
         # so ensure that it is never a negative number.
-        lock.acquire(settings.LOCK_WAIT_TIMEOUT or 0)
-        # lock.acquire(settings.LOCK_WAIT_TIMEOUT)
+        timeout = settings.LOCK_WAIT_TIMEOUT
+        if not timeout or timeout < 0:
+            timeout = 0
+        lock.acquire(timeout)
     except AlreadyLocked:
         logger.debug("Lock already in place. Exiting.")
         return
