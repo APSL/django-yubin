@@ -111,7 +111,7 @@ class MessageRelatedModelAdmin(admin.ModelAdmin):
     message__subject.admin_order_field = 'message__subject'
 
     def message__date_created(self, obj):
-        return obj.message.to_address
+        return obj.message.date_created
 
     message__date_created.admin_order_field = 'message__date_created'
 
