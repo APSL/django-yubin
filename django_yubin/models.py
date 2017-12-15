@@ -104,7 +104,7 @@ class Log(models.Model):
     A log used to record the activity of a queued message.
 
     """
-    message = models.ForeignKey(Message, editable=False)
+    message = models.ForeignKey(Message, editable=False, on_delete=models.CASCADE)
     result = models.PositiveSmallIntegerField(choices=RESULT_CODES)
     date = models.DateTimeField(default=now)
     log_message = models.TextField()
