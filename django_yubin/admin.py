@@ -4,10 +4,11 @@
 
 from django.conf.urls import url
 from django.contrib import admin
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.utils.safestring import mark_safe
 
 from django_yubin import models
 
@@ -17,7 +18,7 @@ from .mail_utils import get_attachments, get_attachment
 class Message(admin.ModelAdmin):
     def message_link(self, obj):
         url = reverse('admin:mail_detail', args=(obj.id,))
-        return """<a href="%s" onclick="return showAddAnotherPopup(this);">show</a>""" % url
+        return mark_safe("""<a href="%s" onclick="return showAddAnotherPopup(this);">show</a>""" % url)
 
     message_link.allow_tags = True
     message_link.short_description = u'Show'
@@ -125,7 +126,7 @@ class QueuedMessage(MessageRelatedModelAdmin):
 
     def message_link(self, obj):
         url = reverse('admin:mail_detail', args=(obj.message.id,))
-        return """<a href="%s" onclick="return showAddAnotherPopup(this);">%s</a>""" % (url, obj.message)
+        return mark_safe("""<a href="%s" onclick="return showAddAnotherPopup(this);">%s</a>""" % (url, obj.message))
 
     message_link.allow_tags = True
     message_link.short_description = u'Message'
@@ -143,7 +144,7 @@ class Blacklist(admin.ModelAdmin):
 class Log(MessageRelatedModelAdmin):
     def message_link(self, obj):
         url = reverse('admin:mail_detail', args=(obj.message.id,))
-        return """<a href="%s" onclick="return showAddAnotherPopup(this);">show</a>""" % url
+        return mark_safe("""<a href="%s" onclick="return showAddAnotherPopup(this);">show</a>""" % url)
 
     message_link.allow_tags = True
     message_link.short_description = u'Message'
