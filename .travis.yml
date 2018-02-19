@@ -1,31 +1,45 @@
 language: python
 matrix:
   include:
-   - env: TOXENV=py27-dj110
-     python: 2.7
-   - env: TOXENV=py34-dj110
-     python: 3.4
-   - env: TOXENV=py35-dj110
-     python: 3.5
-   - env: TOXENV=py27-dj111
-     python: 2.7
-   - env: TOXENV=py34-dj111
-     python: 3.4
-   - env: TOXENV=py35-dj111
-     python: 3.5
-   - env: TOXENV=py36-dj111
-     python: 3.6
-   - env: TOXENV=py34-dj20
-     python: 3.4
-   - env: TOXENV=py35-dj20
-     python: 3.5
-   - env: TOXENV=py36-dj20
-     python: 3.6
+  - env: TOXENV=py27-dj19
+    python: 2.7
+  - env: TOXENV=py34-dj19
+    python: 3.4
+  - env: TOXENV=py35-dj19
+    python: 3.5
+  - env: TOXENV=py27-dj110
+    python: 2.7
+  - env: TOXENV=py34-dj110
+    python: 3.4
+  - env: TOXENV=py35-dj110
+    python: 3.5
+  - env: TOXENV=py27-dj111
+    python: 2.7
+  - env: TOXENV=py34-dj111
+    python: 3.4
+  - env: TOXENV=py35-dj111
+    python: 3.5
+  - env: TOXENV=py36-dj111
+    python: 3.6
+  - env: TOXENV=py34-dj20
+    python: 3.4
+  - env: TOXENV=py35-dj20
+    python: 3.5
+  - env: TOXENV=py36-dj20
+    python: 3.6
 install:
-  - pip install coverage codecov coveralls tox
+- pip install coverage codecov coveralls tox
 script:
-  - ./bin/fake-server &
-  - tox
+- "./bin/fake-server &"
+- tox
 after_success:
-  - coveralls
-  - codecov
+- coveralls
+- codecov
+deploy:
+  provider: pypi
+  user: apsl
+  password:
+    secure: e8YmTR9t44trRKRgybwiLfLfYXuwWKtrgv8a/xhU7csMJKK7xATdMn6TthrhxLn5wcAWhWiNGvhrMlwYOkdKmsT9K+SZC+3Ux6pahfECYj+o8FaW4chByOrihVtMl8BMudPDF8FLJZykzDhIgGQ4a2zYIRjfOVHP9yjlZ7EK5sKwpUMAuQIBfm7Pfif/wY2G7XwPuxYsbdEGCX2Nivfk+rdxTmIf4VEMjh5pOpciwg4aUWHRhqlNtgVi83uR8ZOlR1vXP8lZntHjJ0z+j/9zja1zhFaPLeNIrOk+XcMCOpqJwAmralCWiwWbRILl6iV9yq+Tmu/RigVS0BJ1zb1ECPOC2BQcpuor8vVC6RZVfZFfYKp4IWfFt/aLd39uC3cWK9BgIOCBHxwtTskEjujr8VhK/u8stzl48HiaGocDQEv7PHX6zP0/2Vzj7i1BYj2p5xHX00XmU88QAmIk09h1xNLaKw6cuVV/YdNSEe2niPu00u1VUTLOMvkbtKB8QVzLVsg0vac94Jl4wy+/1ceOT5TGtwOOpg9BxPtFtUf5VEybBG/Qefml0PRfvyGmuX+Xjm9GUpt1xMHcNXzg4OHQovaEeBCzL6zZX2vn+dUVku/RkZPGP0rRHirl7AURC6LHf4kwUr8Rzd39uQDQ86J8Co4CO8Q9+ualCfnJaAdXzRA=
+  on:
+    tags: true
+    branch: master
