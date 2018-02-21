@@ -41,7 +41,6 @@ deploy:
   on:
     tags: true
     branch: master
-    python: 3.5
     condition: $TOXENV = py36-dj20 || $TOXENV = py27-dj111
   distributions: sdist bdist_wheel
   password:
