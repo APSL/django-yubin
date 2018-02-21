@@ -81,6 +81,7 @@ You can read the package documentation at http://django-yubin.readthedocs.org/en
 
 Changelog
 ---------
+* 1.0.1       Fixed issue decoding the message payload, added support for django 1.9, updated changelog and added support to deploy the package from travis
 * 1.0.0       Add support for Django 2.0 and remove django 1.8.
 * 0.8.2       Fix date created column in QueuedMessages admin.
 * 0.8.1       Ensure that LOCK_WAIT_TIMEOUT is never negative to avoid a bug in lockfile in systems which use a LinkFileLock.

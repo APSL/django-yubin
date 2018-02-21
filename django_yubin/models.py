@@ -7,7 +7,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.timezone import now
 from django_yubin import constants, managers
 
-from pyzmail.parse import message_from_string
+from pyzmail.parse import message_from_string, message_from_bytes
 
 
 PRIORITIES = (
@@ -50,10 +50,9 @@ class Message(models.Model):
 
     def get_pyz_message(self):
         try:
-            payload_str = str(self.encoded_message.encode('utf-8'), 'utf-8')
+            msg = message_from_string(self.encoded_message)
         except TypeError:
-            payload_str = self.encoded_message.encode('utf-8')
-        msg = message_from_string(payload_str)
+            msg = message_from_bytes(self.encoded_message)
         return msg
 
 

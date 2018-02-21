@@ -4,7 +4,13 @@
 
 from django.conf.urls import url
 from django.contrib import admin
-from django.urls import reverse
+
+try:
+    # from django 1.10 and above
+    from django.urls import reverse
+except ImportError:
+    # until django 1.9
+    from django.core.urlresolvers import reverse
 from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -29,7 +35,7 @@ class Message(admin.ModelAdmin):
                      'encoded_message',)
     date_hierarchy = 'date_created'
     ordering = ('-date_created',)
-    actions = ['re_send',]
+    actions = ['re_send', ]
 
     def re_send(self, request, queryset):
         """
@@ -70,8 +76,8 @@ class Message(admin.ModelAdmin):
         context['from'] = msg.get_address('from')
         context['to'] = msg.get_addresses('to')
         context['cc'] = msg.get_addresses('cc')
-        context['msg_text'] = msg.text_part.part.get_payload() if msg.text_part else None
-        context['msg_html'] = msg.html_part.part.get_payload() if msg.html_part else None
+        context['msg_text'] = msg.text_part.part.get_payload(decode=True) if msg.text_part else None
+        context['msg_html'] = msg.html_part.part.get_payload(decode=True) if msg.html_part else None
         context['attachments'] = get_attachments(msg)
         context['is_popup'] = True
         context['object'] = instance
@@ -89,7 +95,7 @@ class Message(admin.ModelAdmin):
     def html_view(self, request, pk):
         instance = models.Message.objects.get(pk=pk)
         msg = instance.get_pyz_message()
-        context = {'msg_html': msg.html_part.part.get_payload()}
+        context = {'msg_html': msg.html_part.part.get_payload(decode=True)}
         return render(request, 'django_yubin/html_detail.html', context)
 
 
