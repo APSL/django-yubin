@@ -71,21 +71,16 @@ class Message(admin.ModelAdmin):
     def detail_view(self, request, pk):
         instance = models.Message.objects.get(pk=pk)
         msg = instance.get_pyz_message()
-        context = {}
-        context['subject'] = msg.get_subject()
-        context['from'] = msg.get_address('from')
-        context['to'] = msg.get_addresses('to')
-        context['cc'] = msg.get_addresses('cc')
-        context['msg_text'] = msg.text_part.part.get_payload(decode=True) if msg.text_part else None
-        context['msg_html'] = msg.html_part.part.get_payload(decode=True) if msg.html_part else None
-        context['attachments'] = get_attachments(msg)
-        context['is_popup'] = True
-        context['object'] = instance
+        context = {'subject': msg.get_subject(), 'from': msg.get_address('from'), 'to': msg.get_addresses('to'),
+                   'cc': msg.get_addresses('cc'),
+                   'msg_text': msg.text_part.part.get_payload(decode=self.is_base64(msg)) if msg.text_part else None,
+                   'msg_html': msg.html_part.part.get_payload(decode=self.is_base64(msg)) if msg.html_part else None,
+                   'attachments': get_attachments(msg), 'is_popup': True, 'object': instance}
         return render(request, 'django_yubin/message_detail.html', context)
 
     def download_view(self, request, pk, firma):
         instance = models.Message.objects.get(pk=pk)
-        msg = self.get_msg(instance)
+        msg = instance.get_pyz_message()
         arx = get_attachment(msg, key=firma)
         response = HttpResponse(content_type=arx.tipus)
         response['Content-Disposition'] = 'filename=' + arx.filename
@@ -95,8 +90,19 @@ class Message(admin.ModelAdmin):
     def html_view(self, request, pk):
         instance = models.Message.objects.get(pk=pk)
         msg = instance.get_pyz_message()
-        context = {'msg_html': msg.html_part.part.get_payload(decode=True)}
+        msg.html_part.part._charset = 'utf-8'
+        context = {'msg_html': msg.html_part.part.get_payload(decode=self.is_base64(msg))}
         return render(request, 'django_yubin/html_detail.html', context)
+
+    @staticmethod
+    def is_base64(msg):
+        """
+        detect whether is a base64 encoding or not
+
+        :param msg:
+        :return:
+        """
+        return any(it[1] == 'base64' for it in msg.html_part.part._headers)
 
 
 class MessageRelatedModelAdmin(admin.ModelAdmin):

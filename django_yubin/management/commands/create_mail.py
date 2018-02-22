@@ -1,9 +1,11 @@
 # encoding: utf-8
 from __future__ import absolute_import, unicode_literals
 
+import os
+
 from django.core.management.base import BaseCommand
 
-from ...messages import BasicHTMLEmailMessageView
+from ...messages import BasicHTMLAttachmentEmailMessageView
 
 
 class Command(BaseCommand):
@@ -27,7 +29,12 @@ class Command(BaseCommand):
         for i in range(1, number + 1):
             subject = 'Subject test %s ✉️ 🙂 àäá' % i
             content = 'Body test <strong>%s</strong> ✉️ 🙂 àäá.' % i
-            message = BasicHTMLEmailMessageView(subject, content)
+            attachment_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sample.pdf')
+            with open(attachment_path, 'rb') as f:
+                attachment = f.read()
+            filename = 'sample.pdf'
+            mimetype = 'application/pdf'
+            message = BasicHTMLAttachmentEmailMessageView(subject, content, attachment, filename, mimetype)
             message.send(from_email=from_email, to=to)
 
         # This output is checked in tests.

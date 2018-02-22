@@ -12,3 +12,4 @@
 .tox
 .coverage
 cover
+demo.sqlite

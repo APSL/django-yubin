@@ -51,7 +51,7 @@ class Message(models.Model):
     def get_pyz_message(self):
         try:
             msg = message_from_string(self.encoded_message)
-        except TypeError:
+        except (TypeError, AttributeError):
             msg = message_from_bytes(self.encoded_message)
         return msg
 

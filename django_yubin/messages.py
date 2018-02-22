@@ -388,3 +388,19 @@ class BasicEmailMessageView(TemplateContextMixin, TemplatedEmailMessageView):
 class BasicHTMLEmailMessageView(TemplateContextMixin, TemplatedHTMLEmailMessageView):
     html_body_template = template_from_string(
         '{% autoescape off %}{{ content|linebreaks }}{% endautoescape %}')
+
+
+class BasicHTMLAttachmentEmailMessageView(TemplateContextMixin, TemplatedAttachmentEmailMessageView):
+    html_body_template = template_from_string(
+        '{% autoescape off %}{{ content|linebreaks }}{% endautoescape %}')
+
+    def __init__(self, subject, content, attachment, filename, mimetype):
+        super(BasicHTMLAttachmentEmailMessageView, self).__init__(subject, content)
+        self.attachment = attachment
+        self.filename = filename
+        self.mimetype = mimetype
+
+    def render_to_message(self, *args, **kwargs):
+        msg = super(BasicHTMLAttachmentEmailMessageView, self).render_to_message(*args, **kwargs)
+        msg.attach(filename=self.filename, content=self.attachment, mimetype=self.mimetype)
+        return msg
