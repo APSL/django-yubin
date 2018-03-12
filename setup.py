@@ -23,7 +23,7 @@ with open('docs/index.rst') as docs_index:
 
 setup(
     name='django-yubin',
-    version='1.0.4',
+    version='1.0.5',
     description=("A reusable Django app for composing and queueing emails "
                  "Adds django-mailer2 + django-mailviews + others"),
     long_description=long_description,
