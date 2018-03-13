@@ -241,6 +241,7 @@ class TemplatedAttachmentEmailMessageViewTestCase(TemplatedEmailMessageViewTestC
         self.add_templates_to_message()
         attachment = os.path.join(os.path.dirname(__file__), 'files/attachment.pdf'),
         message = self.message.render_to_message(extra_context=self.context,
+                                                 filename='attachment.pdf',
                                                  attachment=attachment,
                                                  mimetype="application/pdf")
         self.assertEqual(message.subject, self.subject)
@@ -253,6 +254,7 @@ class TemplatedAttachmentEmailMessageViewTestCase(TemplatedEmailMessageViewTestC
         self.add_templates_to_message()
         attachment = os.path.join(os.path.dirname(__file__), 'files/attachment.pdf')
         self.message.send(self.context,
+                          filename='attachment.pdf',
                           attachment=attachment,
                           mimetype="application/pdf",
                           to=('attachment@example.com',))

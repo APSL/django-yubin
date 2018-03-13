@@ -321,8 +321,44 @@ class TemplatedAttachmentEmailMessageView(TemplatedHTMLEmailMessageView):
     an attachment
     """
 
-    def render_to_message(self, extra_context=None, attachment=None,
-                          mimetype=None, *args, **kwargs):
+    def send(self, extra_context=None, **kwargs):
+        """
+        Renders and sends an email message.
+
+        All keyword arguments other than ``extra_context`` are passed through
+        as keyword arguments when constructing a new :attr:`message_class`
+        instance for this message.
+
+        This method exists primarily for convenience, and the proper
+        rendering of your message should not depend on the behavior of this
+        method. To alter how a message is created, override
+        :meth:``render_to_message`` instead, since that should always be
+        called, even if a message is not sent.
+
+        :param extra_context: Any additional context data that will be used
+            when rendering this message.
+
+        :param kwargs : mail settings
+            from_email=None,
+            to=None,
+            bcc=None,
+            connection=None,
+            attachments=None,
+            cc=None
+            headers=None,
+            filename=None,
+
+        :type extra_context: :class:`dict`
+
+        """
+        if kwargs.get("filename") and not kwargs.get("attachment"):
+            raise Exception("If filename is passed, an attachment must be provided")
+        if not kwargs.get("filename") and kwargs.get("attachment"):
+            raise Exception("If attachment is passed, a filename must be provided")
+        message = self.render_to_message(extra_context=extra_context, **kwargs)
+        return message.send()
+
+    def render_to_message(self, extra_context=None, filename=None, attachment=None, mimetype=None, *args, **kwargs):
         """
         Renders and returns an unsent message with the given context.
 
@@ -341,6 +377,9 @@ class TemplatedAttachmentEmailMessageView(TemplatedHTMLEmailMessageView):
             attachments=None,
             cc=None
             headers=None,
+        :param filename: filename (with extension) of the attachment
+        :param attachment: attachment content
+        :param mimetype: mimetype of attachment
 
         :returns: A message instance.
         :rtype: :attr:`.message_class`
@@ -351,15 +390,11 @@ class TemplatedAttachmentEmailMessageView(TemplatedHTMLEmailMessageView):
 
         if extra_context is None:
             extra_context = {}
-
         context = self.get_context_data(**extra_context)
         content = self.render_html_body(context)
         message.attach_alternative(content, mimetype='text/html')
-        if attachment:
-            if type(attachment) == 'string':
-                message.attach(filename=attachment, mimetype=mimetype)
-            else:
-                message.attach(content=attachment, mimetype=mimetype)
+        if filename and attachment:
+            message.attach(filename=filename, content=attachment, mimetype=mimetype)
 
         return message
 
