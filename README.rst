@@ -81,6 +81,7 @@ You can read the package documentation at http://django-yubin.readthedocs.org/en
 
 Changelog
 ---------
+* 1.1.0       Fix attachment headers in TemplateAttachmentEmailMessagView making both "attachment" and "filename" args mandatory.
 * 1.0.5       Add missing paths in MANIFEST.in.
 * 1.0.4       Fix attachment visualization in the admin. Attach pdf in create_mail command. Solved Content-Transfer-Encoding issue.
 * 1.0.3       Fixed issue decoding the message payload, added support for django 1.9, updated changelog and added support to deploy the package from travis.
