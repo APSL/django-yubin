@@ -73,8 +73,10 @@ class Message(admin.ModelAdmin):
         msg = instance.get_pyz_message()
         context = {'subject': msg.get_subject(), 'from': msg.get_address('from'), 'to': msg.get_addresses('to'),
                    'cc': msg.get_addresses('cc'),
-                   'msg_text': msg.text_part.part.get_payload(decode=self.is_base64(msg)) if msg.text_part else None,
-                   'msg_html': msg.html_part.part.get_payload(decode=self.is_base64(msg)) if msg.html_part else None,
+                   'msg_text': msg.text_part.part.get_payload(
+                       decode=self.is_base64(msg, 'text_part')) if msg.text_part else None,
+                   'msg_html': msg.html_part.part.get_payload(
+                       decode=self.is_base64(msg, 'html_part')) if msg.html_part else None,
                    'attachments': get_attachments(msg), 'is_popup': True, 'object': instance}
         return render(request, 'django_yubin/message_detail.html', context)
 
@@ -91,18 +93,21 @@ class Message(admin.ModelAdmin):
         instance = models.Message.objects.get(pk=pk)
         msg = instance.get_pyz_message()
         msg.html_part.part._charset = 'utf-8'
-        context = {'msg_html': msg.html_part.part.get_payload(decode=self.is_base64(msg))}
+        context = {'msg_html': msg.html_part.part.get_payload(decode=self.is_base64(msg, 'html_part'))}
         return render(request, 'django_yubin/html_detail.html', context)
 
     @staticmethod
-    def is_base64(msg):
+    def is_base64(msg, part='html_part'):
         """
         detect whether is a base64 encoding or not
 
-        :param msg:
+        :param msg, part:
         :return:
         """
-        return any(it[1] == 'base64' for it in msg.html_part.part._headers)
+        if part == 'text_part':
+            return any(it[1] == 'base64' for it in msg.text_part.part._headers)
+        elif part == 'html_part':
+            return any(it[1] == 'base64' for it in msg.html_part.part._headers)
 
 
 class MessageRelatedModelAdmin(admin.ModelAdmin):
