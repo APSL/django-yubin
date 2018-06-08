@@ -45,7 +45,6 @@ class Command(BaseCommand):
         else:
             to_list = [x[1] for x in settings.ADMINS if len(x) > 0]
 
-        to_list = []
         if not to_list:
             sys.stdout.write('Please provide an email address or set a valid settings.ADMINS configuration\n')
             sys.exit()
@@ -54,3 +53,6 @@ class Command(BaseCommand):
         content = options['content']
         message = BasicHTMLEmailMessageView(subject, content)
         message.send(from_email=from_email, to=to_list)
+
+        # This output is checked in tests.
+        self.stdout.write('Created email(s): 1')

@@ -185,3 +185,13 @@ class TestCommands(MailerTestCase):
         call_command('create_mail', quantity=quantity, stdout=out)
         created = int(out.getvalue().split(':')[1])
         self.assertEqual(quantity, created)
+
+    def test_send_test_mail(self):
+        """
+        The ``send_test_mail`` sends a test mail to test connection params
+        """
+        out = StringIO()
+        self.assertEqual(models.Message.objects.count(), 0)
+        call_command('send_test_mail', to='test@test.com', stdout=out)
+        created = int(out.getvalue().split(':')[1])
+        self.assertEqual(1, created)
