@@ -103,8 +103,13 @@ def send_all(block_size=500, backend=None, messages=None, message_limit=0):
         else:
             connection = get_connection()
         blacklist = models.Blacklist.objects.values_list('email', flat=True)
-        connection.open()
         messages_list = messages or _message_queue(block_size, message_limit)
+
+        if not messages_list:
+            return
+
+        connection.open()
+
         for message in messages_list:
             result = send_queued_message(message, smtp_connection=connection,
                                          blacklist=blacklist)
