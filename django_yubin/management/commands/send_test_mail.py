@@ -1,10 +1,8 @@
 # encoding: utf-8
 from __future__ import absolute_import, unicode_literals
 
-import sys
-
 from django.conf import settings
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 
 from ...messages import BasicHTMLEmailMessageView
 
@@ -46,8 +44,7 @@ class Command(BaseCommand):
             to_list = [x[1] for x in settings.ADMINS if len(x) > 0]
 
         if not to_list:
-            sys.stdout.write('Please provide an email address or set a valid settings.ADMINS configuration\n')
-            sys.exit()
+            raise CommandError('Please provide an email address or set a valid settings.ADMINS configuration')
 
         subject = options['subject']
         content = options['content']
