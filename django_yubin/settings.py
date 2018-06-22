@@ -32,3 +32,5 @@ LOCK_PATH = getattr(settings, "MAILER_LOCK_PATH", None)
 # the email addresses set in MAILER_TEST_EMAIL before being sent
 MAILER_TEST_MODE = getattr(settings, "MAILER_TEST_MODE", False)
 MAILER_TEST_EMAIL = getattr(settings, "MAILER_TEST_EMAIL", '')
+
+MAILER_HC_QUEUED_LIMIT_OLD = getattr(settings, "MAILER_HC_QUEUED_LIMIT_OLD", 30)

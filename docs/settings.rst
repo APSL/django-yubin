@@ -84,3 +84,11 @@ MAILER_TEST_EMAIL
 String with the email where all email are sent When MAILER_TEST_MODE is on.
 
 Defaults to ``''``.
+
+
+MAILER_HC_QUEUED_LIMIT_OLD
+--------------------------
+
+String to define the max minutes for the message health check. If there exists an old messages in the email's queue the health check will warn.
+
+Defaults to: ``30``
