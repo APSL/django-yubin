@@ -41,6 +41,7 @@ class Message(models.Model):
 
     encoded_message = models.TextField()
     date_created = models.DateTimeField(default=now)
+    date_sent = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ('date_created',)

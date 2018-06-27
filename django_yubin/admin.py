@@ -29,8 +29,8 @@ class Message(admin.ModelAdmin):
     message_link.allow_tags = True
     message_link.short_description = u'Show'
 
-    list_display = ('from_address', 'to_address', 'subject', 'date_created', 'message_link')
-    list_filter = ('date_created',)
+    list_display = ('from_address', 'to_address', 'subject', 'date_created', 'date_sent', 'message_link')
+    list_filter = ('date_created', 'date_sent')
     search_fields = ('to_address', 'subject', 'from_address',
                      'encoded_message',)
     date_hierarchy = 'date_created'

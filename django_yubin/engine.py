@@ -9,6 +9,7 @@ Methods here actually handle the sending of queued messages.
 
 """
 from django.utils.encoding import smart_str
+from django.utils.timezone import now
 from django_yubin import constants, models, settings
 from lockfile import FileLock, AlreadyLocked, LockTimeout
 from socket import error as SocketError
@@ -211,6 +212,8 @@ def send_queued_message(queued_message, smtp_connection=None, blacklist=None,
                 message.from_address,
                 [message.to_address],
                 smart_str(message.encoded_message).encode('utf-8'))
+            queued_message.message.date_sent = now()
+            queued_message.message.save()
             queued_message.delete()
             result = constants.RESULT_SENT
         except (SocketError, smtplib.SMTPSenderRefused,
