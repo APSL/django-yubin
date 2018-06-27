@@ -35,7 +35,9 @@
             {% endblock %}
 
             <div class="row-fluid">
-                {% block content %}Yubin home, go to the <a href="{% url 'admin:index' %}">Admin</a>.{% endblock %}
+                {% block content %}
+                    Yubin home, go to the <a href="{% url 'admin:index' %}">admin</a> or <a href="{%url 'yubin_health' %}">check health</a>.
+                {% endblock %}
             </div>
         </div>
 
