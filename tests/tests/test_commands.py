@@ -9,6 +9,8 @@ import time
 
 from django.core import mail
 from django.core.management import call_command
+from django.core.management.base import CommandError
+from django.conf import settings
 from django.utils.six import StringIO
 from django.utils.timezone import now
 
@@ -185,3 +187,36 @@ class TestCommands(MailerTestCase):
         call_command('create_mail', quantity=quantity, stdout=out)
         created = int(out.getvalue().split(':')[1])
         self.assertEqual(quantity, created)
+
+    def test_send_test_mail(self):
+        """
+        The ``send_test_mail`` sends a test mail to test connection params
+        """
+        out = StringIO()
+        self.assertEqual(models.Message.objects.count(), 0)
+        call_command('send_test_mail', to='test@test.com', stdout=out)
+        created = int(out.getvalue().split(':')[1])
+        self.assertEqual(1, created)
+
+    def test_send_test_no_email(self):
+        """
+        The ``send_test_mail`` without to email. Expect en error.
+        """
+        self.assertEqual(models.Message.objects.count(), 0)
+        try:
+            call_command('send_test_mail')
+            self.fail("Should fail without to address")
+        except CommandError:
+            pass
+
+    def test_send_test_no_admins(self):
+        """
+        The ``send_test_mail`` without to email. Expect en error.
+        """
+        settings.ADMINS = []
+        self.assertEqual(models.Message.objects.count(), 0)
+        try:
+            call_command('send_test_mail')
+            self.fail("Should fail without to address")
+        except CommandError:
+            pass
