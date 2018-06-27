@@ -72,3 +72,23 @@ longer than the interval between calling ``manage.py send_mail``.
 Note that if your project lives inside a virtualenv, you also have to execute
 this command from the virtualenv. The same, naturally, applies also if you're
 executing it with cron.
+
+Health Check
+============
+
+Go to ``http://yourproject/yubin/health`` for see the health output result. You can see shomething like that:
+
+.. code:: text
+
+    oldest_queued_email: 1 mins
+    emails_queued_too_old: no
+
+or...
+
+.. code:: text
+
+    oldest_queued_email: 45 mins
+    emails_queued_too_old: yes
+
+You can use this view's response in your check system.
+

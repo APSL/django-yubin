@@ -59,6 +59,12 @@ To queue all django mail you must configure the mail backend as
 
 More details can be found in the queue documentation.
 
+Add *yubin* urls in your main *urls.py* for use the health check.
+
+.. code:: python
+
+    url(r'^yubin/', include('django_yubin.urls')),
+
 
 Upgrading from previous versions
 ================================

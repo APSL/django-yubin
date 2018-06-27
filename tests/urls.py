@@ -1,3 +1,8 @@
 # -*- coding: utf-8 -*-
 
-urlpatterns = []
+from django.conf.urls import include, url
+
+
+urlpatterns = [
+    url(r'^yubin/', include('django_yubin.urls')),
+]
