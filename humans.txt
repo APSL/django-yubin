@@ -10,5 +10,6 @@ Juan Moreno (@morenosan)
 Dave Peake (@davepeake)
 Grzegorz Bialy (@grzegorzbialy)
 Carlos Salom (@csalom)
+Juan Luis Garcia (@JuanLuisGarcia)
 
 https://github.com/APSL/django-yubin/graphs/contributors

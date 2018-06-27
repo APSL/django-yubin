@@ -53,8 +53,13 @@ you can run:
    (defaults to 90).
 
  - ``status_mail`` the intent of this commant is to allow systems as nagios to
-    be able to ask the queue about its status. It returns as string with than
-    can be parses as ``(?P<queued>\d+)/(?P<deferred>\d+)/(?P<seconds>\d+)``
+   be able to ask the queue about its status. It returns as string with than
+   can be parses as ``(?P<queued>\d+)/(?P<deferred>\d+)/(?P<seconds>\d+)``
+
+ - ``send_test_mail`` send a simple email in order to check connection
+   parameters.
+
+ - ``create_email`` create fake mails for testing.
 
 You may want to set these up via cron to run regularly::
 
@@ -62,7 +67,7 @@ You may want to set these up via cron to run regularly::
     0,20,40 * * * * (cd $PROJECT; python manage.py retry_deferred >> $PROJECT/cron_mail_deferred.log 2>&1)
     0 1 * * * (cd $PROJECT; python manage.py cleanup_mail --days=30 >> $PROJECT/cron_mail_cleanup.log 2>&1)
 
-This attempts to send mail every minute with a retry on failure every 20 minutes 
+This attempts to send mail every minute with a retry on failure every 20 minutes
 and will run a cleanup task every day cleaning all the messaged created before
 30 days.
 

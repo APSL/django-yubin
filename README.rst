@@ -81,6 +81,7 @@ You can read the package documentation at http://django-yubin.readthedocs.org/en
 
 Changelog
 ---------
+* 1.2.0       Fix is_base64 detection. Add a «send_test_email» command to check connection parameters. New health check view. Don't open a connection if there are no messages in queue to send. Add a "date_sent" field to detect when the mail was sent.
 * 1.1.0       Fix attachment headers in TemplateAttachmentEmailMessagView making both "attachment" and "filename" args mandatory.
 * 1.0.5       Add missing paths in MANIFEST.in.
 * 1.0.4       Fix attachment visualization in the admin. Attach pdf in create_mail command. Solved Content-Transfer-Encoding issue.
