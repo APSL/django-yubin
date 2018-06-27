@@ -104,10 +104,11 @@ class Message(admin.ModelAdmin):
         :param msg, part:
         :return:
         """
-        if part == 'text_part':
-            return any(it[1] == 'base64' for it in msg.text_part.part._headers)
-        elif part == 'html_part':
+        if part == 'html_part':
             return any(it[1] == 'base64' for it in msg.html_part.part._headers)
+        elif part == 'text_part':
+            return any(it[1] == 'base64' for it in msg.text_part.part._headers)
+        return False
 
 
 class MessageRelatedModelAdmin(admin.ModelAdmin):
