@@ -18,6 +18,9 @@ import smtplib
 import tempfile
 import time
 
+from .iter_utils import peek
+
+
 logger = logging.getLogger('django_yubin.engine')
 
 if constants.EMAIL_BACKEND_SUPPORT:
@@ -98,13 +101,19 @@ def send_all(block_size=500, backend=None, messages=None, message_limit=0):
     sent = deferred = skipped = 0
 
     try:
+        messages_queue = messages or _message_queue(block_size, message_limit)
+        first_message, messages_list = peek(messages_queue)
+
+        if not first_message:
+            logger.info('No messages in queue.')
+            return
+
         if constants.EMAIL_BACKEND_SUPPORT:
             connection = get_connection(backend=backend)
         else:
             connection = get_connection()
         blacklist = models.Blacklist.objects.values_list('email', flat=True)
         connection.open()
-        messages_list = messages or _message_queue(block_size, message_limit)
         for message in messages_list:
             result = send_queued_message(message, smtp_connection=connection,
                                          blacklist=blacklist)
