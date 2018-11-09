@@ -2,6 +2,8 @@
 # encoding: utf-8
 # ----------------------------------------------------------------------------
 
+from functools import wraps
+
 from django.conf.urls import url
 from django.contrib import admin
 
@@ -11,6 +13,7 @@ try:
 except ImportError:
     # until django 1.9
     from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -21,7 +24,39 @@ from django_yubin import models
 from .mail_utils import get_attachments, get_attachment
 
 
-class Message(admin.ModelAdmin):
+class CustomViewAdminMixin(object):
+    def decorate_admin_view(
+        self, view, require_add_permission=False,
+        require_change_permission=False, require_delete_permission=False
+    ):
+        """
+        Add the following permission checks to a view.
+        * The default admin_view decorator checks (is_staff and is_active)
+        * Depending on the arguments if 'add', 'change' or 'delete' permission is
+          set for this model.
+
+        :param view View which should be decorated with permission checks.
+        :param require_add_permission If a check for 'add' permission should be done.
+        :param require_change_permission If a check for 'change' permission should be done.
+        :param require_delete_permission If a check for 'delete' permission should be done.
+        :return wrapped view
+        """
+
+        def wrap(view):
+            @wraps(view)
+            def wrapper(request, *args, **kwargs):
+                if require_add_permission and not self.has_add_permission(request):
+                    raise PermissionDenied
+                if require_change_permission and not self.has_change_permission(request):
+                    raise PermissionDenied
+                if require_delete_permission and not self.has_delete_permission(request):
+                    raise PermissionDenied
+                return view(request, *args, **kwargs)
+            return wrapper
+        return wrap(self.admin_site.admin_view(view))
+
+
+class Message(CustomViewAdminMixin, admin.ModelAdmin):
     def message_link(self, obj):
         url = reverse('admin:mail_detail', args=(obj.id,))
         return mark_safe("""<a href="%s" onclick="return showAddAnotherPopup(this);">show</a>""" % url)
@@ -57,13 +92,13 @@ class Message(admin.ModelAdmin):
         urls = super(Message, self).get_urls()
         custom_urls = [
             url(r'^mail/(?P<pk>\d+)/$',
-                self.admin_site.admin_view(self.detail_view),
+                self.decorate_admin_view(self.detail_view, require_change_permission=True),
                 name='mail_detail'),
             url('^mail/attachment/(?P<pk>\d+)/(?P<firma>[0-9a-f]{32})/$',
-                self.admin_site.admin_view(self.download_view),
+                self.decorate_admin_view(self.download_view, require_change_permission=True),
                 name="mail_download"),
             url('^mail/html/(?P<pk>\d+)/$',
-                self.admin_site.admin_view(self.html_view),
+                self.decorate_admin_view(self.html_view, require_change_permission=True),
                 name="mail_html"),
         ]
         return custom_urls + urls
