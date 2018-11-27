@@ -2,7 +2,11 @@
 # encoding: utf-8
 # ----------------------------------------------------------------------------
 
+# Deprecated, keeped here for backward compatibility, use PRIORITY_NOW instead.
 PRIORITY_EMAIL_NOW = 0
+
+PRIORITY_NOW_NOT_QUEUED = -1
+PRIORITY_NOW = 0
 PRIORITY_HIGH = 1
 PRIORITY_NORMAL = 3
 PRIORITY_LOW = 5
@@ -12,7 +16,8 @@ RESULT_SKIPPED = 1
 RESULT_FAILED = 2
 
 PRIORITIES = {
-    'now': PRIORITY_EMAIL_NOW,
+    'now-not-queued': PRIORITY_NOW_NOT_QUEUED,
+    'now': PRIORITY_NOW,
     'high': PRIORITY_HIGH,
     'normal': PRIORITY_NORMAL,
     'low': PRIORITY_LOW,
@@ -21,7 +26,7 @@ PRIORITIES = {
 PRIORITY_HEADER = 'X-Mail-Queue-Priority'
 
 try:
-    from django.core.mail import get_connection
+    from django.core.mail import get_connection  # noqa:F401
     EMAIL_BACKEND_SUPPORT = True
 except ImportError:
     # Django version < 1.2

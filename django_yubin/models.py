@@ -11,10 +11,10 @@ from pyzmail.parse import message_from_string, message_from_bytes
 
 
 PRIORITIES = (
+    (constants.PRIORITY_NOW, 'now'),
     (constants.PRIORITY_HIGH, 'high'),
     (constants.PRIORITY_NORMAL, 'normal'),
     (constants.PRIORITY_LOW, 'low'),
-    (constants.PRIORITY_EMAIL_NOW, 'now'),
 )
 
 RESULT_CODES = (

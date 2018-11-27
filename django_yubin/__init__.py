@@ -114,6 +114,16 @@ def queue_email_message(email_message, fail_silently=False, priority=None):
         email_message = set_message_test_mode(email_message,
                                               settings.MAILER_TEST_EMAIL)
 
+    if priority == constants.PRIORITY_NOW_NOT_QUEUED:
+        if constants.EMAIL_BACKEND_SUPPORT:
+            from django.core.mail import get_connection
+            from django_yubin.engine import send_message
+            connection = get_connection(backend=settings.USE_BACKEND)
+            result = send_message(email_message, smtp_connection=connection)
+            return (result == constants.RESULT_SENT)
+        else:
+            return email_message.send()
+
     count = 0
     for to_email in email_message.recipients():
         message = models.Message.objects.create(
@@ -127,7 +137,7 @@ def queue_email_message(email_message, fail_silently=False, priority=None):
         queued_message.save()
         count += 1
 
-        if priority == constants.PRIORITY_EMAIL_NOW:
+        if priority == constants.PRIORITY_NOW:
             from django_yubin.engine import send_all
             messages = [queued_message]
             send_all(backend=settings.USE_BACKEND, messages=messages)
