@@ -45,6 +45,7 @@ class EmailMessageView(object):
 
         :param priority
         :type string
+            now-not-queued
             now
             high
             normal
