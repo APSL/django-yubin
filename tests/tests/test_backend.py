@@ -81,6 +81,9 @@ class TestBackend(MailerTestCase):
                                 from_email='mail_from@abc.com', to=['mail_to@abc.com'])
         self.send_message(msg)
 
+        qs = models.Message.objects.all()
+        self.assertEqual(qs.count(), 5)
+
         qs = models.QueuedMessage.objects.all()
         self.assertEqual(qs.count(), 4)
 
