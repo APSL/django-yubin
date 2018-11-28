@@ -2,7 +2,7 @@
 Installation
 ============
 
-An obvious prerequisite of django-yubin is Django - 1.3 is the
+An obvious prerequisite of django-yubin is Django - 1.9 is the
 minimum supported version.
 
 

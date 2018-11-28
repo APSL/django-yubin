@@ -8,7 +8,7 @@ need to periodically tell it to clear the queue and actually send the mail.
 The latter is done via a command extension.
 
 
-Putting Mail On The Queue (Django 1.3 or higher)
+Putting Mail On The Queue
 =================================================
 
 In settings.py, configure Django's EMAIL_BACKEND setting like so:

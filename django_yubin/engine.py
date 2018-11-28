@@ -8,6 +8,7 @@ The "engine room" of django-yubin mailer.
 Methods here actually handle the sending of queued messages.
 
 """
+from django.core.mail import get_connection
 from django.utils.encoding import smart_str
 from django.utils.timezone import now
 from django_yubin import constants, models, settings
@@ -24,11 +25,6 @@ from .iter_utils import peek
 
 logger = logging.getLogger('django_yubin.engine')
 
-if constants.EMAIL_BACKEND_SUPPORT:
-    from django.core.mail import get_connection
-else:
-    from django.core.mail import SMTPConnection as get_connection
-    logger.warn('DEPRECATION WARNING. Support for Django<1.3 would be removed')
 
 LOCK_PATH = settings.LOCK_PATH or os.path.join(tempfile.gettempdir(),
                                                'send_mail')
@@ -109,10 +105,7 @@ def send_all(block_size=500, backend=None, messages=None, message_limit=0):
             logger.info('No messages in queue.')
             return
 
-        if constants.EMAIL_BACKEND_SUPPORT:
-            connection = get_connection(backend=backend)
-        else:
-            connection = get_connection()
+        connection = get_connection(backend=backend)
         blacklist = models.Blacklist.objects.values_list('email', flat=True)
         connection.open()
         for message in messages_list:

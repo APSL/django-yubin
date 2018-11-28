@@ -106,13 +106,12 @@ class SendMessageTest(MailerTestCase):
     def setUp(self):
         # Set EMAIL_BACKEND
         super(SendMessageTest, self).setUp()
-        if constants.EMAIL_BACKEND_SUPPORT:
-            if hasattr(django_settings, 'EMAIL_BACKEND'):
-                self.old_email_backend = django_settings.EMAIL_BACKEND
-            else:
-                self.old_email_backend = None
-            django_settings.EMAIL_BACKEND = 'django.core.mail.backends.smtp.' \
-                                            'EmailBackend'
+        if hasattr(django_settings, 'EMAIL_BACKEND'):
+            self.old_email_backend = django_settings.EMAIL_BACKEND
+        else:
+            self.old_email_backend = None
+        django_settings.EMAIL_BACKEND = 'django.core.mail.backends.smtp.' \
+                                        'EmailBackend'
 
         # Create somewhere to store the log debug output.
         self.output = StringIO()
@@ -130,11 +129,10 @@ class SendMessageTest(MailerTestCase):
     def tearDown(self):
         # Restore EMAIL_BACKEND
         super(SendMessageTest, self).tearDown()
-        if constants.EMAIL_BACKEND_SUPPORT:
-            if self.old_email_backend:
-                django_settings.EMAIL_BACKEND = self.old_email_backend
-            else:
-                delattr(django_settings, 'EMAIL_BACKEND')
+        if self.old_email_backend:
+            django_settings.EMAIL_BACKEND = self.old_email_backend
+        else:
+            delattr(django_settings, 'EMAIL_BACKEND')
 
         # Remove the log handler.
         logger = logging.getLogger('django_yubin')

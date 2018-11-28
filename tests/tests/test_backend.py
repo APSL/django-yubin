@@ -7,7 +7,7 @@ from unittest import skipIf
 from django.conf import settings as django_settings
 from django.core import mail
 
-from django_yubin import models, constants, queue_email_message, settings, mail_admins, mail_managers
+from django_yubin import models, constants, settings, mail_admins, mail_managers
 
 from .base import MailerTestCase, RFC_6532_SUPPORT
 
@@ -15,71 +15,59 @@ from .base import MailerTestCase, RFC_6532_SUPPORT
 class TestBackend(MailerTestCase):
     """
     Backend tests for the django_yubin app.
-
-    For Django versions less than 1.2, these tests are still run but they just
-    use the queue_email_message funciton rather than directly sending messages.
-
     """
 
     def setUp(self):
         super(TestBackend, self).setUp()
-        if constants.EMAIL_BACKEND_SUPPORT:
-            if hasattr(django_settings, 'EMAIL_BACKEND'):
-                self.old_email_backend = django_settings.EMAIL_BACKEND
-            else:
-                self.old_email_backend = None
-            django_settings.EMAIL_BACKEND = 'django_yubin.smtp_queue.'\
-                                            'EmailBackend'
+        if hasattr(django_settings, 'EMAIL_BACKEND'):
+            self.old_email_backend = django_settings.EMAIL_BACKEND
+        else:
+            self.old_email_backend = None
+        django_settings.EMAIL_BACKEND = 'django_yubin.smtp_queue.'\
+                                        'EmailBackend'
 
     def tearDown(self):
         super(TestBackend, self).tearDown()
-        if constants.EMAIL_BACKEND_SUPPORT:
-            if self.old_email_backend:
-                django_settings.EMAIL_BACKEND = self.old_email_backend
-            else:
-                delattr(django_settings, 'EMAIL_BACKEND')
-
-    def send_message(self, msg):
-        if constants.EMAIL_BACKEND_SUPPORT:
-            msg.send()
+        if self.old_email_backend:
+            django_settings.EMAIL_BACKEND = self.old_email_backend
         else:
-            queue_email_message(msg)
+            delattr(django_settings, 'EMAIL_BACKEND')
 
     def testQueuedMessagePriorities(self):
         # now_not_queued priority message
         msg = mail.EmailMessage(subject='subject', body='body',
                                 from_email='mail_from@abc.com', to=['mail_to@abc.com'],
                                 headers={'X-Mail-Queue-Priority': 'now-not-queued'})
-        self.send_message(msg)
+        msg.send()
 
         # now priority message
         msg = mail.EmailMessage(subject='subject', body='body',
                                 from_email='mail_from@abc.com', to=['mail_to@abc.com'],
                                 headers={'X-Mail-Queue-Priority': 'now'})
-        self.send_message(msg)
+        msg.send()
 
         # high priority message
         msg = mail.EmailMessage(subject='subject', body='body',
                                 from_email='mail_from@abc.com', to=['mail_to@abc.com'],
                                 headers={'X-Mail-Queue-Priority': 'high'})
-        self.send_message(msg)
+        msg.send()
 
         # low priority message
         msg = mail.EmailMessage(subject='subject', body='body',
                                 from_email='mail_from@abc.com', to=['mail_to@abc.com'],
                                 headers={'X-Mail-Queue-Priority': 'low'})
-        self.send_message(msg)
+        msg.send()
 
         # normal priority message
         msg = mail.EmailMessage(subject='subject', body='body',
                                 from_email='mail_from@abc.com', to=['mail_to@abc.com'],
                                 headers={'X-Mail-Queue-Priority': 'normal'})
-        self.send_message(msg)
+        msg.send()
 
         # normal priority message (no explicit priority header)
         msg = mail.EmailMessage(subject='subject', body='body',
                                 from_email='mail_from@abc.com', to=['mail_to@abc.com'])
-        self.send_message(msg)
+        msg.send()
 
         qs = models.Message.objects.all()
         self.assertEqual(qs.count(), 5)
@@ -113,9 +101,9 @@ class TestBackend(MailerTestCase):
         """
         from django.core.management import call_command
         msg = mail.EmailMessage(subject='subject', body='body',
-                        from_email=u'juan.lópez@abc.com', to=['mail_to@abc.com'],
-                        headers={'X-Mail-Queue-Priority': 'normal'})
-        self.send_message(msg)
+                                from_email=u'juan.lópez@abc.com', to=['mail_to@abc.com'],
+                                headers={'X-Mail-Queue-Priority': 'normal'})
+        msg.send()
         queued_messages = models.QueuedMessage.objects.all()
         self.assertEqual(queued_messages.count(), 1)
         call_command('send_mail', verbosity='0')
@@ -131,9 +119,9 @@ class TestBackend(MailerTestCase):
         """
         from django.core.management import call_command
         msg = mail.EmailMessage(subject=u'á subject', body='body',
-                        from_email=u'juan.lópez@abc.com', to=[u'únñac@abc.com'],
-                        headers={'X-Mail-Queue-Priority': 'now'})
-        self.send_message(msg)
+                                from_email=u'juan.lópez@abc.com', to=[u'únñac@abc.com'],
+                                headers={'X-Mail-Queue-Priority': 'now'})
+        msg.send()
         queued_messages = models.QueuedMessage.objects.all()
         self.assertEqual(queued_messages.count(), 1)
         call_command('send_mail', verbosity='0')
@@ -143,9 +131,9 @@ class TestBackend(MailerTestCase):
     def testSendMessageNowPriority(self):
         # NOW priority message
         msg = mail.EmailMessage(subject='subject', body='body',
-                        from_email='mail_from@abc.com', to=['mail_to@abc.com'],
-                        headers={'X-Mail-Queue-Priority': 'now'})
-        self.send_message(msg)
+                                from_email='mail_from@abc.com', to=['mail_to@abc.com'],
+                                headers={'X-Mail-Queue-Priority': 'now'})
+        msg.send()
 
         queued_messages = models.QueuedMessage.objects.all()
         self.assertEqual(queued_messages.count(), 0)
@@ -156,7 +144,7 @@ class TestBackend(MailerTestCase):
         settings.MAILER_TEST_EMAIL = 'test_email@abc.com'
         msg = mail.EmailMessage(subject='subject', body='body',
                                 from_email='mail_from@abc.com', to=['mail_to@abc.com'])
-        self.send_message(msg)
+        msg.send()
 
         queued_messages = models.QueuedMessage.objects.all()
 
@@ -193,7 +181,6 @@ class TestBackend(MailerTestCase):
         self.assertTrue('X-Yubin-Test-Original: {}'.format(','.join(recipient_list)) in
                         queued_messages[0].message.encoded_message)
 
-
     def testHighPriority(self):
         self.assertEqual(models.QueuedMessage.objects.all().count(), 0)
         self.assertEqual(models.Message.objects.all().count(), 0)
@@ -202,7 +189,7 @@ class TestBackend(MailerTestCase):
         # Test with default priority
         msg = mail.EmailMessage(subject='subject 1', body='body',
                                 from_email='mail_from@abc.com', to=['mail_to@abc.com'])
-        self.send_message(msg)
+        msg.send()
 
         self.assertEqual(models.Message.objects.all().count(), 1)
         self.assertEqual(models.QueuedMessage.objects.all().count(), 1)
@@ -212,7 +199,7 @@ class TestBackend(MailerTestCase):
         msg = mail.EmailMessage(subject='subject 2', body='body',
                                 from_email='mail_from@abc.com', to=['mail_to@abc.com'],
                                 headers={'X-Mail-Queue-Priority': 'now'})
-        self.send_message(msg)
+        msg.send()
 
         self.assertEqual(models.QueuedMessage.objects.all().count(), 1)
         self.assertEqual(models.Message.objects.all().count(), 2)
