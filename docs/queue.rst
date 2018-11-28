@@ -28,10 +28,11 @@ If you need prioritized messages, create an instance of EmailMessage
 and specify ``{'X-Mail-Queue-Priority': '<value>'}`` in the ``headers`` parameter,
 where <value> is one of:
 
-    - 'now' - do not queue, send immediately
-    - 'high' - high priority
+    - 'now-not-queued' - do not queue, send immediately.
+    - 'now' - send immediately.
+    - 'high' - high priority.
     - 'normal' - standard priority - this is the default.
-    - 'low' - low priority
+    - 'low' - low priority.
 
 If you don't specify a priority, the message is sent at 'normal' priority.
 

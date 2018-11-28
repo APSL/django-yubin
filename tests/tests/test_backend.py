@@ -46,28 +46,49 @@ class TestBackend(MailerTestCase):
             queue_email_message(msg)
 
     def testQueuedMessagePriorities(self):
+        # now_not_queued priority message
+        msg = mail.EmailMessage(subject='subject', body='body',
+                                from_email='mail_from@abc.com', to=['mail_to@abc.com'],
+                                headers={'X-Mail-Queue-Priority': 'now-not-queued'})
+        self.send_message(msg)
+
+        # now priority message
+        msg = mail.EmailMessage(subject='subject', body='body',
+                                from_email='mail_from@abc.com', to=['mail_to@abc.com'],
+                                headers={'X-Mail-Queue-Priority': 'now'})
+        self.send_message(msg)
+
         # high priority message
         msg = mail.EmailMessage(subject='subject', body='body',
-                        from_email='mail_from@abc.com', to=['mail_to@abc.com'],
-                        headers={'X-Mail-Queue-Priority': 'high'})
+                                from_email='mail_from@abc.com', to=['mail_to@abc.com'],
+                                headers={'X-Mail-Queue-Priority': 'high'})
         self.send_message(msg)
 
         # low priority message
         msg = mail.EmailMessage(subject='subject', body='body',
-                        from_email='mail_from@abc.com', to=['mail_to@abc.com'],
-                        headers={'X-Mail-Queue-Priority': 'low'})
+                                from_email='mail_from@abc.com', to=['mail_to@abc.com'],
+                                headers={'X-Mail-Queue-Priority': 'low'})
         self.send_message(msg)
 
         # normal priority message
         msg = mail.EmailMessage(subject='subject', body='body',
-                        from_email='mail_from@abc.com', to=['mail_to@abc.com'],
-                        headers={'X-Mail-Queue-Priority': 'normal'})
+                                from_email='mail_from@abc.com', to=['mail_to@abc.com'],
+                                headers={'X-Mail-Queue-Priority': 'normal'})
         self.send_message(msg)
 
         # normal priority message (no explicit priority header)
         msg = mail.EmailMessage(subject='subject', body='body',
-                        from_email='mail_from@abc.com', to=['mail_to@abc.com'])
+                                from_email='mail_from@abc.com', to=['mail_to@abc.com'])
         self.send_message(msg)
+
+        qs = models.Message.objects.all()
+        self.assertEqual(qs.count(), 5)
+
+        qs = models.QueuedMessage.objects.all()
+        self.assertEqual(qs.count(), 4)
+
+        qs = models.QueuedMessage.objects.now_priority()
+        self.assertEqual(qs.count(), 0)
 
         qs = models.QueuedMessage.objects.high_priority()
         self.assertEqual(qs.count(), 1)

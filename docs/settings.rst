@@ -33,8 +33,8 @@ Django Yubin.
 
 The default value is ``constants.PRIORITY_HIGH``. Valid values are ``None``
 or any of the priority from ``django_yubin.constants``:
-``PRIORITY_EMAIL_NOW``, ``PRIORITY_HIGH``, ``PRIORITY_NORMAL`` or
-``PRIORITY_LOW``.
+``PRIORITY_NOW_NOT_QUEUED``, ``PRIORITY_NOW``, ``PRIORITY_HIGH``,
+``PRIORITY_NORMAL`` or ``PRIORITY_LOW``.
 
 
 MAILER_MAIL_MANAGERS_PRIORITY

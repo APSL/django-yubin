@@ -25,6 +25,13 @@ class QueueMethods(object):
         """
         return self.exclude(date_queued__gt=now())
 
+    def now_priority(self):
+        """
+        Return a QuerySet of now priority queued messages.
+
+        """
+        return self.filter(priority=constants.PRIORITY_NOW)
+
     def high_priority(self):
         """
         Return a QuerySet of high priority queued messages.
