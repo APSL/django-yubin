@@ -266,10 +266,26 @@ def send_message(email_message, smtp_connection=None):
     except (SocketError, smtplib.SMTPSenderRefused,
             smtplib.SMTPRecipientsRefused,
             smtplib.SMTPAuthenticationError,
-            UnicodeEncodeError) as err:
+            ) as err:
         result = constants.RESULT_FAILED
         logger.warning("Message from %s failed due to: %s" %
                        (email_message.from_email, err))
+    except UnicodeDecodeError:
+        try:
+            from django.utils.encoding import force_bytes
+            message = email_message.message()
+            charset = message.get_charset().get_output_charset() \
+                if message.get_charset() else 'utf-8'
+            smtp_connection.connection.sendmail(
+                email_message.from_email,
+                email_message.recipients(),
+                force_bytes(message.as_string(), charset))
+            result = constants.RESULT_SENT
+        except UnicodeEncodeError as err:
+            result = constants.RESULT_FAILED
+            logger.warning("Message from %s failed due to: %s" %
+                           (email_message.from_email, err))
+
     if opened_connection:
         smtp_connection.close()
     return result
