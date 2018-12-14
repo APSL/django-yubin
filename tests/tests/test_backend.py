@@ -72,7 +72,7 @@ class TestBackend(MailerTestCase):
         qs = models.Message.objects.all()
         self.assertEqual(qs.count(), 5)
 
-        qs = models.QueuedMessage.objects.all()
+        qs = models.QueuedMessage.objects.filter(deferred__isnull=True)
         self.assertEqual(qs.count(), 4)
 
         qs = models.QueuedMessage.objects.now_priority()
@@ -104,11 +104,39 @@ class TestBackend(MailerTestCase):
                                 from_email=u'juan.lópez@abc.com', to=['mail_to@abc.com'],
                                 headers={'X-Mail-Queue-Priority': 'normal'})
         msg.send()
-        queued_messages = models.QueuedMessage.objects.all()
+        queued_messages = models.QueuedMessage.objects.filter(deferred__isnull=True)
         self.assertEqual(queued_messages.count(), 1)
         call_command('send_mail', verbosity='0')
         num_errors = models.Log.objects.filter(result=constants.RESULT_FAILED).count()
         self.assertEqual(num_errors, 1)
+
+    @skipIf(not RFC_6532_SUPPORT, 'RFC 6532 not supported')
+    def testUnicodePriorityNowNotQueuedMessage(self):
+        """
+        Checks that we capture unicode errors on mail on priority.
+        It's hard to check as by definiton priority email does not Logs its
+        contents.testUnicodePriorityNowNotQueuedMessage
+        """
+        from django.core.management import call_command
+        from django.utils.encoding import force_text
+        msg = mail.EmailMessage(subject=u'Chère maman',
+                                body='Je t\'aime très fort',
+                                from_email='mail_from@abc.com',
+                                to=['to@example.com'],
+                                headers={'X-Mail-Queue-Priority':
+                                         'now-not-queued'})
+        num_sent = mail.get_connection().send_messages([msg])
+        self.assertEqual(num_sent, 1)
+        queued_messages = models.QueuedMessage.objects.filter(deferred__isnull=True)
+        self.assertEqual(queued_messages.count(), 0)
+        call_command('send_mail', verbosity='0')
+        num_errors = models.Log.objects.filter(result=constants.RESULT_FAILED).count()
+        self.assertEqual(num_errors, 0)
+        message = msg.message()
+        self.assertEqual(message['subject'],
+                         '=?utf-8?q?Ch=C3=A8re_maman?=')
+        self.assertEqual(force_text(message.get_payload()),
+                         'Je t\'aime très fort')
 
     @skipIf(not RFC_6532_SUPPORT, 'RFC 6532 not supported')
     def testUnicodePriorityMessage(self):
@@ -122,8 +150,8 @@ class TestBackend(MailerTestCase):
                                 from_email=u'juan.lópez@abc.com', to=[u'únñac@abc.com'],
                                 headers={'X-Mail-Queue-Priority': 'now'})
         msg.send()
-        queued_messages = models.QueuedMessage.objects.all()
-        self.assertEqual(queued_messages.count(), 1)
+        queued_messages = models.QueuedMessage.objects.filter(deferred__isnull=True)
+        self.assertEqual(queued_messages.count(), 0)
         call_command('send_mail', verbosity='0')
         num_errors = models.Log.objects.filter(result=constants.RESULT_FAILED).count()
         self.assertEqual(num_errors, 1)
@@ -135,7 +163,7 @@ class TestBackend(MailerTestCase):
                                 headers={'X-Mail-Queue-Priority': 'now'})
         msg.send()
 
-        queued_messages = models.QueuedMessage.objects.all()
+        queued_messages = models.QueuedMessage.objects.filter(deferred__isnull=True)
         self.assertEqual(queued_messages.count(), 0)
 
     def testSendMessageTestMode(self):
@@ -146,7 +174,7 @@ class TestBackend(MailerTestCase):
                                 from_email='mail_from@abc.com', to=['mail_to@abc.com'])
         msg.send()
 
-        queued_messages = models.QueuedMessage.objects.all()
+        queued_messages = models.QueuedMessage.objects.filter(deferred__isnull=True)
 
         self.assertEqual('test_email@abc.com', queued_messages[0].message.to_address)
         self.assertTrue('test_email@abc.com' in queued_messages[0].message.encoded_message)
@@ -159,7 +187,7 @@ class TestBackend(MailerTestCase):
         settings.MAILER_TEST_EMAIL = 'test_email@abc.com'
         mail_admins(subject='subject', message='message')
 
-        queued_messages = models.QueuedMessage.objects.all()
+        queued_messages = models.QueuedMessage.objects.filter(deferred__isnull=True)
         recipient_list = [recipient[1] for recipient in django_settings.ADMINS]
 
         self.assertEqual('test_email@abc.com', queued_messages[0].message.to_address)
@@ -173,7 +201,7 @@ class TestBackend(MailerTestCase):
         settings.MAILER_TEST_EMAIL = 'test_email@abc.com'
         mail_managers(subject='subject', message='message')
 
-        queued_messages = models.QueuedMessage.objects.all()
+        queued_messages = models.QueuedMessage.objects.filter(deferred__isnull=True)
         recipient_list = [recipient[1] for recipient in django_settings.MANAGERS]
 
         self.assertEqual('test_email@abc.com', queued_messages[0].message.to_address)
@@ -182,7 +210,7 @@ class TestBackend(MailerTestCase):
                         queued_messages[0].message.encoded_message)
 
     def testHighPriority(self):
-        self.assertEqual(models.QueuedMessage.objects.all().count(), 0)
+        self.assertEqual(models.QueuedMessage.objects.filter(deferred__isnull=True).count(), 0)
         self.assertEqual(models.Message.objects.all().count(), 0)
         self.assertEqual(models.Log.objects.all().count(), 0)
 
@@ -192,7 +220,7 @@ class TestBackend(MailerTestCase):
         msg.send()
 
         self.assertEqual(models.Message.objects.all().count(), 1)
-        self.assertEqual(models.QueuedMessage.objects.all().count(), 1)
+        self.assertEqual(models.QueuedMessage.objects.filter(deferred__isnull=True).count(), 1)
         self.assertEqual(models.Log.objects.all().count(), 0)
 
         # Test with high priority
@@ -201,6 +229,6 @@ class TestBackend(MailerTestCase):
                                 headers={'X-Mail-Queue-Priority': 'now'})
         msg.send()
 
-        self.assertEqual(models.QueuedMessage.objects.all().count(), 1)
+        self.assertEqual(models.QueuedMessage.objects.filter(deferred__isnull=True).count(), 1)
         self.assertEqual(models.Message.objects.all().count(), 2)
         self.assertEqual(models.Log.objects.all().count(), 1)

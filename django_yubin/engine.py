@@ -260,7 +260,8 @@ def send_message(email_message, smtp_connection=None):
         smtp_connection.connection.sendmail(
             email_message.from_email,
             email_message.recipients(),
-            email_message.message().as_string())
+            smart_str(email_message.message().as_string()
+                      ).encode('utf-8'))
         result = constants.RESULT_SENT
     except (SocketError, smtplib.SMTPSenderRefused,
             smtplib.SMTPRecipientsRefused,
