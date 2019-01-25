@@ -33,6 +33,6 @@ class EmailBackend(BaseEmailBackend):
 
         num_sent = 0
         for email_message in email_messages:
-            queue_email_message(email_message)
-            num_sent += 1
+            if queue_email_message(email_message):
+                num_sent += 1
         return num_sent

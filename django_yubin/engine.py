@@ -9,7 +9,7 @@ Methods here actually handle the sending of queued messages.
 
 """
 from django.core.mail import get_connection
-from django.utils.encoding import smart_str
+from django.utils.encoding import force_bytes, smart_str
 from django.utils.timezone import now
 from django_yubin import constants, models, settings
 from lockfile import FileLock, AlreadyLocked, LockTimeout
@@ -201,18 +201,23 @@ def send_queued_message(queued_message, smtp_connection=None, blacklist=None,
                         (message.to_address.encode("utf-8"),
                          message.subject.encode("utf-8")))
             opened_connection = smtp_connection.open()
-            smtp_connection.connection.sendmail(
-                message.from_address,
-                [message.to_address],
-                smart_str(message.encoded_message).encode('utf-8'))
+            try:
+                smtp_connection.connection.sendmail(
+                    message.from_address,
+                    [message.to_address],
+                    smart_str(message.encoded_message).encode('utf-8'))
+            except UnicodeDecodeError:
+                smtp_connection.connection.sendmail(
+                    message.from_address,
+                    [message.to_address],
+                    force_bytes(message.encoded_message))
             queued_message.message.date_sent = now()
             queued_message.message.save()
             queued_message.delete()
             result = constants.RESULT_SENT
         except (SocketError, smtplib.SMTPSenderRefused,
-                smtplib.SMTPRecipientsRefused,
-                smtplib.SMTPAuthenticationError,
-                UnicodeEncodeError) as err:
+                smtplib.SMTPRecipientsRefused, smtplib.SMTPAuthenticationError,
+                UnicodeDecodeError, UnicodeEncodeError) as err:
             queued_message.defer()
             logger.warning("Message to %s deferred due to failure: %s" %
                            (message.to_address.encode("utf-8"), err))
@@ -257,18 +262,30 @@ def send_message(email_message, smtp_connection=None):
 
     try:
         opened_connection = smtp_connection.open()
-        smtp_connection.connection.sendmail(
-            email_message.from_email,
-            email_message.recipients(),
-            email_message.message().as_string())
+        try:
+            smtp_connection.connection.sendmail(
+                email_message.from_email,
+                email_message.recipients(),
+                smart_str(email_message.message().as_string()).encode('utf-8'))
+        except UnicodeDecodeError:
+            message = email_message.message()
+            charset = message.get_charset()
+            if charset:
+                charset = charset.get_output_charset()
+            else:
+                charset = 'utf-8'
+            smtp_connection.connection.sendmail(
+                email_message.from_email,
+                email_message.recipients(),
+                force_bytes(message.as_string(), charset))
         result = constants.RESULT_SENT
     except (SocketError, smtplib.SMTPSenderRefused,
-            smtplib.SMTPRecipientsRefused,
-            smtplib.SMTPAuthenticationError,
-            UnicodeEncodeError) as err:
+            smtplib.SMTPRecipientsRefused, smtplib.SMTPAuthenticationError,
+            UnicodeDecodeError, UnicodeEncodeError) as err:
         result = constants.RESULT_FAILED
         logger.warning("Message from %s failed due to: %s" %
                        (email_message.from_email, err))
+
     if opened_connection:
         smtp_connection.close()
     return result
