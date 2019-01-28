@@ -3,7 +3,7 @@
 # ----------------------------------------------------------------------------
 
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
+from django.utils.encoding import force_bytes, python_2_unicode_compatible
 from django.utils.timezone import now
 from django_yubin import constants, managers
 
@@ -52,6 +52,8 @@ class Message(models.Model):
     def get_pyz_message(self):
         try:
             msg = message_from_string(self.encoded_message)
+        except UnicodeEncodeError:
+            msg = message_from_string(force_bytes(self.encoded_message))
         except (TypeError, AttributeError):
             msg = message_from_bytes(self.encoded_message)
         return msg

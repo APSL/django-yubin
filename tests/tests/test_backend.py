@@ -6,6 +6,8 @@ from unittest import skipIf
 
 from django.conf import settings as django_settings
 from django.core import mail
+from django.core.management import call_command
+from django.utils.encoding import force_text
 
 from django_yubin import models, constants, settings, mail_admins, mail_managers
 
@@ -95,7 +97,7 @@ class TestBackend(MailerTestCase):
                              constants.PRIORITY_NORMAL)
 
     @skipIf(not RFC_6532_SUPPORT, 'RFC 6532 not supported')
-    def testUnicodeQueuedMessage(self):
+    def testUnicodeErrorQueuedMessage(self):
         """
         Checks that we capture unicode errors on mail
         """
@@ -111,22 +113,54 @@ class TestBackend(MailerTestCase):
         self.assertEqual(num_errors, 1)
 
     @skipIf(not RFC_6532_SUPPORT, 'RFC 6532 not supported')
-    def testUnicodePriorityMessage(self):
+    def testUnicodeQueuedMessage(self):
+        """
+        Checks that we capture unicode errors on mail
+        """
+        from django.core.management import call_command
+        msg = mail.EmailMessage(subject=u'Chère maman',
+                                body='Je t\'aime très fort',
+                                from_email='mail_from@abc.com',
+                                to=['to@example.com'])
+        msg.send()
+
+        queued_messages = models.QueuedMessage.objects.all()
+        self.assertEqual(queued_messages.count(), 1)
+
+        call_command('send_mail', verbosity='0')
+
+        queued_messages = models.QueuedMessage.objects.all()
+        self.assertEqual(queued_messages.count(), 0)
+
+        num_errors = models.Log.objects.filter(result=constants.RESULT_FAILED).count()
+        self.assertEqual(num_errors, 0)
+
+        message = msg.message()
+        self.assertEqual(message['subject'], '=?utf-8?q?Ch=C3=A8re_maman?=')
+        self.assertEqual(force_text(message.get_payload()), 'Je t\'aime très fort')
+
+    @skipIf(not RFC_6532_SUPPORT, 'RFC 6532 not supported')
+    def testUnicodePriorityNowNotQueuedMessage(self):
         """
         Checks that we capture unicode errors on mail on priority.
         It's hard to check as by definiton priority email does not Logs its
         contents.
         """
-        from django.core.management import call_command
-        msg = mail.EmailMessage(subject=u'á subject', body='body',
-                                from_email=u'juan.lópez@abc.com', to=[u'únñac@abc.com'],
-                                headers={'X-Mail-Queue-Priority': 'now'})
-        msg.send()
+        msg = mail.EmailMessage(subject=u'Chère maman',
+                                body='Je t\'aime très fort',
+                                from_email='mail_from@abc.com',
+                                to=['to@example.com'],
+                                headers={'X-Mail-Queue-Priority': 'now-not-queued'})
+        num_sent = mail.get_connection().send_messages([msg])
+        self.assertEqual(num_sent, 1)
         queued_messages = models.QueuedMessage.objects.all()
-        self.assertEqual(queued_messages.count(), 1)
+        self.assertEqual(queued_messages.count(), 0)
         call_command('send_mail', verbosity='0')
         num_errors = models.Log.objects.filter(result=constants.RESULT_FAILED).count()
-        self.assertEqual(num_errors, 1)
+        self.assertEqual(num_errors, 0)
+        message = msg.message()
+        self.assertEqual(message['subject'], '=?utf-8?q?Ch=C3=A8re_maman?=')
+        self.assertEqual(force_text(message.get_payload()), 'Je t\'aime très fort')
 
     def testSendMessageNowPriority(self):
         # NOW priority message
