@@ -18,6 +18,8 @@ in the queue is just 2 seconds old.
 """
 from __future__ import unicode_literals
 
+import json
+
 from django.core.management.base import BaseCommand
 from django_yubin.models import QueuedMessage
 from django.utils.timezone import now
@@ -25,6 +27,10 @@ from django.utils.timezone import now
 
 class Command(BaseCommand):
     help = "Returns a string with the queue status as queued/deferred/seconds"
+
+    def add_arguments(self, parser):
+        parser.add_argument('--json-format', action='store_true',
+                            help='Allows to return the response as a json format.')
 
     def handle(self, *args, **kwargs):
         # If this is just a count request the just calculate, report and exit.
@@ -38,4 +44,11 @@ class Command(BaseCommand):
             seconds = 0
 
         # This output is checked in tests.
-        self.stdout.write('%s/%s/%s\n' % (queued, deferred, seconds))
+        if kwargs['json_format']:
+            self.stdout.write(json.dumps({
+                'queued': queued,
+                'deferred': deferred,
+                'seconds': seconds,
+            }))
+        else:
+            self.stdout.write('%s/%s/%s\n' % (queued, deferred, seconds))

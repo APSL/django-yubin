@@ -53,9 +53,9 @@ you can run:
  - ``cleanup_mail`` will delete mails created before an X number of days
    (defaults to 90).
 
- - ``status_mail`` the intent of this commant is to allow systems as nagios to
-   be able to ask the queue about its status. It returns as string with than
-   can be parses as ``(?P<queued>\d+)/(?P<deferred>\d+)/(?P<seconds>\d+)``
+ - ``status_mail`` command allows systems like Nagios to able to check the queue status.
+   It returns a string that can be parsed as (?P<queued>\d+)/(?P<deferred>\d+)/(?P<seconds>\d+).
+   Adding ``--json-format option``, the output will be in JSON format.
 
  - ``send_test_mail`` send a simple email in order to check connection
    parameters.
