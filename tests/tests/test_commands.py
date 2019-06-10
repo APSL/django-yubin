@@ -6,6 +6,7 @@ from __future__ import absolute_import, unicode_literals
 import datetime
 import re
 import time
+import json
 
 from django.core import mail
 from django.core.management import call_command
@@ -140,6 +141,8 @@ class TestCommands(MailerTestCase):
         """
         The ``status_mail`` should return a string that matches:
             (?P<queued>\d+)/(?P<deferred>\d+)/(?P<seconds>\d+)
+
+        Also it checks the json output format.
         """
         re_string = r"(?P<queued>\d+)/(?P<deferred>\d+)/(?P<seconds>\d+)"
         p = re.compile(re_string)
@@ -162,6 +165,14 @@ class TestCommands(MailerTestCase):
         self.assertTrue(v['queued'], "1")
         self.assertEqual(v['deferred'], "3")
         self.assertTrue(int(v['seconds']) >= 1)
+
+        # Testing json output
+        out = StringIO()
+        call_command('status_mail', '--json-format', verbosity='0', stdout=out)
+        result = json.loads(out.getvalue())
+        self.assertEqual(result['queued'], 1)
+        self.assertEqual(result['deferred'], 3)
+        self.assertTrue(result['seconds'] >= 1)
 
     def test_cleanup_mail(self):
         """
