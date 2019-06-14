@@ -9,13 +9,6 @@ response.
 It also provides with some classes that allows you to compose e-mails in the same way you compose your django
 templates, using different templates for subject, body and html content.
 
-.. toctree::
-
-    install
-    queue
-    mailviews
-    settings
-    contributing
 
 It's a fork!
 =============
