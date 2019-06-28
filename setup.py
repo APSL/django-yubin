@@ -17,7 +17,7 @@ TEST_REQUIREMENTS = [
 ]
 
 
-with open('docs/index.rst') as docs_index:
+with open('README.rst') as docs_index:
     long_description = docs_index.read()
 
 
