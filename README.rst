@@ -81,6 +81,7 @@ You can read the package documentation at http://django-yubin.readthedocs.org/en
 
 Changelog
 ---------
+* 1.4.1       Detecting if messages are encoding using different encoding headers to be able to preview them (now base64, quoted-printable).
 * 1.4.0       Option added in status_mail command to return the output in json format.
 * 1.3.1       Fix unicode and encode errors: sending queued and non queued emails and in admin detail view.
 * 1.3.0       Allow to send emails inmediatly without being saved in database (priority «now-not-queued»). Add support for Python 3.7 and Django 2.1. Remove old code for Django < 1.3.

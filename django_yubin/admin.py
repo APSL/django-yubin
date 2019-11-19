@@ -98,7 +98,7 @@ class Message(admin.ModelAdmin):
 
     @staticmethod
     def _is_encoding_header(header_name):
-        return header_name in ['base64', 'quoted-printable', '7bit']
+        return header_name in ['base64', 'quoted-printable']
 
     @staticmethod
     def is_encoded(msg, part='html_part'):
