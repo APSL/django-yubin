@@ -12,5 +12,6 @@ Grzegorz Bialy (@grzegorzbialy)
 Carlos Salom (@csalom)
 Juan Luis Garcia (@JuanLuisGarcia)
 Xus Zoyo (@xusy2k)
+Celia Amador (@celdrake)
 
 https://github.com/APSL/django-yubin/graphs/contributors
