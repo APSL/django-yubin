@@ -152,7 +152,7 @@ Attachments
 To add an attachment to your mail you just have to remember that `render_to_message` returns a `EmailMessage` instance,
 so you can use https://docs.djangoproject.com/en/dev/topics/email/
 
-As usually we sent just an attachment, we have created a class thats tries to save your time allowing to sent an
+As usually we sent just an attachment, we have created a class that tries to save your time allowing to sent an
 attachent just passing the file name or a file object
 
 .. code:: python
@@ -189,6 +189,53 @@ So if we want to send in our newsletter a pdf file we could do
 
 As an attachment you must provide the full file path or the data stream.
 
+
+Multiple Attachments
+--------------------
+
+To add multiple attachments to your mail you just have to remember that `render_to_message` returns a `EmailMessage`
+instance, so you can use https://docs.djangoproject.com/en/dev/topics/email/
+
+To send multiple attachments, we have created a class that tries to save yor time allowing to set the attachments
+just passing a list of dicts with the filename and the file content
+
+.. code:: python
+
+    TemplatedMultipleAttachmentsEmailMessageView
+
+
+So if we want to send in our newsletter a pdf file we could do
+
+
+.. code:: python
+
+    class NewsletterView(TemplatedMultipleAttachmentsEmailMessageView):
+        subject_template_name = 'emails/newsletter/subject.txt'
+        body_template_name = 'emails/newsletter/body.txt'
+        html_body_template_name = 'emails/newsletter/body_html.html'
+
+        def render_to_message(self, extra_context=None, **kwargs):
+            kwargs['to'] = ('mynewsletter@example.com',)
+            kwargs['from_email'] = 'no-reply@example.com'
+            return super(NewsletterView, self).render_to_message(extra_context=None, **kwargs)
+
+        def get_context_data(self, **kwargs):
+            """
+            here we can get the addtional data we want
+            """
+            context = super(NewsletterView, self).get_context_data(**kwargs)
+            context['day'] = datetime.date.today()
+            return context
+
+    # Instantiate and send a message.
+    attachments = [
+        {"attachment": os.path.join(OUR_ROOT_FILES_PATH, 'newsletter/attachment.pdf'), "filename": "attachment.pdf"},
+        {"attachment": os.path.join(OUR_ROOT_FILES_PATH, 'newsletter/attachment2.pdf'), "filename": "attachment2.pdf"},
+        {"attachment": os.path.join(OUR_ROOT_FILES_PATH, 'newsletter/attachment3.pdf'), "filename": "attachment3.pdf"},
+    ]
+    NewsletterView().send(attachments=attachments)
+
+As an attachment you must provide the full file path or the data stream.
 
 Sending mail to a user
 ----------------------
