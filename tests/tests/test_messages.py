@@ -15,8 +15,7 @@ from django.template.loader import get_template
 from django_yubin.messages import (
     TemplatedEmailMessageView, TemplatedHTMLEmailMessageView,
     TemplatedAttachmentEmailMessageView, template_from_string,
-)
-
+    TemplatedMultipleAttachmentsEmailMessageView)
 
 using_test_templates = override_settings(
     TEMPLATE_DIRS=(
@@ -177,7 +176,7 @@ class TemplatedHTMLEmailMessageViewTestCase(TemplatedEmailMessageViewTestCase):
         """
         Adds templates to the fixture message, ensuring it can be rendered.
         """
-        super(TemplatedHTMLEmailMessageViewTestCase, self)\
+        super(TemplatedHTMLEmailMessageViewTestCase, self) \
             .add_templates_to_message()
         self.message.html_body_template = self.html_body_template
 
@@ -233,7 +232,7 @@ class TemplatedAttachmentEmailMessageViewTestCase(TemplatedEmailMessageViewTestC
         """
         Adds templates to the fixture message, ensuring it can be rendered.
         """
-        super(TemplatedAttachmentEmailMessageViewTestCase, self)\
+        super(TemplatedAttachmentEmailMessageViewTestCase, self) \
             .add_templates_to_message()
         self.message.html_body_template = self.html_body_template
 
@@ -259,6 +258,46 @@ class TemplatedAttachmentEmailMessageViewTestCase(TemplatedEmailMessageViewTestC
                           mimetype="application/pdf",
                           to=('attachment@example.com',))
         self.assertOutboxLengthEquals(1)
+
+
+class TemplatedMultipleAttachmentsEmailMessageViewTestCase(TemplatedAttachmentEmailMessageViewTestCase):
+    message_class = TemplatedMultipleAttachmentsEmailMessageView
+
+    def test_send_message(self):
+        """Test we can send an attachment using the send command"""
+        self.add_templates_to_message()
+        attachment = os.path.join(os.path.dirname(__file__), 'files/attachment.pdf')
+        attachments = [{
+            "filename": "attachment.pdf",
+            "attachment": attachment
+        }]
+        self.message.send(self.context,
+                          attachments=attachments,
+                          to=('attachment@example.com',))
+        self.assertOutboxLengthEquals(1)
+
+    def render_to_message(self, attach_number):
+        self.add_templates_to_message()
+        attachment = os.path.join(os.path.dirname(__file__), 'files/attachment.pdf'),
+        attachments = [{
+            "filename": "{}-attachment.pdf".format(number),
+            "attachment": attachment
+        } for number in range(attach_number)]
+        message = self.message.render_to_message(extra_context=self.context,
+                                                 attachments=attachments)
+        self.assertEqual(len(message.attachments), attach_number)
+
+    def test_render_to_message(self):
+        """Test we can send an attachment using the send command"""
+        self.render_to_message(1)
+
+    def test_render_to_message_no_attach(self):
+        """Test we can send no attchaments using the send command"""
+        self.render_to_message(0)
+
+    def test_render_to_message_multiple_attachs(self):
+        """Test we can send multiple attchaments using the send command"""
+        self.render_to_message(10)
 
 
 class TestEmailOptions(EmailMessageViewTestCase):

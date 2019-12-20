@@ -400,6 +400,94 @@ class TemplatedAttachmentEmailMessageView(TemplatedHTMLEmailMessageView):
         return message
 
 
+class TemplatedMultipleAttachmentsEmailMessageView(TemplatedHTMLEmailMessageView):
+    """
+    This is a sintactic sugar class to allow us to send mail messages with
+    multiple attachments
+    """
+
+    def send(self, extra_context=None, attachments=None, **kwargs):
+        """
+        Renders and sends an email message.
+
+        All keyword arguments other than ``extra_context`` are passed through
+        as keyword arguments when constructing a new :attr:`message_class`
+        instance for this message.
+
+        This method exists primarily for convenience, and the proper
+        rendering of your message should not depend on the behavior of this
+        method. To alter how a message is created, override
+        :meth:``render_to_message`` instead, since that should always be
+        called, even if a message is not sent.
+
+        :param extra_context: Any additional context data that will be used
+            when rendering this message
+        :param attachments: List of dicts with filename and attachment file, with keys 'filename', 'attachment'
+        and 'mimetype'.
+
+        Attachments example -> [{"filename": "filename.pdf", "attachment": "file-path",},...]
+
+        :param kwargs : mail settings
+            from_email=None,
+            to=None,
+            bcc=None,
+            connection=None,
+            cc=None
+            headers=None,
+
+        :type extra_context: :class:`dict`
+        :type attachments: :class:`list`
+
+        """
+
+        if isinstance(attachments, list):
+            for attachment in attachments:
+                if not attachment.get("filename") or not attachment.get("attachment"):
+                    raise Exception("'filename', 'attachment' are mandatory for every attachment")
+
+        message = self.render_to_message(extra_context=extra_context, attachments=attachments, **kwargs)
+        return message.send()
+
+    def render_to_message(self, extra_context=None, attachments=None, *args, **kwargs):
+        """
+        Renders and returns an unsent message with the given context.
+
+        Any extra keyword arguments passed will be passed through as keyword
+        arguments to the message constructor.
+
+        :param extra_context: Any additional context to use when rendering
+            templated content.
+        :type extra_context: :class:`dict`
+        :param attachments: List of dicts with filename and attachment file
+        :type attachments: :class:`list`
+
+        :param kwargs : mail settings
+            from_email=None,
+            to=None,
+            bcc=None,
+            connection=None,
+            cc=None
+            headers=None,
+
+        :returns: A message instance.
+        :rtype: :attr:`.message_class`
+        """
+
+        message = super(TemplatedMultipleAttachmentsEmailMessageView, self).render_to_message(
+            extra_context, *args, **kwargs)
+
+        if extra_context is None:
+            extra_context = {}
+        context = self.get_context_data(**extra_context)
+        content = self.render_html_body(context)
+        message.attach_alternative(content, mimetype='text/html')
+        if isinstance(attachments, list):
+            for attachment in attachments:
+                message.attach(filename=attachment.get("filename"), content=attachment.get("attachment"))
+
+        return message
+
+
 class TemplateContextMixin(object):
     subject_template = template_from_string('{% autoescape off %}{{ subject }}{% endautoescape %}')
     body_template = template_from_string('{% autoescape off %}{{ content }}{% endautoescape %}')
