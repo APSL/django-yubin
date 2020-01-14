@@ -3,11 +3,12 @@
 # ----------------------------------------------------------------------------
 
 from django.db import models
-from django.utils.encoding import force_bytes, python_2_unicode_compatible
+from django.utils.encoding import force_bytes
 from django.utils.timezone import now
 from django_yubin import constants, managers
 
 from pyzmail.parse import message_from_string, message_from_bytes
+from six import python_2_unicode_compatible
 
 
 PRIORITIES = (

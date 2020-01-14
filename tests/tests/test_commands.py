@@ -12,10 +12,10 @@ from django.core import mail
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.conf import settings
-from django.utils.six import StringIO
 from django.utils.timezone import now
 
 from django_yubin import models
+from six import StringIO
 
 from .base import MailerTestCase
 
