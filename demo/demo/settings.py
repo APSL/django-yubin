@@ -166,7 +166,3 @@ LOGGING = {
 EMAIL_BACKEND = 'django_yubin.smtp_queue.EmailBackend'
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 1025
-
-# By default, the middleware will set the X-Frame-Options header to DENY so
-# we set SAMEORIGIN to see the iframe contents
-X_FRAME_OPTIONS = 'SAMEORIGIN'
