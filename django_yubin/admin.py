@@ -15,6 +15,7 @@ from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils.safestring import mark_safe
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 from django_yubin import models
 
@@ -89,6 +90,7 @@ class Message(admin.ModelAdmin):
         response.write(arx.payload)
         return response
 
+    @xframe_options_sameorigin
     def html_view(self, request, pk):
         instance = models.Message.objects.get(pk=pk)
         msg = instance.get_pyz_message()

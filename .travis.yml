@@ -38,6 +38,12 @@ matrix:
     python: 3.6
   - env: TOXENV=py37-dj21
     python: 3.7
+  - env: TOXENV=py36-dj30
+    python: 3.6
+  - env: TOXENV=py37-dj30
+    python: 3.7
+  - env: TOXENV=py38-dj30
+    python: 3.8
 install:
 - pip install coverage codecov coveralls tox
 script:
