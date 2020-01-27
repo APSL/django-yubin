@@ -23,7 +23,7 @@ with open('README.rst') as docs_index:
 
 setup(
     name='django-yubin',
-    version='1.5.0',
+    version='1.6.0',
     description=("A reusable Django app for composing and queueing emails "
                  "Adds django-mailer2 + django-mailviews + others"),
     long_description=long_description,
@@ -59,5 +59,6 @@ setup(
         'Framework :: Django :: 1.11',
         'Framework :: Django :: 2.0',
         'Framework :: Django :: 2.1',
+        'Framework :: Django :: 3.0',
     ]
 )
