@@ -318,7 +318,7 @@ class TemplatedHTMLEmailMessageView(TemplatedEmailMessageView):
 
 class TemplatedAttachmentEmailMessageView(TemplatedHTMLEmailMessageView):
     """
-    This is a sintactic sugar class to allow us to send mail messages with
+    This is a syntactic sugar class to allow us to send mail messages with
     an attachment
     """
 
@@ -402,7 +402,7 @@ class TemplatedAttachmentEmailMessageView(TemplatedHTMLEmailMessageView):
 
 class TemplatedMultipleAttachmentsEmailMessageView(TemplatedHTMLEmailMessageView):
     """
-    This is a sintactic sugar class to allow us to send mail messages with
+    This is a syntactic sugar class to allow us to send mail messages with
     multiple attachments
     """
 
