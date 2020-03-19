@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-Django = ">=3.0,<3.1"
+Django = ">=2.2,<3.0"
 django-extensions = "*"
 
 [dev-packages]
@@ -12,7 +12,7 @@ ipdb = "*"
 flake8 = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.6"
 
 [packages.ed0a5ba]
 path = "./.."
