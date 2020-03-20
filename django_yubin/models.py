@@ -5,22 +5,6 @@ from django.utils.translation import gettext_lazy as _
 
 from pyzmail.parse import message_from_string, message_from_bytes
 
-from . import constants, managers
-
-
-PRIORITIES = (
-    (constants.PRIORITY_NOW, 'now'),
-    (constants.PRIORITY_HIGH, 'high'),
-    (constants.PRIORITY_NORMAL, 'normal'),
-    (constants.PRIORITY_LOW, 'low'),
-)
-
-RESULT_CODES = (
-    (constants.RESULT_SENT, 'success'),
-    (constants.RESULT_SKIPPED, 'not sent (blacklisted or paused)'),
-    (constants.RESULT_FAILED, 'failure'),
-)
-
 
 class Message(models.Model):
     """
@@ -78,32 +62,6 @@ class Message(models.Model):
         return msg
 
 
-class QueuedMessage(models.Model):
-    """
-    A queued message.
-
-    Messages in the queue can be prioritised so that the higher priority
-    messages are sent first (secondarily sorted by the oldest message).
-
-    WARN: Deprecated. It will be deleted after the migration process is finished.
-    """
-    message = models.OneToOneField(Message, editable=False, on_delete=models.CASCADE)
-    priority = models.PositiveSmallIntegerField(choices=PRIORITIES,
-                                                default=constants.PRIORITY_NORMAL)
-    deferred = models.DateTimeField(null=True, blank=True)
-    retries = models.PositiveIntegerField(default=0)
-    date_queued = models.DateTimeField(default=now)
-
-    objects = managers.QueueManager()
-
-    class Meta:
-        ordering = ('priority', 'date_queued')
-
-    def defer(self):
-        self.deferred = now()
-        self.save()
-
-
 class Blacklist(models.Model):
     """
     A blacklisted email address.
@@ -125,8 +83,6 @@ class Log(models.Model):
     A log used to record the activity of a queued message.
     """
     message = models.ForeignKey(Message, verbose_name=_('message'), editable=False, on_delete=models.CASCADE)
-    result = models.PositiveSmallIntegerField(choices=RESULT_CODES, null=True,
-                                              help_text=_('Deprecated for new emails, see "action"'))
     action = models.PositiveSmallIntegerField(_('action'), choices=Message.STATUS_CHOICES,
                                               default=Message.STATUS_CREATED)
     date = models.DateTimeField(_('date'), default=now)

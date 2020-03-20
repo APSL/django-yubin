@@ -1,4 +1,3 @@
-
 from django.conf.urls import url
 from django.contrib import admin, messages
 
@@ -106,69 +105,29 @@ class MessageAdmin(admin.ModelAdmin):
         return False
 
 
-class MessageRelatedModelAdmin(admin.ModelAdmin):
-    list_select_related = True
-
-    def message__to_address(self, obj):
-        return obj.message.to_address
-
-    message__to_address.admin_order_field = 'message__to_address'
-
-    def message__from_address(self, obj):
-        return obj.message.from_address
-
-    message__from_address.admin_order_field = 'message__from_address'
-
-    def message__subject(self, obj):
-        return obj.message.subject
-
-    message__subject.admin_order_field = 'message__subject'
-
-    def message__date_created(self, obj):
-        return obj.message.date_created
-
-    message__date_created.admin_order_field = 'message__date_created'
-
-
-@admin.register(models.QueuedMessage)
-class QueuedMessageAdmin(MessageRelatedModelAdmin):
-    # WARN: Deprecated. It will be deleted after the migration process is finished.
-
-    def not_deferred(self, obj):
-        return not obj.deferred
-
-    not_deferred.boolean = True
-    not_deferred.admin_order_field = 'deferred'
-
-    def message_link(self, obj):
-        url = reverse('admin:mail_detail', args=(obj.message.id,))
-        return mark_safe('<a href="%s" onclick="return showAddAnotherPopup(this);">%s</a>' % (
-                         url, obj.message))
-
-    message_link.allow_tags = True
-    message_link.short_description = 'Message'
-
-    list_display = ('id', 'message_link', 'message__to_address',
-                    'message__from_address', 'message__subject',
-                    'message__date_created', 'priority', 'not_deferred')
-    list_filter = ('priority', 'deferred')
-
-
 @admin.register(models.Blacklist)
 class BlacklistAdmin(admin.ModelAdmin):
     list_display = ('email', 'date_added')
 
 
 @admin.register(models.Log)
-class LogAdmin(MessageRelatedModelAdmin):
+class LogAdmin(admin.ModelAdmin):
     def message_link(self, obj):
         url = reverse('admin:mail_detail', args=(obj.message.id,))
         return mark_safe("""<a href="%s" onclick="return showAddAnotherPopup(this);">show</a>""" % url)
-
     message_link.allow_tags = True
     message_link.short_description = 'Message'
 
-    list_display = ('id', 'result', 'action', 'message__to_address', 'message__subject', 'date',
-                    'message_link')
-    list_filter = ('result', 'action')
-    list_display_links = ('id', )
+    def message__to_address(self, obj):
+        return obj.message.to_address
+    message__to_address.admin_order_field = 'message__to_address'
+
+    def message__subject(self, obj):
+        return obj.message.subject
+    message__subject.admin_order_field = 'message__subject'
+
+    list_select_related = True
+    list_display = ('id', 'action', 'message__to_address', 'message__subject', 'date', 'message_link')
+    list_filter = ('action', 'date')
+    list_display_links = ('id',)
+    date_hierarchy = 'date'
