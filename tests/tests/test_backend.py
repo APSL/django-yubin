@@ -25,8 +25,7 @@ class TestBackend(MailerTestCase):
             self.old_email_backend = django_settings.EMAIL_BACKEND
         else:
             self.old_email_backend = None
-        django_settings.EMAIL_BACKEND = 'django_yubin.smtp_queue.'\
-                                        'EmailBackend'
+        django_settings.EMAIL_BACKEND = 'django_yubin.backends.QueuedEmailBackend'
 
     def tearDown(self):
         super(TestBackend, self).tearDown()
