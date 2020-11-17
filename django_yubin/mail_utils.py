@@ -16,12 +16,12 @@ class Attachment(object):
 
     def __init__(self, mailpart):
         self.filename = mailpart.sanitized_filename
-        self.tipus = mailpart.type
+        self.type = mailpart.type
         self.charset = mailpart.charset
         self.content_description = mailpart.part.get('Content-Description')
         self.payload = mailpart.get_payload()
         self.length = len(self.payload)
-        self.firma = hashlib.md5(self.payload).hexdigest()
+        self.signature = hashlib.md5(self.payload).hexdigest()
 
 
 def get_attachments(msg):
@@ -46,6 +46,6 @@ def get_attachment(msg, key):
     for mailpart in msg.mailparts:
         if not mailpart.is_body and mailpart.disposition == 'attachment':
             attachment = Attachment(mailpart)
-            if attachment.firma == key:
+            if attachment.signature == key:
                 return attachment
     return None

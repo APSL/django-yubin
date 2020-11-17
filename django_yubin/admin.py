@@ -71,7 +71,7 @@ class MessageAdmin(admin.ModelAdmin):
         instance = models.Message.objects.get(pk=pk)
         msg = instance.get_pyz_message()
         arx = get_attachment(msg, key=firma)
-        response = HttpResponse(content_type=arx.tipus)
+        response = HttpResponse(content_type=arx.type)
         response['Content-Disposition'] = 'filename=' + arx.filename
         response.write(arx.payload)
         return response
