@@ -8,7 +8,7 @@ from setuptools import setup
 INSTALL_REQUIRES = [
     'pyzmail;python_version<"3.6"',
     'pyzmail36;python_version>="3.6"',
-    'celery>=4.4,<4.5',
+    'celery>=5.0,<5.1',
 ]
 
 
@@ -42,12 +42,12 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Framework :: Django',
         'Framework :: Django :: 2.2',
         'Framework :: Django :: 3.0',
+        'Framework :: Django :: 3.1',
     ]
 )

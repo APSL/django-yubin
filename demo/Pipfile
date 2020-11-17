@@ -4,13 +4,15 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-Django = ">=2.2,<3.0"
-django-extensions = "*"
+Django = ">=2.2,<3.2"
+django-extensions = ">=3.0,<=3.10"
 redis = ">=3.4,<3.5"
 
 [dev-packages]
-ipdb = "*"
-flake8 = "*"
+traitlets = ">=4.3,<4.4"
+ipython = ">=7.16,<7.17"
+ipdb = ">=0.13,<0.14"
+flake8 = ">=3.8,<3.9"
 
 [requires]
 python_version = "3.6"
