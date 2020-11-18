@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# encoding: utf-8
-# ----------------------------------------------------------------------------
+"""
+Class based views for composing emails.
+"""
 
-try:
-    import urlparse
-except ImportError:
-    import urllib.parse as urlparse
+import urllib.parse
 
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -266,8 +263,8 @@ class TemplatedHTMLEmailMessageView(TemplatedEmailMessageView):
 
         domain = Site.objects.get_current().domain
         ctx = super(TemplatedHTMLEmailMessageView, self).get_context_data(**kwargs)
-        ctx['MEDIA_URL'] = urlparse.urljoin(domain, settings.MEDIA_URL)
-        ctx['STATIC_URL'] = urlparse.urljoin(domain, settings.STATIC_URL)
+        ctx['MEDIA_URL'] = urllib.parse.urljoin(domain, settings.MEDIA_URL)
+        ctx['STATIC_URL'] = urllib.parse.urljoin(domain, settings.STATIC_URL)
         return ctx
 
     def render_html_body(self, context):

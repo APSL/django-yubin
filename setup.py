@@ -24,6 +24,8 @@ setup(
     long_description=long_description,
     author='Antoni Aloy',
     author_email='aaloy@apsl.net',
+    maintainer='APSL',
+    maintainer_email='info@apsl.net',
     url='http://github.com/APSL/django-yubin',
     install_requires=INSTALL_REQUIRES,
     packages=[

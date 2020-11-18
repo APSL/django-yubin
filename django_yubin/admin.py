@@ -1,15 +1,15 @@
 from django.conf.urls import url
 from django.contrib import admin, messages
-
-from django.urls import reverse
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.urls import reverse
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
-from django_yubin import models
-
-from .mail_utils import get_attachments, get_attachment
+from . import models
+from .attachments import get_attachments, get_attachment
+from .tasks import send_email
 
 
 @admin.register(models.Message)
@@ -17,13 +17,12 @@ class MessageAdmin(admin.ModelAdmin):
     def message_link(self, obj):
         url = reverse('admin:mail_detail', args=(obj.id,))
         return mark_safe("""<a href="%s" onclick="return showAddAnotherPopup(this);">show</a>""" % url)
-
     message_link.allow_tags = True
-    message_link.short_description = 'Show'
+    message_link.short_description = _('Show')
 
-    list_display = ('from_address', 'to_address', 'subject', 'date_created', 'date_sent', 'status',
-                    'message_link')
-    list_filter = ('date_created', 'date_sent', 'status')
+    list_display = ('from_address', 'to_address', 'subject', 'date_created', 'date_sent',
+                    'date_enqueued', 'status', 'message_link')
+    list_filter = ('date_created', 'date_sent', 'date_enqueued', 'status')
     search_fields = ('to_address', 'subject', 'from_address', 'encoded_message',)
     date_hierarchy = 'date_created'
     ordering = ('-date_created',)
@@ -32,11 +31,13 @@ class MessageAdmin(admin.ModelAdmin):
     def enqueue(self, request, queryset):
         """
         Enqueue a previous e-mail.
-
-        TODO: Not implemented yet.
         """
-        self.message_user(request, "Sorry, email enqueueing not implemented yet.", level=messages.ERROR)
-    enqueue.short_description = 'Enqueue selected messages'
+        for message in queryset:
+            send_email.delay(message.pk)
+            message.mark_as_queued()
+            message.save()
+        self.message_user(request, _("Emails enqueued successfully."), level=messages.SUCCESS)
+    enqueue.short_description = _('Enqueue selected messages')
 
     def get_urls(self):
         urls = super(MessageAdmin, self).get_urls()
@@ -116,7 +117,7 @@ class LogAdmin(admin.ModelAdmin):
         url = reverse('admin:mail_detail', args=(obj.message.id,))
         return mark_safe("""<a href="%s" onclick="return showAddAnotherPopup(this);">show</a>""" % url)
     message_link.allow_tags = True
-    message_link.short_description = 'Message'
+    message_link.short_description = _('Message')
 
     def message__to_address(self, obj):
         return obj.message.to_address

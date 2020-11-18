@@ -1,12 +1,4 @@
-#!/usr/bin/env python
-# encoding: utf-8
-# ----------------------------------------------------------------------------
-
 import hashlib
-
-
-def unimplemented(*args, **kwargs):
-    raise NotImplementedError
 
 
 class Attachment(object):

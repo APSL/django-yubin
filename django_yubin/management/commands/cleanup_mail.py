@@ -1,12 +1,6 @@
-# encoding: utf-8
-
-import datetime
-import logging
-
 from django.core.management.base import BaseCommand
 
-from django_yubin.management.commands import create_handler
-from django_yubin.models import Message
+from ...models import Message
 
 
 class Command(BaseCommand):
@@ -23,15 +17,5 @@ class Command(BaseCommand):
         )
 
     def handle(self, verbosity, **options):
-        # Delete mails and their related logs and queued created before X days
-        logger = logging.getLogger('django_yubin')
-        handler = create_handler(verbosity)
-        logger.addHandler(handler)
-
-        today = datetime.date.today()
-        cutoff_date = today - datetime.timedelta(options['days'])
-        count = Message.objects.filter(date_created__lt=cutoff_date).count()
-        if count:
-            Message.objects.filter(date_created__lt=cutoff_date).delete()
-            logger.info("Deleted %s mails created before %s " %
-                        (count, cutoff_date))
+        deleted, cutoff_date = Message.delete_old(options['days'])
+        self.stdout.write("Deleted %s mails created before %s " % (deleted[0], cutoff_date))

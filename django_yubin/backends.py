@@ -1,4 +1,6 @@
-"""Queued SMTP email backend class."""
+"""
+SMTP email backends.
+"""
 
 from django.core.mail.backends.base import BaseEmailBackend
 

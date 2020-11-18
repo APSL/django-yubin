@@ -1,4 +1,7 @@
+import datetime
+
 from django.db import models
+from django.db.models import F
 from django.utils.encoding import force_bytes
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
@@ -38,9 +41,14 @@ class Message(models.Model):
 
     encoded_message = models.TextField(_('encoded message'))
     date_created = models.DateTimeField(_('date created'), default=now)
+
     date_sent = models.DateTimeField(_('date sent'), null=True, blank=True)
     sent_count = models.PositiveSmallIntegerField(_('sent count'), default=0,
                                                   help_text=_('Times the message has been sent'))
+
+    date_enqueued = models.DateTimeField(_('date enqueued'), null=True, blank=True)
+    enqueued_count = models.PositiveSmallIntegerField(_('enqueued count'), default=0,
+                                                      help_text=_('Times the message has been enqueued'))
 
     status = models.PositiveSmallIntegerField(choices=STATUS_CHOICES, default=STATUS_CREATED)
 
@@ -60,6 +68,35 @@ class Message(models.Model):
         except (TypeError, AttributeError):
             msg = message_from_bytes(self.encoded_message)
         return msg
+
+    def mark_as_sent(self):
+        self.date_sent = now()
+        self.status = self.STATUS_SENT
+        self.sent_count = F('sent_count') + 1
+
+    def mark_as_queued(self):
+        self.date_enqueued = now()
+        self.status = self.STATUS_QUEUED
+        self.enqueued_count = F('enqueued_count') + 1
+
+    @classmethod
+    def get_not_sent(cls, max_retries=0):
+        messages = cls.objects.filter(sent_count=0, status__gt=cls.STATUS_SENT)
+        if max_retries > 0:
+            messages = messages.filter(enqueued_count__lt=max_retries)
+        return messages
+
+
+    @classmethod
+    def delete_old(cls, days=90):
+        """
+        Deletes mails created before `days` days.
+
+        Returns the deletion data from Django and the cuttoff date.
+        """
+        cutoff_date = now() - datetime.timedelta(days)
+        deleted = cls.objects.filter(date_created__lt=cutoff_date).delete()
+        return deleted, cutoff_date
 
 
 class Blacklist(models.Model):
@@ -90,5 +127,5 @@ class Log(models.Model):
 
     class Meta:
         ordering = ('-date',)
-        verbose_name = ('log')
+        verbose_name = _('log')
         verbose_name_plural = _('logs')
