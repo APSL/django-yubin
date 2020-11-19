@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 from . import models
-from .attachments import get_attachments, get_attachment
+from .message_utils import get_attachments, get_attachment, is_part_encoded
 from .tasks import send_email
 
 
@@ -62,10 +62,12 @@ class MessageAdmin(admin.ModelAdmin):
                    'to': msg.get_addresses('to'),
                    'cc': msg.get_addresses('cc'),
                    'msg_text': msg.text_part.part.get_payload(
-                       decode=self.is_encoded(msg, 'text_part')) if msg.text_part else None,
+                       decode=is_part_encoded(msg, 'text_part')) if msg.text_part else None,
                    'msg_html': msg.html_part.part.get_payload(
-                       decode=self.is_encoded(msg, 'html_part')) if msg.html_part else None,
-                   'attachments': get_attachments(msg), 'is_popup': True, 'object': instance}
+                       decode=is_part_encoded(msg, 'html_part')) if msg.html_part else None,
+                   'attachments': get_attachments(msg),
+                   'is_popup': True,
+                   'object': instance}
         return render(request, 'django_yubin/message_detail.html', context)
 
     def download_view(self, request, pk, firma):
@@ -82,28 +84,8 @@ class MessageAdmin(admin.ModelAdmin):
         instance = models.Message.objects.get(pk=pk)
         msg = instance.get_pyz_message()
         msg.html_part.part._charset = 'utf-8'
-        context = {'msg_html': msg.html_part.part.get_payload(decode=self.is_encoded(msg, 'html_part'))}
+        context = {'msg_html': msg.html_part.part.get_payload(decode=is_part_encoded(msg, 'html_part'))}
         return render(request, 'django_yubin/html_detail.html', context)
-
-    @staticmethod
-    def _is_encoding_header(header_name):
-        return header_name in ['base64', 'quoted-printable']
-
-    @staticmethod
-    def is_encoded(msg, part='html_part'):
-        """
-        detect whether the part is encoded or not. We'll check for known encoding headers
-
-        :param msg, part:
-        :return:
-        """
-        if part == 'html_part':
-            return any(MessageAdmin._is_encoding_header(header[1])
-                       for header in msg.html_part.part._headers)
-        elif part == 'text_part':
-            return any(MessageAdmin._is_encoding_header(header[1])
-                       for header in msg.text_part.part._headers)
-        return False
 
 
 @admin.register(models.Blacklist)

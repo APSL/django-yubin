@@ -11,11 +11,8 @@ def send_email(message_pk):
     """
     Send an email from a database Message PK.
     """
-
-    from django.core.mail import get_connection
-    from . import settings
-    from .engine import send_db_message
     from .models import Message
+    from . import engine
 
     try:
         message = Message.objects.get(pk=message_pk)
@@ -25,8 +22,7 @@ def send_email(message_pk):
         return
 
     try:
-        connection = get_connection(backend=settings.USE_BACKEND)
-        send_db_message(message, smtp_connection=connection)
+        engine.send_db_message(message)
     except Exception:
         logger.exception('Error sending email', extra={'message_pk': message_pk})
 
@@ -36,7 +32,6 @@ def retry_not_sent(max_retries=3):
     """
     Retry sending not sent emails queueing them again.
     """
-
     from .models import Message
 
     messages = Message.get_not_sent(max_retries)

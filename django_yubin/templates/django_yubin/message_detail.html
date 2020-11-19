@@ -35,7 +35,7 @@
       <h2>Attachments</h2>
       {% for file in attachments %}
         <div class="form-row">
-          <a title="{{file.tipus}} {{file.length}}" href="{% url 'admin:mail_download' object.pk file.firma %}">{{file.filename}}</a>
+          <a title="{{file.type}} {{file.length}}" href="{% url 'admin:mail_download' object.pk file.signature %}">{{file.filename}}</a>
         </div>
       {% endfor %}
       </div>

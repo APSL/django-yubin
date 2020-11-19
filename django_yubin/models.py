@@ -1,5 +1,6 @@
 import datetime
 
+from django.core.mail.message import EmailMessage, EmailMultiAlternatives
 from django.db import models
 from django.db.models import F
 from django.utils.encoding import force_bytes
@@ -7,6 +8,8 @@ from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
 from pyzmail.parse import message_from_string, message_from_bytes
+
+from .message_utils import get_attachments, is_part_encoded
 
 
 class Message(models.Model):
@@ -60,15 +63,6 @@ class Message(models.Model):
     def __str__(self):
         return '%s: %s' % (self.to_address, self.subject)
 
-    def get_pyz_message(self):
-        try:
-            msg = message_from_string(self.encoded_message)
-        except UnicodeEncodeError:
-            msg = message_from_string(force_bytes(self.encoded_message))
-        except (TypeError, AttributeError):
-            msg = message_from_bytes(self.encoded_message)
-        return msg
-
     def mark_as_sent(self):
         self.date_sent = now()
         self.status = self.STATUS_SENT
@@ -79,13 +73,53 @@ class Message(models.Model):
         self.status = self.STATUS_QUEUED
         self.enqueued_count = F('enqueued_count') + 1
 
+    def get_pyz_message(self):
+        try:
+            msg = message_from_string(self.encoded_message)
+        except UnicodeEncodeError:
+            msg = message_from_string(force_bytes(self.encoded_message))
+        except (TypeError, AttributeError):
+            msg = message_from_bytes(self.encoded_message)
+        return msg
+
+    def get_email_message(self):
+        """
+        Returns EmailMessage or EmailMultiAlternatives from self, depending on if the
+        message has an HTML body.
+        """
+        msg = self.get_pyz_message()
+
+        body = ''
+        if msg.text_part:
+            body = msg.text_part.part.get_payload(decode=is_part_encoded(msg, 'text_part'))
+
+        email_class = EmailMessage
+        email_kwargs = {
+            'subject': msg.get_subject(),
+            'body': body,
+            'from_email': msg.get_address('from'),
+            'to': msg.get_address('to'),
+            'cc': msg.get_address('cc'),
+            'bcc': msg.get_address('bcc'),
+            'attachments': get_attachments(msg),
+        }
+
+        html = ''
+        if msg.html_part:
+            html = msg.html_part.part.get_payload(decode=is_part_encoded(msg, 'html_part'))
+
+        if html:
+            email_class = EmailMultiAlternatives
+            email_kwargs['alternatives'] = [html]
+
+        return email_class(**email_kwargs)
+
     @classmethod
     def get_not_sent(cls, max_retries=0):
         messages = cls.objects.filter(sent_count=0, status__gt=cls.STATUS_SENT)
         if max_retries > 0:
             messages = messages.filter(enqueued_count__lt=max_retries)
         return messages
-
 
     @classmethod
     def delete_old(cls, days=90):

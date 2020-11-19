@@ -41,7 +41,7 @@ def queue_email_message(email_message, fail_silently=False):
 
 def _set_message_test_mode(email_message, mailer_test_email):
     """
-    Sets the headers of the message with test values used when
+    Sets the headers of the message with test values when
     ``MAILER_TEST_MODE`` setting is ``True``
     """
     original_to = ','.join(email_message.to)
