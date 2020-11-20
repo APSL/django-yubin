@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
-from ...messages import BasicHTMLEmailMessageView
+from ...message_views import BasicHTMLEmailMessageView
 
 
 class Command(BaseCommand):

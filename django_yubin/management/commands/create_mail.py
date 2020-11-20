@@ -2,7 +2,7 @@ import os
 
 from django.core.management.base import BaseCommand
 
-from ...messages import BasicHTMLAttachmentEmailMessageView
+from ...message_views import BasicHTMLAttachmentEmailMessageView
 
 
 class Command(BaseCommand):
