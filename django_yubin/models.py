@@ -65,7 +65,7 @@ class Message(models.Model):
         return '%s: %s' % (self.to_address, self.subject)
 
     def can_be_sent(self):
-        return self.status not in Message.SENDABLE_STATUSES
+        return self.status in Message.SENDABLE_STATUSES
 
     def mark_as(self, status, log_message):
         if status in (self.STATUS_SENT, self.STATUS_QUEUED):
