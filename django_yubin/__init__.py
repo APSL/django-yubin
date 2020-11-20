@@ -35,7 +35,7 @@ def queue_email_message(email_message, fail_silently=False):
             encoded_message=email_message.message().as_string())
         try:
             tasks.send_email.delay(message.pk)
-            message.mark_as_queued()
+            message.mark_as_queued('Enqueued from a Backend or django-yubin itself')
             count += 1
         except OperationalError:
             logger.exception('Error enqueuing an email', extra={'message': message})
