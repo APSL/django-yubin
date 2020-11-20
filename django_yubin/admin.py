@@ -79,14 +79,13 @@ class MessageAdmin(admin.ModelAdmin):
 
     def mark_as_sent_action(self, request, queryset):
         for message in queryset:
-            message.mark_as_sent(log_message='Emails marked as sent from the admin.')
+            message.mark_as_sent(log_message='Marked as sent from the admin.')
         self.message_user(request, _("Emails marked as sent."), level=dj_messages.SUCCESS)
     mark_as_sent_action.short_description = _('Mark as sent selected messages')
 
     def mark_as_created_action(self, request, queryset):
         for message in queryset:
-            message.status = models.Message.STATUS_CREATED
-            message.save()
+            message.mark_as(models.Message.STATUS_CREATED, 'Marked as created from the admin.')
         self.message_user(request, _("Emails marked as created."), level=dj_messages.SUCCESS)
     mark_as_created_action.short_description = _('Mark as created selected messages')
 

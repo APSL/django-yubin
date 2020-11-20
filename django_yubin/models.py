@@ -67,6 +67,14 @@ class Message(models.Model):
     def can_be_sent(self):
         return self.status not in Message.SENDABLE_STATUSES
 
+    def mark_as(self, status, log_message):
+        if status in (self.STATUS_SENT, self.STATUS_QUEUED):
+            raise Exception('For `sent` and `queued` statuses use `mark_as_sent` and `mark_as_queued` methods')
+        self.status = status
+        self.save()
+        if log_message:
+            self.add_log(log_message)
+
     def mark_as_sent(self, log_message=None):
         self.date_sent = now()
         self.status = self.STATUS_SENT
