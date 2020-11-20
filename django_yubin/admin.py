@@ -12,6 +12,19 @@ from .message_utils import get_attachments, get_attachment, is_part_encoded
 from .tasks import send_email
 
 
+class LogInline(admin.TabularInline):
+    model = models.Log
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
 @admin.register(models.Message)
 class MessageAdmin(admin.ModelAdmin):
     def message_link(self, obj):
@@ -27,15 +40,16 @@ class MessageAdmin(admin.ModelAdmin):
     date_hierarchy = 'date_created'
     ordering = ('-date_created',)
     actions = ['enqueue', 'mark_as_sent']
+    inlines = [LogInline]
 
     def enqueue(self, request, queryset):
-        """
-        Enqueue a previous e-mail.
-        """
         for message in queryset:
+            message.status = models.Message.STATUS_CREATED
+            message.save()
             send_email.delay(message.pk)
             message.mark_as_queued()
             message.save()
+            message.add_log('Enqueued from the admin.')
         self.message_user(request, _("Emails enqueued successfully."), level=messages.SUCCESS)
     enqueue.short_description = _('Enqueue selected messages')
 
@@ -43,6 +57,7 @@ class MessageAdmin(admin.ModelAdmin):
         for message in queryset:
             message.mark_as_sent()
             message.save()
+            message.add_log('Marked as sent from the admin.')
         self.message_user(request, _("Emails marked as sent."), level=messages.SUCCESS)
     mark_as_sent.short_description = _('Mark as sent selected messages')
 

@@ -6,7 +6,7 @@ from celery import shared_task
 logger = logging.getLogger(__name__)
 
 
-@shared_task(bind=True, ignore_result=True)
+@shared_task(ignore_result=True)
 def send_email(message_pk):
     """
     Send an email from a database Message PK.
@@ -27,7 +27,7 @@ def send_email(message_pk):
         logger.exception('Error sending email', extra={'message_pk': message_pk})
 
 
-@shared_task(bind=True, ignore_result=True)
+@shared_task(ignore_result=True)
 def retry_not_sent(max_retries=3):
     """
     Retry sending not sent emails queueing them again.

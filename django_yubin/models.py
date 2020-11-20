@@ -29,13 +29,13 @@ class Message(models.Model):
     STATUS_BLACKLISTED = 5
     STATUS_DISCARDED = 6
     STATUS_CHOICES = (
-        (STATUS_CREATED, _('created')),
-        (STATUS_QUEUED, _('queued')),
-        (STATUS_IN_PROCESS, _('in process')),
-        (STATUS_SENT, _('sent')),
-        (STATUS_FAILED, _('failed')),
-        (STATUS_BLACKLISTED, _('blacklisted')),
-        (STATUS_DISCARDED, _('discarded')),
+        (STATUS_CREATED, _('Created')),
+        (STATUS_QUEUED, _('Queued')),
+        (STATUS_IN_PROCESS, _('In process')),
+        (STATUS_SENT, _('Sent')),
+        (STATUS_FAILED, _('Failed')),
+        (STATUS_BLACKLISTED, _('Blacklisted')),
+        (STATUS_DISCARDED, _('Discarded')),
     )
 
     to_address = models.CharField(_('to address'), max_length=200)
@@ -114,6 +114,9 @@ class Message(models.Model):
 
         return email_class(**email_kwargs)
 
+    def add_log(self, log_message):
+        Log.objects.create(message=self, action=self.status, log_message=log_message)
+
     @classmethod
     def get_not_sent(cls, max_retries=0):
         messages = cls.objects.filter(sent_count=0, status__gt=cls.STATUS_SENT)
@@ -147,6 +150,9 @@ class Blacklist(models.Model):
         ordering = ('-date_added',)
         verbose_name = _('blacklisted email')
         verbose_name_plural = _('blacklisted emails')
+
+    def __str__(self):
+        return self.email
 
 
 class Log(models.Model):
