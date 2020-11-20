@@ -16,17 +16,21 @@ def send_email(message_pk):
     from .models import Message
     from . import engine
 
+    # Some message-brokers may send messages more than once, we must be
+    # idempotent and send emails only once.
     with transaction.atomic():
         try:
             message = Message.objects.select_for_update().get(pk=message_pk)
+            # Wait for the lock.
+            message.save(update_fields=['date_created'])
+            # Update values in case other task has processed the same email.
+            message.refresh_from_db()
         except Exception:
             msg = 'Could not fetch the message from the database'
             logger.exception(msg, extra={'message_pk': message_pk})
             return
 
         try:
-            # Some message-brokers may send messages more than once, we must be
-            # idempotent and send messages only once.
             if message.can_be_sent():
                 engine.send_db_message(message)
             else:

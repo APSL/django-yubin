@@ -37,14 +37,14 @@ class Message(models.Model):
         (STATUS_BLACKLISTED, _('Blacklisted')),
         (STATUS_DISCARDED, _('Discarded')),
     )
-    SENDING_STATUSES = (STATUS_CREATED, STATUS_QUEUED, STATUS_FAILED, STATUS_BLACKLISTED, STATUS_DISCARDED)
+    SENDABLE_STATUSES = (STATUS_CREATED, STATUS_FAILED, STATUS_BLACKLISTED, STATUS_DISCARDED)
 
     to_address = models.CharField(_('to address'), max_length=200)
     from_address = models.CharField(_('from address'), max_length=200)
     subject = models.CharField(_('subject'), max_length=255)
 
     encoded_message = models.TextField(_('encoded message'))
-    date_created = models.DateTimeField(_('date created'), default=now)
+    date_created = models.DateTimeField(_('date created'), auto_now_add=True)
 
     date_sent = models.DateTimeField(_('date sent'), null=True, blank=True)
     sent_count = models.PositiveSmallIntegerField(_('sent count'), default=0,
@@ -65,7 +65,7 @@ class Message(models.Model):
         return '%s: %s' % (self.to_address, self.subject)
 
     def can_be_sent(self):
-        return self.status not in Message.SENDING_STATUSES
+        return self.status not in Message.SENDABLE_STATUSES
 
     def mark_as_sent(self, log_message=None):
         self.date_sent = now()
