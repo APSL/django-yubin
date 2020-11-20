@@ -16,7 +16,7 @@ def send_email(message_pk):
     from .models import Message
     from . import engine
 
-    with transaction.atomic:
+    with transaction.atomic():
         try:
             message = Message.objects.select_for_update().get(pk=message_pk)
         except Exception:
