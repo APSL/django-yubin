@@ -63,7 +63,7 @@ def send_db_message(message, connection=None, blacklist=None, log=True):
                         (message.to_address.encode("utf-8"),
                          message.subject.encode("utf-8")))
             opened_connection = connection.open()
-            connection.send_messages([message])
+            connection.send_messages([message.get_email_message()])
             message.mark_as_sent()
         except (SocketError,
                 smtplib.SMTPSenderRefused, smtplib.SMTPRecipientsRefused, smtplib.SMTPAuthenticationError,
