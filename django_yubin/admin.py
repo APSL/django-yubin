@@ -39,38 +39,42 @@ class MessageAdmin(admin.ModelAdmin):
     search_fields = ('to_address', 'subject', 'from_address', 'encoded_message',)
     date_hierarchy = 'date_created'
     ordering = ('-date_created',)
-    actions = ['enqueue_action', 'mark_as_sent_action']
+    actions = ['enqueue_action', 'mark_as_sent_action', 'mark_as_created_action']
     inlines = [LogInline]
 
     def enqueue_action(self, request, queryset):
         if settings.PAUSE_SEND:
             msg = _("Sending emails is paused by settings, no email has been sent.")
-            self.message_user(request, msg, level=dj_messages.WARNING)
+            self.message_user(request, msg, level=dj_messages.INFO)
             return
 
-        failed = []
-        queued = []
-        messages = queryset.filter(status__in=models.Message.SENDING_STATUSES)
-
-        for message in messages:
+        failed, queued = [], []
+        for message in queryset:
             message.status = models.Message.STATUS_CREATED
             message.save()
             try:
                 tasks.send_email.delay(message.pk)
                 message.mark_as_queued(log_message='Enqueued from the admin.')
-                queued.append(message.pk)
+                queued.append(str(message.pk))
             except OperationalError:
-                failed.append(message.pk)
+                failed.append(str(message.pk))
 
-        if failed:
-            if len(failed) == len(messages):
-                self.message_user(request, _("Error enqueueing all emails."), level=dj_messages.ERROR)
-            else:
-                msg = _("Warning: emails enqueued: %s. Emails not enqueued: %s." % (','.join(queued), ','.join(failed)))
-                self.message_user(request, msg, level=dj_messages.WARNING)
+        msg = _("{queued_count} emails enqueued: {queued} | "
+                "{failed_count} emails failed: {failed}".format(
+                    queued_count=len(queued), queued=','.join(queued),
+                    failed_count=len(failed), failed=','.join(failed),
+                    )
+                )
+        if failed and queued:
+            level = dj_messages.WARNING
+        elif failed:
+            level = dj_messages.ERROR
+        elif queued:
+            level = dj_messages.SUCCESS
         else:
-            msg = _("Emails enqueued: %s." % ','.join(queued))
-            self.message_user(request, msg, level=dj_messages.SUCCESS)
+            level = dj_messages.INFO
+
+        self.message_user(request, msg, level)
     enqueue_action.short_description = _('Enqueue selected messages')
 
     def mark_as_sent_action(self, request, queryset):
@@ -78,6 +82,13 @@ class MessageAdmin(admin.ModelAdmin):
             message.mark_as_sent(log_message='Emails marked as sent from the admin.')
         self.message_user(request, _("Emails marked as sent."), level=dj_messages.SUCCESS)
     mark_as_sent_action.short_description = _('Mark as sent selected messages')
+
+    def mark_as_created_action(self, request, queryset):
+        for message in queryset:
+            message.status = models.Message.STATUS_CREATED
+            message.save()
+        self.message_user(request, _("Emails marked as created."), level=dj_messages.SUCCESS)
+    mark_as_created_action.short_description = _('Mark as created selected messages')
 
     def get_urls(self):
         urls = super(MessageAdmin, self).get_urls()
