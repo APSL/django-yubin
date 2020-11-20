@@ -26,7 +26,7 @@ class MessageAdmin(admin.ModelAdmin):
     search_fields = ('to_address', 'subject', 'from_address', 'encoded_message',)
     date_hierarchy = 'date_created'
     ordering = ('-date_created',)
-    actions = ['enqueue', ]
+    actions = ['enqueue', 'mark_as_sent']
 
     def enqueue(self, request, queryset):
         """
@@ -38,6 +38,13 @@ class MessageAdmin(admin.ModelAdmin):
             message.save()
         self.message_user(request, _("Emails enqueued successfully."), level=messages.SUCCESS)
     enqueue.short_description = _('Enqueue selected messages')
+
+    def mark_as_sent(self, request, queryset):
+        for message in queryset:
+            message.mark_as_sent()
+            message.save()
+        self.message_user(request, _("Emails marked as sent."), level=messages.SUCCESS)
+    mark_as_sent.short_description = _('Mark as sent selected messages')
 
     def get_urls(self):
         urls = super(MessageAdmin, self).get_urls()
