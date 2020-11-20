@@ -1,15 +1,15 @@
 from django.conf.urls import url
-from django.contrib import admin, messages
+from django.contrib import admin, messages as dj_messages
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.clickjacking import xframe_options_sameorigin
+from kombu.exceptions import OperationalError
 
-from . import models
+from . import models, tasks, settings
 from .message_utils import get_attachments, get_attachment, is_part_encoded
-from .tasks import send_email
 
 
 class LogInline(admin.TabularInline):
@@ -39,27 +39,45 @@ class MessageAdmin(admin.ModelAdmin):
     search_fields = ('to_address', 'subject', 'from_address', 'encoded_message',)
     date_hierarchy = 'date_created'
     ordering = ('-date_created',)
-    actions = ['enqueue', 'mark_as_sent']
+    actions = ['enqueue_action', 'mark_as_sent_action']
     inlines = [LogInline]
 
-    def enqueue(self, request, queryset):
-        for message in queryset:
+    def enqueue_action(self, request, queryset):
+        if settings.PAUSE_SEND:
+            msg = _("Sending emails is paused by settings, no email has been sent.")
+            self.message_user(request, msg, level=dj_messages.WARNING)
+            return
+
+        failed = []
+        queued = []
+        messages = queryset.filter(status__in=models.Message.SENDING_STATUSES)
+
+        for message in messages:
             message.status = models.Message.STATUS_CREATED
             message.save()
-            send_email.delay(message.pk)
-            message.mark_as_queued()
-            message.save()
-            message.add_log('Enqueued from the admin.')
-        self.message_user(request, _("Emails enqueued successfully."), level=messages.SUCCESS)
-    enqueue.short_description = _('Enqueue selected messages')
+            try:
+                tasks.send_email.delay(message.pk)
+                message.mark_as_queued(log_message='Enqueued from the admin.')
+                queued.append(message.pk)
+            except OperationalError:
+                failed.append(message.pk)
 
-    def mark_as_sent(self, request, queryset):
+        if failed:
+            if len(failed) == len(messages):
+                self.message_user(request, _("Error enqueueing all emails."), level=dj_messages.ERROR)
+            else:
+                msg = _("Warning: emails enqueued: %s. Emails not enqueued: %s." % (','.join(queued), ','.join(failed)))
+                self.message_user(request, msg, level=dj_messages.WARNING)
+        else:
+            msg = _("Emails enqueued: %s." % ','.join(queued))
+            self.message_user(request, msg, level=dj_messages.SUCCESS)
+    enqueue_action.short_description = _('Enqueue selected messages')
+
+    def mark_as_sent_action(self, request, queryset):
         for message in queryset:
-            message.mark_as_sent()
-            message.save()
-            message.add_log('Marked as sent from the admin.')
-        self.message_user(request, _("Emails marked as sent."), level=messages.SUCCESS)
-    mark_as_sent.short_description = _('Mark as sent selected messages')
+            message.mark_as_sent(log_message='Emails marked as sent from the admin.')
+        self.message_user(request, _("Emails marked as sent."), level=dj_messages.SUCCESS)
+    mark_as_sent_action.short_description = _('Mark as sent selected messages')
 
     def get_urls(self):
         urls = super(MessageAdmin, self).get_urls()

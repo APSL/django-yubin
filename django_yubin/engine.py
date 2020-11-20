@@ -1,4 +1,3 @@
-
 """
 The "engine room" of django-yubin mailer.
 
@@ -34,8 +33,10 @@ def send_db_message(message, connection=None, blacklist=None, log=True):
     By default, a log is created as to the action. Either way, the original
     message is not deleted.
     """
-    log_message = ''
     message.status = models.Message.STATUS_IN_PROCESS
+    message.save()
+
+    log_message = ''
 
     if connection is None:
         connection = get_connection(backend=settings.USE_BACKEND)
@@ -47,14 +48,15 @@ def send_db_message(message, connection=None, blacklist=None, log=True):
         blacklisted = message.to_address in blacklist
 
     if blacklisted:
-        logger.info("Not sending to blacklisted email: %s" %
-                    message.to_address.encode("utf-8"))
+        msg = "Not sending to blacklisted email: %s" % message.to_address.encode("utf-8")
+        logger.info(msg)
+        log_message = msg
         message.status = models.Message.STATUS_BLACKLISTED
-
     elif settings.PAUSE_SEND:
-        logger.info("Sending is paused, discarding the email.")
+        msg = "Sending is paused, discarding the email."
+        logger.info(msg)
+        log_message = msg
         message.status = models.Message.STATUS_DISCARDED
-
     else:
         try:
             logger.info("Sending message to %s: %s" %
@@ -66,7 +68,7 @@ def send_db_message(message, connection=None, blacklist=None, log=True):
         except (SocketError,
                 smtplib.SMTPSenderRefused, smtplib.SMTPRecipientsRefused, smtplib.SMTPAuthenticationError,
                 UnicodeDecodeError, UnicodeEncodeError) as e:
-            logger.warning("Message to %s has failed: %s" % (message.to_address.encode("utf-8"), e))
+            logger.exception("Message sending has failed", extra={'message': message})
             try:
                 log_message = unicode(e)
             except NameError:

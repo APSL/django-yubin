@@ -37,6 +37,7 @@ class Message(models.Model):
         (STATUS_BLACKLISTED, _('Blacklisted')),
         (STATUS_DISCARDED, _('Discarded')),
     )
+    SENDING_STATUSES = (STATUS_CREATED, STATUS_QUEUED, STATUS_FAILED, STATUS_BLACKLISTED, STATUS_DISCARDED)
 
     to_address = models.CharField(_('to address'), max_length=200)
     from_address = models.CharField(_('from address'), max_length=200)
@@ -63,15 +64,24 @@ class Message(models.Model):
     def __str__(self):
         return '%s: %s' % (self.to_address, self.subject)
 
-    def mark_as_sent(self):
+    def can_be_sent(self):
+        return self.status not in Message.SENDING_STATUSES
+
+    def mark_as_sent(self, log_message=None):
         self.date_sent = now()
         self.status = self.STATUS_SENT
         self.sent_count = F('sent_count') + 1
+        self.save()
+        if log_message:
+            self.add_log(log_message)
 
-    def mark_as_queued(self):
+    def mark_as_queued(self, log_message=None):
         self.date_enqueued = now()
         self.status = self.STATUS_QUEUED
         self.enqueued_count = F('enqueued_count') + 1
+        self.save()
+        if log_message:
+            self.add_log(log_message)
 
     def get_pyz_message(self):
         try:
