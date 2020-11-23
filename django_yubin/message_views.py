@@ -19,7 +19,7 @@ def template_from_string(template_string, using=None):
     return engine.from_string(template_string)
 
 
-class EmailMessageView(object):
+class EmailMessageView:
     """
     Base class for encapsulating the logic for the rendering and sending
     class-based email messages.
@@ -485,7 +485,7 @@ class TemplatedMultipleAttachmentsEmailMessageView(TemplatedHTMLEmailMessageView
         return message
 
 
-class TemplateContextMixin(object):
+class TemplateContextMixin:
     subject_template = template_from_string('{% autoescape off %}{{ subject }}{% endautoescape %}')
     body_template = template_from_string('{% autoescape off %}{{ content }}{% endautoescape %}')
 
