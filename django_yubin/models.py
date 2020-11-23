@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 from pyzmail.parse import message_from_string, message_from_bytes
 
-from .message_utils import get_attachments, is_part_encoded
+from . import message_utils
 
 
 class Message(models.Model):
@@ -102,35 +102,29 @@ class Message(models.Model):
 
     def get_email_message(self):
         """
-        Returns EmailMessage or EmailMultiAlternatives from self, depending on if the
-        message has an HTML body.
+        Returns EmailMessage or EmailMultiAlternatives from self, depending on
+        whether the email is multipart or not.
         """
         msg = self.get_pyz_message()
 
-        body = ''
-        if msg.text_part:
-            body = msg.text_part.part.get_payload(decode=is_part_encoded(msg, 'text_part'))
+        email_class = EmailMultiAlternatives if msg.is_multipart() else EmailMessage
+        email = email_class(
+            subject=msg.get_subject(),
+            body=message_utils.get_body(msg),
+            from_email=message_utils.get_address(msg, 'from'),
+            to=message_utils.get_addresses(msg, 'to'),
+            cc=message_utils.get_addresses(msg, 'cc'),
+            bcc=message_utils.get_addresses(msg, 'bcc'),
+        )
 
-        email_class = EmailMessage
-        email_kwargs = {
-            'subject': msg.get_subject(),
-            'body': body,
-            'from_email': msg.get_address('from'),
-            'to': msg.get_address('to'),
-            'cc': msg.get_address('cc'),
-            'bcc': msg.get_address('bcc'),
-            'attachments': get_attachments(msg),
-        }
-
-        html = ''
         if msg.html_part:
-            html = msg.html_part.part.get_payload(decode=is_part_encoded(msg, 'html_part'))
+            html = msg.html_part.part.get_payload(decode=message_utils.is_part_encoded(msg, 'html_part'))
+            email.attach_alternative(html, msg.html_part.type)
 
-        if html:
-            email_class = EmailMultiAlternatives
-            email_kwargs['alternatives'] = [html]
+        for attachment in message_utils.get_attachments(msg):
+            email.attach(attachment.filename, attachment.payload, attachment.type)
 
-        return email_class(**email_kwargs)
+        return email
 
     def add_log(self, log_message):
         Log.objects.create(message=self, action=self.status, log_message=log_message)
