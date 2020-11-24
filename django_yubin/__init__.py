@@ -4,7 +4,7 @@ High level functions to queue emails.
 
 import logging
 
-from kombu.exceptions import OperationalError
+from kombu.exceptions import KombuError
 
 
 logger = logging.getLogger(__name__)
@@ -21,7 +21,7 @@ def queue_email_message(email_message, fail_silently=False):
     the signature of the ``EmailMessage.send`` function which it may emulate
     (see ``queue_django_mail``).
     """
-    from . import models, settings, tasks
+    from . import models, settings
 
     if settings.MAILER_TEST_MODE and settings.MAILER_TEST_EMAIL:
         email_message = _set_message_test_mode(email_message, settings.MAILER_TEST_EMAIL)
@@ -34,10 +34,9 @@ def queue_email_message(email_message, fail_silently=False):
             subject=email_message.subject,
             encoded_message=email_message.message().as_string())
         try:
-            tasks.send_email.delay(message.pk)
-            message.mark_as(models.Message.STATUS_QUEUED, 'Enqueued from a Backend or django-yubin itself')
+            message.enqueue('Enqueued from a Backend or django-yubin itself.')
             count += 1
-        except OperationalError:
+        except KombuError:
             logger.exception('Error enqueuing an email', extra={'message': message})
     return count
 

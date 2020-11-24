@@ -1,7 +1,7 @@
 import logging
 
 from celery import shared_task
-from kombu.exceptions import OperationalError
+from kombu.exceptions import KombuError
 
 
 logger = logging.getLogger(__name__)
@@ -34,24 +34,26 @@ def send_email(message_pk):
             if message.can_be_sent():
                 engine.send_db_message(message)
             else:
-                logger.info('Message %s already in progress or sent, skipping it.' % message_pk)
+                logger.info('Message %s can not be sent, skipping it.' % message_pk)
         except Exception:
             logger.exception('Error sending email', extra={'message_pk': message_pk})
 
 
 @shared_task(ignore_result=True)
-def retry_not_sent(max_retries=3):
+def retry_emails(max_retries=3):
     """
-    Retry sending not sent emails queueing them again.
+    Retry sending retryable emails enqueueing them again.
     """
     from .models import Message
 
-    messages = Message.objects.not_sent(max_retries)
+    enqueued = 0
+    messages = Message.objects.retryable(max_retries)
     for message in messages:
         try:
-            send_email.signature().delay(message.pk)
-            message.mark_as_queued(log_message='Retry sending the email.')
-        except OperationalError:
+            message.enqueue('Retry sending the email.')
+            enqueued += 1
+        except KombuError:
             logger.exception('Error enqueuing again an email', extra={'message': message})
 
-    logger.info('%s messages have been queued again.' % len(messages))
+    msg = '%s messages have been queued again, %s failed.'
+    logger.info(msg % (enqueued, len(messages) - enqueued))

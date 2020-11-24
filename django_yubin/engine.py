@@ -47,7 +47,7 @@ def send_db_message(message, connection=None, blacklist=None, log=True):
         blacklisted = message.to_address in blacklist
 
     if blacklisted:
-        msg = "Not sending to blacklisted email: %s" % message.to_address.encode("utf-8")
+        msg = "Not sending to blacklisted email: %s" % message.to_address
         logger.info(msg)
         log_message = msg
         message.mark_as(models.Message.STATUS_BLACKLISTED)
@@ -58,9 +58,7 @@ def send_db_message(message, connection=None, blacklist=None, log=True):
         message.mark_as(models.Message.STATUS_DISCARDED)
     else:
         try:
-            logger.info("Sending message to %s: %s" %
-                        (message.to_address.encode("utf-8"),
-                         message.subject.encode("utf-8")))
+            logger.info("Sending message to %s: %s" % (message.to_address, message.subject))
             opened_connection = connection.open()
             connection.send_messages([message.get_email_message()])
             message.mark_as(models.Message.STATUS_SENT)

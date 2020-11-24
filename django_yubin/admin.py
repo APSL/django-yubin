@@ -6,9 +6,9 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.clickjacking import xframe_options_sameorigin
-from kombu.exceptions import OperationalError
+from kombu.exceptions import KombuError
 
-from . import models, tasks, settings
+from . import models, settings
 from .message_utils import get_attachments, get_attachment, is_part_encoded
 
 
@@ -48,18 +48,17 @@ class MessageAdmin(admin.ModelAdmin):
             self.message_user(request, msg, level=dj_messages.INFO)
             return
 
-        if queryset.count() != queryset.sendables().count():
-            msg = _('Messages with "Created", "Queued" or "In process" statuses can not be enqueued.')
+        if queryset.count() != queryset.queueable().count():
+            msg = _('Messages with "Queued", "In process" or "Sent" statuses can not be enqueued.')
             self.message_user(request, msg, level=dj_messages.WARNING)
             return
 
         failed, queued = [], []
         for message in queryset:
             try:
-                tasks.send_email.delay(message.pk)
-                message.mark_as(models.Message.STATUS_QUEUED, 'Enqueued from the admin.')
+                message.enqueue('Enqueued from the admin.')
                 queued.append(str(message.pk))
-            except OperationalError:
+            except KombuError:
                 failed.append(str(message.pk))
 
         msg = _("{queued_count} emails enqueued: {queued} | "

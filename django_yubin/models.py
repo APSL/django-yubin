@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from django.core.mail.message import EmailMessage, EmailMultiAlternatives
 from django.db import models
@@ -6,18 +7,21 @@ from django.db.models import F
 from django.utils.encoding import force_bytes
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
-
+from kombu.exceptions import KombuError
 from pyzmail.parse import message_from_string, message_from_bytes
 
-from . import message_utils
+from . import message_utils, tasks
+
+
+logger = logging.getLogger(__name__)
 
 
 class MessageQuerySet(models.QuerySet):
-    def sendables(self):
-        return self.filter(status__in=self.model.SENDABLE_STATUSES)
+    def queueable(self):
+        return self.filter(status__in=self.model.QUEUEABLE_STATUSES)
 
-    def not_sent(self, max_retries=0):
-        qs = self.filter(sent_count=0, status__gt=self.model.STATUS_SENT)
+    def retryable(self, max_retries=0):
+        qs = self.filter(status__gt=self.model.STATUS_SENT)
         if max_retries > 0:
             qs = qs.filter(enqueued_count__lt=max_retries)
         return qs
@@ -27,11 +31,11 @@ class MessageManager(models.Manager):
     def get_queryset(self):
         return MessageQuerySet(self.model, using=self._db)
 
-    def sendables(self):
-        return self.get_queryset().sendables()
+    def queueable(self):
+        return self.get_queryset().queueable()
 
-    def not_sent(self, max_retries=0):
-        return self.get_queryset().not_sent(max_retries=max_retries)
+    def retryable(self, max_retries=0):
+        return self.get_queryset().retryable(max_retries=max_retries)
 
 
 class Message(models.Model):
@@ -59,7 +63,8 @@ class Message(models.Model):
         (STATUS_BLACKLISTED, _('Blacklisted')),
         (STATUS_DISCARDED, _('Discarded')),
     )
-    SENDABLE_STATUSES = (STATUS_CREATED, STATUS_FAILED, STATUS_BLACKLISTED, STATUS_DISCARDED)
+    QUEUEABLE_STATUSES = (STATUS_CREATED, STATUS_FAILED, STATUS_BLACKLISTED, STATUS_DISCARDED)
+    SENDABLE_STATUSES = (*QUEUEABLE_STATUSES, STATUS_QUEUED)
 
     to_address = models.CharField(_('to address'), max_length=200)
     from_address = models.CharField(_('from address'), max_length=200)
@@ -89,7 +94,7 @@ class Message(models.Model):
         return '%s: %s' % (self.to_address, self.subject)
 
     def can_be_sent(self):
-        return self.status in Message.SENDABLE_STATUSES
+        return self.status in self.SENDABLE_STATUSES
 
     def mark_as(self, status, log_message=None):
         self.status = status
@@ -152,6 +157,26 @@ class Message(models.Model):
         deleted = cls.objects.filter(date_created__lt=cutoff_date).delete()
         return deleted, cutoff_date
 
+    def enqueue(self, log_message=None):
+        """
+        Sends the task to enqueue itself taking care of undoing changes if the delivery fails.
+        """
+        backup = {
+            'date_enqueued': self.date_enqueued,
+            'enqueued_count': self.enqueued_count,
+            'status': self.status,
+        }
+        self.mark_as(self.STATUS_QUEUED, log_message)
+        try:
+            tasks.send_email.delay(self.pk)
+        except KombuError:
+            self.date_enqueued = backup['date_enqueued']
+            self.enqueued_count = backup['enqueued_count']
+            self.status = backup['status']
+            self.save()
+            self.add_log('Error enqueuing email.')
+            raise
+
 
 class Blacklist(models.Model):
     """
@@ -179,7 +204,7 @@ class Log(models.Model):
     message = models.ForeignKey(Message, verbose_name=_('message'), editable=False, on_delete=models.CASCADE)
     action = models.PositiveSmallIntegerField(_('action'), choices=Message.STATUS_CHOICES,
                                               default=Message.STATUS_CREATED)
-    date = models.DateTimeField(_('date'), default=now)
+    date = models.DateTimeField(_('date'), auto_now_add=True)
     log_message = models.TextField(_('log'), blank=True)
 
     class Meta:
