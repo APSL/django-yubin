@@ -11,7 +11,7 @@ from django.utils.encoding import force_text
 
 from django_yubin import models, constants, settings, mail_admins, mail_managers
 
-from .base import MailerTestCase, RFC_6532_SUPPORT
+from .base import MailerTestCase
 
 
 class TestBackend(MailerTestCase):
@@ -95,7 +95,6 @@ class TestBackend(MailerTestCase):
             self.assertEqual(queued_message.priority,
                              constants.PRIORITY_NORMAL)
 
-    @skipIf(not RFC_6532_SUPPORT, 'RFC 6532 not supported')
     def testUnicodeErrorQueuedMessage(self):
         """
         Checks that we capture unicode errors on mail
@@ -111,7 +110,6 @@ class TestBackend(MailerTestCase):
         num_errors = models.Log.objects.filter(result=constants.RESULT_FAILED).count()
         self.assertEqual(num_errors, 1)
 
-    @skipIf(not RFC_6532_SUPPORT, 'RFC 6532 not supported')
     def testUnicodeQueuedMessage(self):
         """
         Checks that we capture unicode errors on mail
@@ -138,7 +136,6 @@ class TestBackend(MailerTestCase):
         self.assertEqual(message['subject'], '=?utf-8?q?Ch=C3=A8re_maman?=')
         self.assertEqual(force_text(message.get_payload()), 'Je t\'aime très fort')
 
-    @skipIf(not RFC_6532_SUPPORT, 'RFC 6532 not supported')
     def testUnicodePriorityNowNotQueuedMessage(self):
         """
         Checks that we capture unicode errors on mail on priority.
