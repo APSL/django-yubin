@@ -46,7 +46,7 @@ def retry_not_sent(max_retries=3):
     """
     from .models import Message
 
-    messages = Message.get_not_sent(max_retries)
+    messages = Message.objects.not_sent(max_retries)
     for message in messages:
         try:
             send_email.signature().delay(message.pk)

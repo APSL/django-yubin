@@ -12,6 +12,28 @@ from pyzmail.parse import message_from_string, message_from_bytes
 from . import message_utils
 
 
+class MessageQuerySet(models.QuerySet):
+    def sendables(self):
+        return self.filter(status__in=self.model.SENDABLE_STATUSES)
+
+    def not_sent(self, max_retries=0):
+        qs = self.filter(sent_count=0, status__gt=self.model.STATUS_SENT)
+        if max_retries > 0:
+            qs = qs.filter(enqueued_count__lt=max_retries)
+        return qs
+
+
+class MessageManager(models.Manager):
+    def get_queryset(self):
+        return MessageQuerySet(self.model, using=self._db)
+
+    def sendables(self):
+        return self.get_queryset().sendables()
+
+    def not_sent(self, max_retries=0):
+        return self.get_queryset().not_sent(max_retries=max_retries)
+
+
 class Message(models.Model):
     """
     An email message.
@@ -56,6 +78,8 @@ class Message(models.Model):
 
     status = models.PositiveSmallIntegerField(choices=STATUS_CHOICES, default=STATUS_CREATED)
 
+    objects = MessageManager()
+
     class Meta:
         ordering = ('date_created',)
         verbose_name = _('message')
@@ -67,26 +91,14 @@ class Message(models.Model):
     def can_be_sent(self):
         return self.status in Message.SENDABLE_STATUSES
 
-    def mark_as(self, status, log_message):
-        if status in (self.STATUS_SENT, self.STATUS_QUEUED):
-            raise Exception('For `sent` and `queued` statuses use `mark_as_sent` and `mark_as_queued` methods')
+    def mark_as(self, status, log_message=None):
         self.status = status
-        self.save()
-        if log_message:
-            self.add_log(log_message)
-
-    def mark_as_sent(self, log_message=None):
-        self.date_sent = now()
-        self.status = self.STATUS_SENT
-        self.sent_count = F('sent_count') + 1
-        self.save()
-        if log_message:
-            self.add_log(log_message)
-
-    def mark_as_queued(self, log_message=None):
-        self.date_enqueued = now()
-        self.status = self.STATUS_QUEUED
-        self.enqueued_count = F('enqueued_count') + 1
+        if status is self.STATUS_SENT:
+            self.date_sent = now()
+            self.sent_count = F('sent_count') + 1
+        elif status is self.STATUS_QUEUED:
+            self.date_enqueued = now()
+            self.enqueued_count = F('enqueued_count') + 1
         self.save()
         if log_message:
             self.add_log(log_message)
@@ -102,8 +114,8 @@ class Message(models.Model):
 
     def get_email_message(self):
         """
-        Returns EmailMessage or EmailMultiAlternatives from self, depending on
-        whether the email is multipart or not.
+        Returns EmailMessage or EmailMultiAlternatives from self.encoded_message
+        depending on whether the email is multipart or not.
         """
         msg = self.get_pyz_message()
 
@@ -128,13 +140,6 @@ class Message(models.Model):
 
     def add_log(self, log_message):
         Log.objects.create(message=self, action=self.status, log_message=log_message)
-
-    @classmethod
-    def get_not_sent(cls, max_retries=0):
-        messages = cls.objects.filter(sent_count=0, status__gt=cls.STATUS_SENT)
-        if max_retries > 0:
-            messages = messages.filter(enqueued_count__lt=max_retries)
-        return messages
 
     @classmethod
     def delete_old(cls, days=90):

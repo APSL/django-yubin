@@ -48,13 +48,16 @@ class MessageAdmin(admin.ModelAdmin):
             self.message_user(request, msg, level=dj_messages.INFO)
             return
 
+        if queryset.count() != queryset.sendables().count():
+            msg = _('Messages with "Created", "Queued" or "In process" statuses can not be enqueued.')
+            self.message_user(request, msg, level=dj_messages.WARNING)
+            return
+
         failed, queued = [], []
         for message in queryset:
-            message.status = models.Message.STATUS_CREATED
-            message.save()
             try:
                 tasks.send_email.delay(message.pk)
-                message.mark_as_queued(log_message='Enqueued from the admin.')
+                message.mark_as(models.Message.STATUS_QUEUED, 'Enqueued from the admin.')
                 queued.append(str(message.pk))
             except OperationalError:
                 failed.append(str(message.pk))
@@ -79,7 +82,7 @@ class MessageAdmin(admin.ModelAdmin):
 
     def mark_as_sent_action(self, request, queryset):
         for message in queryset:
-            message.mark_as_sent(log_message='Marked as sent from the admin.')
+            message.mark_as(models.Message.STATUS_SENT, 'Marked as sent from the admin.')
         self.message_user(request, _("Emails marked as sent."), level=dj_messages.SUCCESS)
     mark_as_sent_action.short_description = _('Mark as sent selected messages')
 

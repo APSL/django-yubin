@@ -33,8 +33,7 @@ def send_db_message(message, connection=None, blacklist=None, log=True):
     By default, a log is created as to the action. Either way, the original
     message is not deleted.
     """
-    message.status = models.Message.STATUS_IN_PROCESS
-    message.save()
+    message.mark_as(models.Message.STATUS_IN_PROCESS)
 
     log_message = ''
 
@@ -51,12 +50,12 @@ def send_db_message(message, connection=None, blacklist=None, log=True):
         msg = "Not sending to blacklisted email: %s" % message.to_address.encode("utf-8")
         logger.info(msg)
         log_message = msg
-        message.status = models.Message.STATUS_BLACKLISTED
+        message.mark_as(models.Message.STATUS_BLACKLISTED)
     elif settings.PAUSE_SEND:
         msg = "Sending is paused, discarding the email."
         logger.info(msg)
         log_message = msg
-        message.status = models.Message.STATUS_DISCARDED
+        message.mark_as(models.Message.STATUS_DISCARDED)
     else:
         try:
             logger.info("Sending message to %s: %s" %
@@ -64,7 +63,7 @@ def send_db_message(message, connection=None, blacklist=None, log=True):
                          message.subject.encode("utf-8")))
             opened_connection = connection.open()
             connection.send_messages([message.get_email_message()])
-            message.mark_as_sent()
+            message.mark_as(models.Message.STATUS_SENT)
         except (SocketError,
                 smtplib.SMTPSenderRefused, smtplib.SMTPRecipientsRefused, smtplib.SMTPAuthenticationError,
                 UnicodeDecodeError, UnicodeEncodeError) as e:
@@ -73,9 +72,7 @@ def send_db_message(message, connection=None, blacklist=None, log=True):
                 log_message = unicode(e)
             except NameError:
                 log_message = e
-            message.status = models.Message.STATUS_FAILED
-
-    message.save()
+            message.mark_as(models.Message.STATUS_FAILED)
 
     if log:
         models.Log.objects.create(message=message, action=message.status, log_message=log_message)
