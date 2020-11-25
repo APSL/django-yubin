@@ -1,10 +1,7 @@
-# encoding: utf-8
-
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-EMAIL_PORT = 1025
 ROOT_URLCONF = 'tests.urls'
 
 SECRET_KEY = 'yo secret yo'
@@ -48,3 +45,10 @@ TEMPLATES = [
         },
     },
 ]
+
+EMAIL_PORT = 1025
+EMAIL_BACKEND = 'django_yubin.backends.QueuedEmailBackend'
+MAILER_USE_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Celery settings
+# CELERY_BROKER_URL = 'redis://localhost:6379/0'

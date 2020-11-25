@@ -1,5 +1,5 @@
 """
-SMTP email backends.
+Email backends.
 """
 
 from django.core.mail.backends.base import BaseEmailBackend
@@ -19,9 +19,6 @@ class QueuedEmailBackend(BaseEmailBackend):
         The ``email_messages`` argument should be one or more instances
         of Django's core mail ``EmailMessage`` class.
         """
-        if not email_messages:
-            return
-
         num_sent = 0
         for email_message in email_messages:
             num_sent += queue_email_message(email_message)

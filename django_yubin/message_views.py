@@ -36,23 +36,6 @@ class EmailMessageView:
             self._headers = {}
         return self._headers
 
-    def set_priority(self, priority):
-        """
-        sets the queue priority
-
-        :param priority
-        :type string
-            now-not-queued
-            now
-            high
-            normal
-            low
-        """
-        if not hasattr(self, '_headers'):
-            self._headers = {'X-Mail-Queue-Priority': priority}
-        else:
-            self._headers['X-Mail-Queue-Priority'] = priority
-
     def render_subject(self, context):
         raise NotImplementedError  # Must be implemented by subclasses.
 
