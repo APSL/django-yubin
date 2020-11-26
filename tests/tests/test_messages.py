@@ -1,11 +1,5 @@
-#!/usr/bin/env python
-# encoding: utf-8
-# ----------------------------------------------------------------------------
-from __future__ import absolute_import, unicode_literals
-
 import functools
 import os
-import unittest
 
 from django.core import mail
 from django.core.exceptions import ImproperlyConfigured
@@ -29,7 +23,6 @@ using_test_templates = override_settings(
 )
 
 
-@unittest.skip("TODO: Reimplement")
 class EmailMessageViewTestCase(TestCase):
     def run(self, *args, **kwargs):
         with using_test_templates:
@@ -52,7 +45,6 @@ class EmailMessageViewTestCase(TestCase):
         self.assertEqual(len(mail.outbox), length)
 
 
-@unittest.skip("TODO: Reimplement")
 class TemplatedEmailMessageViewTestCase(EmailMessageViewTestCase):
     message_class = TemplatedEmailMessageView
 
@@ -151,7 +143,6 @@ class TemplatedEmailMessageViewTestCase(EmailMessageViewTestCase):
         self.assertEqual(rendered.extra_headers['References'], 'foo')
 
 
-@unittest.skip("TODO: Reimplement")
 class TemplatedHTMLEmailMessageViewTestCase(TemplatedEmailMessageViewTestCase):
     message_class = TemplatedHTMLEmailMessageView
 
@@ -207,7 +198,6 @@ class TemplatedHTMLEmailMessageViewTestCase(TemplatedEmailMessageViewTestCase):
         self.assertOutboxLengthEquals(1)
 
 
-@unittest.skip("TODO: Reimplement")
 class TemplatedAttachmentEmailMessageViewTestCase(TemplatedEmailMessageViewTestCase):
     message_class = TemplatedAttachmentEmailMessageView
 
@@ -254,7 +244,6 @@ class TemplatedAttachmentEmailMessageViewTestCase(TemplatedEmailMessageViewTestC
         self.assertOutboxLengthEquals(1)
 
 
-@unittest.skip("TODO: Reimplement")
 class TemplatedMultipleAttachmentsEmailMessageViewTestCase(TemplatedAttachmentEmailMessageViewTestCase):
     message_class = TemplatedMultipleAttachmentsEmailMessageView
 
@@ -295,7 +284,6 @@ class TemplatedMultipleAttachmentsEmailMessageViewTestCase(TemplatedAttachmentEm
         self.render_to_message(10)
 
 
-@unittest.skip("TODO: Reimplement")
 class TestEmailOptions(EmailMessageViewTestCase):
     message_class = TemplatedEmailMessageView
 
