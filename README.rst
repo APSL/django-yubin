@@ -12,11 +12,11 @@ django-yubin
 
 .. image:: https://img.shields.io/pypi/v/django-yubin.svg
   :target: https://pypi.python.org/pypi/django-yubin
-  
+
 .. image:: https://img.shields.io/pypi/pyversions/django-yubin.svg
   :target: https://pypi.python.org/pypi/django-yubin
-  
-.. image:: https://img.shields.io/pypi/djversions/django-yubin.svg 
+
+.. image:: https://img.shields.io/pypi/djversions/django-yubin.svg
   :target: https://pypi.python.org/pypi/django-yubin
 
 .. image:: https://readthedocs.org/projects/django-yubin/badge/?version=latest
@@ -87,6 +87,7 @@ You can read the package documentation at http://django-yubin.readthedocs.org/en
 
 Changelog
 ---------
+* 1.7.0       Add optional ``MAILER_MESSAGE_SEARCH_FIELDS`` setting. It's a tuple of strings with the fields to use in ``admin.Message.search_fields`` attribute.
 * 1.6.0       Support for Django 3.0
 * 1.5.0       New TemplatedMultipleAttachmentsEmailMessageView to allow to send emails with more than 1 attachment.
 * 1.4.1       Detecting if messages are encoding using different encoding headers to be able to preview them (now base64, quoted-printable).
