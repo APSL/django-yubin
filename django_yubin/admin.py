@@ -17,7 +17,7 @@ from django.shortcuts import render
 from django.utils.safestring import mark_safe
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
-from django_yubin import models
+from django_yubin import models, settings
 
 from .mail_utils import get_attachments, get_attachment
 
@@ -32,8 +32,7 @@ class Message(admin.ModelAdmin):
 
     list_display = ('from_address', 'to_address', 'subject', 'date_created', 'date_sent', 'message_link')
     list_filter = ('date_created', 'date_sent')
-    search_fields = ('to_address', 'subject', 'from_address',
-                     'encoded_message',)
+    search_fields = settings.MAILER_MESSAGE_SEARCH_FIELDS
     date_hierarchy = 'date_created'
     ordering = ('-date_created',)
     actions = ['re_send', ]

@@ -92,3 +92,11 @@ MAILER_HC_QUEUED_LIMIT_OLD
 String to define the max minutes for the message health check. If there exists an old messages in the email's queue the health check will warn.
 
 Defaults to: ``30``
+
+
+MAILER_MESSAGE_SEARCH_FIELDS
+----------------------------
+
+Tuple of strings with the fields to use in ``admin.Message.search_fields`` attribute.
+
+Defaults to all the text fields: ``('to_address', 'subject', 'from_address', 'encoded_message')``
