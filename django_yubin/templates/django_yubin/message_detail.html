@@ -8,7 +8,7 @@
     <label class="required">Subject: </label>{{subject}}
 </div>
 <div class="form-row">
-  <label class="required">From:</label> &lt;{{from.0}}&gt;{{from.1}}</br>
+  <label class="required">From:</label>{% for x in fron %} &lt;{{from.0}}&gt;{{from.1}} {% endfor %}</br>
 </div>
 <div class="form-row">
   <label class="required">To:</label> {% for x in to %}&lt;{{x.0}}&gt;{{x.1}} {% endfor %}</br>
