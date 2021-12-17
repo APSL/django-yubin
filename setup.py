@@ -6,8 +6,7 @@ from setuptools import setup
 
 
 INSTALL_REQUIRES = [
-    'pyzmail;python_version<"3.6"',
-    'pyzmail36;python_version>="3.6"',
+    'mail-parser',
     'lockfile',
     'pytz',
 ]
