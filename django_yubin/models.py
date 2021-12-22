@@ -50,7 +50,7 @@ class Message(models.Model):
     def __str__(self):
         return '%s: %s' % (self.to_address, self.subject)
 
-    def get_pyz_message(self):
+    def get_message(self):
         try:
             msg = parse_from_string(self.encoded_message)
         except UnicodeEncodeError:
