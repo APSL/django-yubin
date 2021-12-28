@@ -3,6 +3,7 @@
 # ----------------------------------------------------------------------------
 
 import hashlib
+import base64
 
 
 def unimplemented(*args, **kwargs):
@@ -15,11 +16,10 @@ class Attachment(object):
     """
 
     def __init__(self, mailpart):
-        self.filename = mailpart.sanitized_filename
-        self.tipus = mailpart.type
-        self.charset = mailpart.charset
-        self.content_description = mailpart.part.get('Content-Description')
-        self.payload = mailpart.get_payload()
+        self.filename = mailpart['filename']
+        self.tipus = mailpart['mail_content_type']
+        self.charset = mailpart['charset']
+        self.payload = base64.b64decode(mailpart['payload'])
         self.length = len(self.payload)
         self.firma = hashlib.md5(self.payload).hexdigest()
 
@@ -30,10 +30,9 @@ def get_attachments(msg):
     """
 
     attachments = []
-    for mailpart in msg.mailparts:
-        if not mailpart.is_body and mailpart.disposition == 'attachment':
-            attachment = Attachment(mailpart)
-            attachments.append(attachment)
+    for attachment in msg.attachments:
+        attachment_ = Attachment(attachment)
+        attachments.append(attachment_)
     return attachments
 
 
@@ -43,9 +42,8 @@ def get_attachment(msg, key):
     the key value
     """
 
-    for mailpart in msg.mailparts:
-        if not mailpart.is_body and mailpart.disposition == 'attachment':
-            attachment = Attachment(mailpart)
-            if attachment.firma == key:
-                return attachment
+    for attachment in msg.attachments:
+        attachment_ = Attachment(attachment)
+        if attachment_.firma == key:
+            return attachment_
     return None
