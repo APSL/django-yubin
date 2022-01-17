@@ -77,7 +77,7 @@ class Message(admin.ModelAdmin):
             "to": msg.to,
             "cc": msg.cc,
             "msg_text": "\n".join(msg.text_plain),
-            "msg_html": "\n".join(msg.text_html),
+            "msg_html": "</br>".join(msg.text_html),
             "attachments": get_attachments(msg),
             "is_popup": True,
             "object": instance,
@@ -97,7 +97,7 @@ class Message(admin.ModelAdmin):
     def html_view(self, request, pk):
         instance = models.Message.objects.get(pk=pk)
         msg = instance.get_message()
-        context = {"msg_html": msg.text_html[0]}
+        context = {"msg_html": "</br>".join(msg.text_html)}
         return render(request, "django_yubin/html_detail.html", context)
 
     @staticmethod
