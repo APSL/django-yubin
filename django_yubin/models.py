@@ -7,7 +7,7 @@ from django.utils.encoding import force_bytes
 from django.utils.timezone import now
 from django_yubin import constants, managers
 
-from pyzmail.parse import message_from_string, message_from_bytes
+from mailparser import parse_from_string, parse_from_bytes
 from six import python_2_unicode_compatible
 
 
@@ -50,13 +50,13 @@ class Message(models.Model):
     def __str__(self):
         return '%s: %s' % (self.to_address, self.subject)
 
-    def get_pyz_message(self):
+    def get_message(self):
         try:
-            msg = message_from_string(self.encoded_message)
+            msg = parse_from_string(self.encoded_message)
         except UnicodeEncodeError:
-            msg = message_from_string(force_bytes(self.encoded_message))
+            msg = parse_from_string(force_bytes(self.encoded_message))
         except (TypeError, AttributeError):
-            msg = message_from_bytes(self.encoded_message)
+            msg = parse_from_bytes(self.encoded_message)
         return msg
 
 

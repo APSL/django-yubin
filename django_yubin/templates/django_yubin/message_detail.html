@@ -8,13 +8,34 @@
     <label class="required">Subject: </label>{{subject}}
 </div>
 <div class="form-row">
-  <label class="required">From:</label> &lt;{{from.0}}&gt;{{from.1}}</br>
+  <label class="required">From: </label>
+  {% for x in from %}
+    {% if x.0 %}
+      {{x.0}} &lt;{{x.1}}&gt;
+    {% else %}
+      {{x.1}}
+    {% endif %}
+  {% endfor %}</br>
 </div>
 <div class="form-row">
-  <label class="required">To:</label> {% for x in to %}&lt;{{x.0}}&gt;{{x.1}} {% endfor %}</br>
+  <label class="required">To: </label>
+  {% for x in to %}
+    {% if x.0 %}
+      {{x.0}} &lt;{{x.1}}&gt;{% if not forloop.last %}, {% endif %}
+    {% else %}
+      {{x.1}}{% if not forloop.last %}, {% endif %}
+    {% endif %}
+  {% endfor %}</br>
 </div>
 <div class="form-row">
-  <label class="required"> CC: </label>{% for x in cc %}&lt;{{x.0}}&gt;{{x.1}} {% endfor %}</br>
+  <label class="required">CC: </label>
+  {% for x in cc %}
+    {% if x.0 %}
+      {{x.0}} &lt;{{x.1}}&gt;{% if not forloop.last %}, {% endif %}
+    {% else %}
+      {{x.1}}{% if not forloop.last %}, {% endif %}
+    {% endif %}
+  {% endfor %}</br>
 </div>
 </div>
   {% if msg_html %}
