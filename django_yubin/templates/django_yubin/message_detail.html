@@ -39,26 +39,26 @@
 </div>
 </div>
   {% if msg_html %}
-     <div class="form-row">
+    <div class="form-row">
       <h2>HTML</h2>
       <iframe src="{% url 'admin:mail_html' object.pk %}" width="100%" height="400">
       </iframe>
     </div>
-    {% endif %}
-    {% if msg_text %}
-     <div class="form-row">
-      <h2>Text</h2>
-      {{msg_text|linebreaks}}
-     </div>
-    {% endif %}
-    {% if attachments %}
-     <div class="form-row">
-      <h2>Attachments</h2>
-      {% for file in attachments %}
-        <div class="form-row">
-          <a title="{{file.tipus}} {{file.length}}" href="{% url 'admin:mail_download' object.pk file.firma %}">{{file.filename}}</a>
-        </div>
-      {% endfor %}
+  {% endif %}
+  {% if msg_text %}
+    <div class="form-row">
+    <h2>Text</h2>
+    {{msg_text|linebreaks}}
+    </div>
+  {% endif %}
+  {% if attachments %}
+    <div class="form-row">
+    <h2>Attachments</h2>
+    {% for file in attachments %}
+      <div class="form-row">
+        <a title="{{file.tipus}} {{file.length}}" href="{% url 'admin:mail_download' object.pk file.firma %}">{{file.filename}}</a>
       </div>
-    {% endif %}
+    {% endfor %}
+    </div>
+  {% endif %}
 {% endblock content %}
