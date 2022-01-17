@@ -71,12 +71,10 @@ class Message(admin.ModelAdmin):
     def detail_view(self, request, pk):
         instance = models.Message.objects.get(pk=pk)
         msg = instance.get_message()
-        from__ = (msg.from_[0][1], msg.from_[0][1])
-        to__ = (msg.to[0][1], msg.to[0][1])
         context = {
             "subject": msg.subject,
-            "from": from__,
-            "to": to__,
+            "from": msg.from_,
+            "to": msg.to,
             "cc": msg.cc,
             "msg_text": "\n".join(msg.text_plain),
             "msg_html": "\n".join(msg.text_html),
