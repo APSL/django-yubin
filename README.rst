@@ -87,6 +87,7 @@ You can read the package documentation at http://django-yubin.readthedocs.org/en
 
 Changelog
 ---------
+* 1.7.1       Remove abandoned ``pyzmail36`` dependency with ``mail-parser``.
 * 1.7.0       Add optional ``MAILER_MESSAGE_SEARCH_FIELDS`` setting. It's a tuple of strings with the fields to use in ``admin.Message.search_fields`` attribute.
 * 1.6.0       Support for Django 3.0
 * 1.5.0       New TemplatedMultipleAttachmentsEmailMessageView to allow to send emails with more than 1 attachment.
