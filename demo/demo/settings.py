@@ -2,6 +2,8 @@
 
 DEBUG = True
 
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
 ADMINS = (
     ('Your Name', 'yubin@example.com'),
 )

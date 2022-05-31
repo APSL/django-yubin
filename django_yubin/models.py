@@ -8,7 +8,7 @@ from django.utils.encoding import force_bytes
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from kombu.exceptions import KombuError
-from pyzmail.parse import message_from_string, message_from_bytes
+from mailparser import parse_from_string, parse_from_bytes
 
 from . import message_utils, tasks
 
@@ -108,13 +108,13 @@ class Message(models.Model):
         if log_message:
             self.add_log(log_message)
 
-    def get_pyz_message(self):
+    def get_message(self):
         try:
-            msg = message_from_string(self.encoded_message)
+            msg = parse_from_string(self.encoded_message)
         except UnicodeEncodeError:
-            msg = message_from_string(force_bytes(self.encoded_message))
+            msg = parse_from_string(force_bytes(self.encoded_message))
         except (TypeError, AttributeError):
-            msg = message_from_bytes(self.encoded_message)
+            msg = parse_from_bytes(self.encoded_message)
         return msg
 
     def get_email_message(self):

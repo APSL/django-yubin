@@ -14,3 +14,11 @@ MAILER_TEST_EMAIL = getattr(settings, "MAILER_TEST_EMAIL", '')
 
 # If there are emails to be enqueued or sent for more than x minutes, HealthCheck will mark an error
 MAILER_HC_QUEUED_LIMIT_OLD = getattr(settings, "MAILER_HC_QUEUED_LIMIT_OLD", 30)
+
+# Tuple of strings with the fields to use in ``admin.Message.search_fields``
+# attribute.
+MAILER_MESSAGE_SEARCH_FIELDS = getattr(
+    settings,
+    "MAILER_MESSAGE_SEARCH_FIELDS",
+    ('to_address', 'subject', 'from_address', 'encoded_message'),
+)

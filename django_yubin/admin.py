@@ -36,7 +36,7 @@ class MessageAdmin(admin.ModelAdmin):
     list_display = ('from_address', 'to_address', 'subject', 'date_created', 'date_sent',
                     'date_enqueued', 'status', 'message_link')
     list_filter = ('date_created', 'date_sent', 'date_enqueued', 'status')
-    search_fields = ('to_address', 'subject', 'from_address', 'encoded_message',)
+    search_fields = settings.MAILER_MESSAGE_SEARCH_FIELDS
     date_hierarchy = 'date_created'
     ordering = ('-date_created',)
     actions = ['enqueue_action', 'mark_as_sent_action', 'mark_as_created_action']
@@ -108,23 +108,23 @@ class MessageAdmin(admin.ModelAdmin):
 
     def detail_view(self, request, pk):
         instance = models.Message.objects.get(pk=pk)
-        msg = instance.get_pyz_message()
-        context = {'subject': msg.get_subject(),
-                   'from': msg.get_address('from'),
-                   'to': msg.get_addresses('to'),
-                   'cc': msg.get_addresses('cc'),
-                   'msg_text': msg.text_part.part.get_payload(
-                       decode=is_part_encoded(msg, 'text_part')) if msg.text_part else None,
-                   'msg_html': msg.html_part.part.get_payload(
-                       decode=is_part_encoded(msg, 'html_part')) if msg.html_part else None,
-                   'attachments': get_attachments(msg),
-                   'is_popup': True,
-                   'object': instance}
-        return render(request, 'django_yubin/message_detail.html', context)
+        msg = instance.get_message()
+        context = {
+            "subject": msg.subject,
+            "from": msg.from_,
+            "to": msg.to,
+            "cc": msg.cc,
+            "msg_text": "\n".join(msg.text_plain),
+            "msg_html": "</br>".join(msg.text_html),
+            "attachments": get_attachments(msg),
+            "is_popup": True,
+            "object": instance,
+        }
+        return render(request, "django_yubin/message_detail.html", context)
 
     def download_view(self, request, pk, firma):
         instance = models.Message.objects.get(pk=pk)
-        msg = instance.get_pyz_message()
+        msg = instance.get_message()
         arx = get_attachment(msg, key=firma)
         response = HttpResponse(content_type=arx.type)
         response['Content-Disposition'] = 'filename=' + arx.filename
@@ -134,10 +134,9 @@ class MessageAdmin(admin.ModelAdmin):
     @xframe_options_sameorigin
     def html_view(self, request, pk):
         instance = models.Message.objects.get(pk=pk)
-        msg = instance.get_pyz_message()
-        msg.html_part.part._charset = 'utf-8'
-        context = {'msg_html': msg.html_part.part.get_payload(decode=is_part_encoded(msg, 'html_part'))}
-        return render(request, 'django_yubin/html_detail.html', context)
+        msg = instance.get_message()
+        context = {"msg_html": "</br>".join(msg.text_html)}
+        return render(request, "django_yubin/html_detail.html", context)
 
 
 @admin.register(models.Blacklist)
