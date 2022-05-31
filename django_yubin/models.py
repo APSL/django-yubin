@@ -8,7 +8,7 @@ from django.utils.encoding import force_bytes
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from kombu.exceptions import KombuError
-from mailparser import parse_from_string, parse_from_bytes
+import mailparser
 
 from . import message_utils, tasks
 
@@ -110,33 +110,31 @@ class Message(models.Model):
 
     def get_message(self):
         try:
-            msg = parse_from_string(self.encoded_message)
+            msg = mailparser.parse_from_string(self.encoded_message)
         except UnicodeEncodeError:
-            msg = parse_from_string(force_bytes(self.encoded_message))
+            msg = mailparser.parse_from_string(force_bytes(self.encoded_message))
         except (TypeError, AttributeError):
-            msg = parse_from_bytes(self.encoded_message)
+            msg = mailparser.parse_from_bytes(self.encoded_message)
         return msg
 
     def get_email_message(self):
         """
-        Returns EmailMessage or EmailMultiAlternatives from self.encoded_message
-        depending on whether the email is multipart or not.
+        Returns EmailMultiAlternatives or EmailMessage depending on whether the email is multipart or not.
         """
-        msg = self.get_pyz_message()
+        msg = self.get_message()
 
-        email_class = EmailMultiAlternatives if msg.is_multipart() else EmailMessage
-        email = email_class(
+        Email = EmailMultiAlternatives if msg.text_html else EmailMessage
+        email = Email(
             subject=msg.get_subject(),
-            body=message_utils.get_body(msg),
-            from_email=message_utils.get_address(msg, 'from'),
-            to=message_utils.get_addresses(msg, 'to'),
-            cc=message_utils.get_addresses(msg, 'cc'),
-            bcc=message_utils.get_addresses(msg, 'bcc'),
+            body='\n'.join(msg.text_plain),
+            from_email=message_utils.get_address(msg.from_),
+            to=message_utils.get_addresses(msg.to),
+            cc=message_utils.get_addresses(msg.cc),
+            bcc=message_utils.get_addresses(msg.bcc),
         )
 
-        if msg.html_part:
-            html = msg.html_part.part.get_payload(decode=message_utils.is_part_encoded(msg, 'html_part'))
-            email.attach_alternative(html, msg.html_part.type)
+        if msg.text_html:
+            email.attach_alternative('<br>'.join(msg.text_html), mimetype='text/html')
 
         for attachment in message_utils.get_attachments(msg):
             email.attach(attachment.filename, attachment.payload, attachment.type)

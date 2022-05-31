@@ -9,7 +9,7 @@ from django.views.decorators.clickjacking import xframe_options_sameorigin
 from kombu.exceptions import KombuError
 
 from . import models, settings
-from .message_utils import get_attachments, get_attachment, is_part_encoded
+from .message_utils import get_attachments, get_attachment
 
 
 class LogInline(admin.TabularInline):
@@ -97,7 +97,7 @@ class MessageAdmin(admin.ModelAdmin):
             url(r'^mail/(?P<pk>\d+)/$',
                 self.admin_site.admin_view(self.detail_view),
                 name='mail_detail'),
-            url(r'^mail/attachment/(?P<pk>\d+)/(?P<firma>[0-9a-f]{32})/$',
+            url(r'^mail/attachment/(?P<pk>\d+)/(?P<signature>[0-9a-f]{32})/$',
                 self.admin_site.admin_view(self.download_view),
                 name="mail_download"),
             url(r'^mail/html/(?P<pk>\d+)/$',
@@ -122,13 +122,13 @@ class MessageAdmin(admin.ModelAdmin):
         }
         return render(request, "django_yubin/message_detail.html", context)
 
-    def download_view(self, request, pk, firma):
+    def download_view(self, request, pk, signature):
         instance = models.Message.objects.get(pk=pk)
         msg = instance.get_message()
-        arx = get_attachment(msg, key=firma)
-        response = HttpResponse(content_type=arx.type)
-        response['Content-Disposition'] = 'filename=' + arx.filename
-        response.write(arx.payload)
+        attachment = get_attachment(msg, key=signature)
+        response = HttpResponse(content_type=attachment.type)
+        response['Content-Disposition'] = 'filename=' + attachment.filename
+        response.write(attachment.payload)
         return response
 
     @xframe_options_sameorigin
