@@ -3,19 +3,16 @@ url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
+[requires]
+python_version = "3.10"
+
 [packages]
-Django = "<4"
+Django = "<4.0"
 django-extensions = "==3.1.5"
 redis = "==4.3.1"
+django-yubin = {editable = true, path = "./.."}
 
 [dev-packages]
 ipython = "==8.4"
 ipdb = "==0.13.9"
 flake8 = ">=4.0.1"
-
-[requires]
-python_version = "3.10"
-
-[packages.ed0a5ba]
-path = "./.."
-editable = true
