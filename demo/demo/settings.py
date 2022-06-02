@@ -173,4 +173,5 @@ EMAIL_PORT = 1025
 MAILER_USE_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Celery settings
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
+# CELERY_ALWAYS_EAGER = True
+BROKER_URL = 'redis://localhost:6379/0'
