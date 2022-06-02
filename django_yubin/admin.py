@@ -8,12 +8,12 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from kombu.exceptions import KombuError
 
-from . import models, settings
-from .message_utils import get_attachments, get_attachment
+from . import mailparser_utils, models, settings
 
 
 class LogInline(admin.TabularInline):
     model = models.Log
+    readonly_fields = ('action', 'date', 'log_message')
 
     def has_add_permission(self, request, obj=None):
         return False
@@ -111,12 +111,20 @@ class MessageAdmin(admin.ModelAdmin):
         msg = instance.get_message()
         context = {
             "subject": msg.subject,
-            "from": msg.from_,
-            "to": msg.to,
-            "cc": msg.cc,
+            "from": mailparser_utils.get_address(msg.from_),
+            "to": mailparser_utils.get_addresses(msg.to),
+            "cc": mailparser_utils.get_addresses(msg.cc),
             "msg_text": "\n".join(msg.text_plain),
             "msg_html": "</br>".join(msg.text_html),
-            "attachments": get_attachments(msg),
+            "attachments": [
+                {
+                    'filename': attachment['filename'],
+                    'content_type': attachment['mail_content_type'],
+                    'size': len(mailparser_utils.get_content(attachment)),
+                    'signature': mailparser_utils.get_signature(attachment),
+                }
+                for attachment in msg.attachments
+            ],
             "is_popup": True,
             "object": instance,
         }
@@ -125,10 +133,10 @@ class MessageAdmin(admin.ModelAdmin):
     def download_view(self, request, pk, signature):
         instance = models.Message.objects.get(pk=pk)
         msg = instance.get_message()
-        attachment = get_attachment(msg, key=signature)
-        response = HttpResponse(content_type=attachment.type)
-        response['Content-Disposition'] = 'filename=' + attachment.filename
-        response.write(attachment.payload)
+        attachment = mailparser_utils.get_attachment(msg, signature)
+        response = HttpResponse(content_type=attachment['mail_content_type'])
+        response['Content-Disposition'] = attachment['content-disposition']
+        response.write(mailparser_utils.get_content(attachment))
         return response
 
     @xframe_options_sameorigin

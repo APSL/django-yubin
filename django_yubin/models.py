@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from kombu.exceptions import KombuError
 import mailparser
 
-from . import message_utils, tasks
+from . import mailparser_utils, tasks
 
 
 logger = logging.getLogger(__name__)
@@ -127,17 +127,21 @@ class Message(models.Model):
         email = Email(
             subject=msg.subject,
             body='\n'.join(msg.text_plain),
-            from_email=message_utils.get_address(msg.from_),
-            to=message_utils.get_addresses(msg.to),
-            cc=message_utils.get_addresses(msg.cc),
-            bcc=message_utils.get_addresses(msg.bcc),
+            from_email=mailparser_utils.get_address(msg.from_),
+            to=mailparser_utils.get_addresses(msg.to),
+            cc=mailparser_utils.get_addresses(msg.cc),
+            bcc=mailparser_utils.get_addresses(msg.bcc),
         )
 
         if msg.text_html:
             email.attach_alternative('<br>'.join(msg.text_html), mimetype='text/html')
 
-        for attachment in message_utils.get_attachments(msg):
-            email.attach(attachment.filename, attachment.payload, attachment.type)
+        for attachment in msg.attachments:
+            email.attach(
+                attachment['filename'],
+                mailparser_utils.get_content(attachment),
+                attachment['mail_content_type'],
+            )
 
         return email
 

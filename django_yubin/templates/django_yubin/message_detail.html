@@ -1,41 +1,31 @@
 {% extends "admin/change_form.html" %}
+
 {% block breadcrumbs %}{% endblock breadcrumbs %}
+
 {% block content_title %}
   <h1>Message {{object.id}}</h1>
 {% endblock content_title %}
+
 {% block content %}
 <div class="form-row">
   <label class="required">Subject: </label>{{subject}}
 </div>
 <div class="form-row">
   <label class="required">From: </label>
-  {% for x in from %}
-    {% if x.0 %}
-      {{x.0}} &lt;{{x.1}}&gt;
-    {% else %}
-      {{x.1}}
-    {% endif %}
-  {% endfor %}</br>
+  {{ from }}
+  <br>
 </div>
 <div class="form-row">
   <label class="required">To: </label>
-  {% for x in to %}
-    {% if x.0 %}
-      {{x.0}} &lt;{{x.1}}&gt;{% if not forloop.last %}, {% endif %}
-    {% else %}
-      {{x.1}}{% if not forloop.last %}, {% endif %}
-    {% endif %}
-  {% endfor %}</br>
+  {% for address in to %}
+    {{ address }}{% if not forloop.last %}, {% endif %}
+  {% endfor %}<br>
 </div>
 <div class="form-row">
   <label class="required">CC: </label>
-  {% for x in cc %}
-    {% if x.0 %}
-      {{x.0}} &lt;{{x.1}}&gt;{% if not forloop.last %}, {% endif %}
-    {% else %}
-      {{x.1}}{% if not forloop.last %}, {% endif %}
-    {% endif %}
-  {% endfor %}</br>
+  {% for address in cc %}
+    {{ address }}{% if not forloop.last %}, {% endif %}
+  {% endfor %}<br>
 </div>
 {% if msg_html %}
   <div class="form-row">
@@ -55,7 +45,9 @@
     <h2>Attachments</h2>
     {% for file in attachments %}
       <div class="form-row">
-        <a title="{{file.type}} {{file.length}}" href="{% url 'admin:mail_download' object.pk file.signature %}">{{file.filename}}</a>
+        <a title="{{ file.content_type }} {{ file.size }}"
+           href="{% url 'admin:mail_download' object.pk file.signature %}"
+        >{{ file.filename }}</a>
       </div>
     {% endfor %}
   </div>
