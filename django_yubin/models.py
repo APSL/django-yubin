@@ -125,7 +125,7 @@ class Message(models.Model):
 
         Email = EmailMultiAlternatives if msg.text_html else EmailMessage
         email = Email(
-            subject=msg.get_subject(),
+            subject=msg.subject,
             body='\n'.join(msg.text_plain),
             from_email=message_utils.get_address(msg.from_),
             to=message_utils.get_addresses(msg.to),
