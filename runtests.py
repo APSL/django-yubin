@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import sys
@@ -17,10 +17,9 @@ def runtests(*args):
 
     TestRunner = get_runner(settings)
     test_runner = TestRunner(verbosity=2, interactive=True, failfast=False)
-    failures = test_runner.run_tests(args)
+    failures = test_runner.run_tests(*args)
     sys.exit(failures)
 
 
 if __name__ == '__main__':
-    # TODO: forward sys.argv?
-    runtests()
+    runtests(sys.argv[1:])
