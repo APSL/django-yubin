@@ -16,14 +16,9 @@ from . import models, settings
 logger = logging.getLogger(__name__)
 
 
-def send_db_message(message, connection=None, blacklist=None, log=True):
+def send_db_message(message, blacklist=None, log=True):
     """
     Sends a django_yubin.models.Message.
-
-    To allow optimizations when multiple messages are going to be sent, an SMTP
-    connection can be provided and a list of blacklisted email addresses.
-    Otherwise an SMTP connection will be opened to send this message and the
-    email recipient address checked against the ``Blacklist`` table.
 
     If the message recipient is blacklisted, the message will be removed from
     the queue without being sent. Otherwise, the message is attempted to be
@@ -33,18 +28,13 @@ def send_db_message(message, connection=None, blacklist=None, log=True):
     By default, a log is created as to the action. Either way, the original
     message is not deleted.
     """
+    log_message = ''
     message.mark_as(models.Message.STATUS_IN_PROCESS)
 
-    log_message = ''
-
-    if connection is None:
-        connection = get_connection(backend=settings.USE_BACKEND)
-    opened_connection = False
-
-    if blacklist is None:
-        blacklisted = models.Blacklist.objects.filter(email=message.to_address)
-    else:
+    if blacklist:
         blacklisted = message.to_address in blacklist
+    else:
+        blacklisted = models.Blacklist.objects.filter(email=message.to_address).exists()
 
     if blacklisted:
         msg = "Not sending to blacklisted email: %s" % message.to_address
@@ -59,21 +49,15 @@ def send_db_message(message, connection=None, blacklist=None, log=True):
     else:
         try:
             logger.info("Sending message to %s: %s" % (message.to_address, message.subject))
-            opened_connection = connection.open()
+            connection = get_connection(backend=settings.USE_BACKEND)
             connection.send_messages([message.get_email_message()])
             message.mark_as(models.Message.STATUS_SENT)
         except (SocketError,
                 smtplib.SMTPSenderRefused, smtplib.SMTPRecipientsRefused, smtplib.SMTPAuthenticationError,
                 UnicodeDecodeError, UnicodeEncodeError) as e:
             logger.exception("Message sending has failed", extra={'message': message})
-            try:
-                log_message = unicode(e)
-            except NameError:
-                log_message = e
+            log_message = str(e)
             message.mark_as(models.Message.STATUS_FAILED)
 
     if log:
         models.Log.objects.create(message=message, action=message.status, log_message=log_message)
-
-    if opened_connection:
-        connection.close()
