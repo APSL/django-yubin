@@ -1,0 +1,24 @@
+services:
+
+  postgres:
+    image: postgres:14.3-alpine
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+      - ./postgres:/postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=yubin
+      - POSTGRES_USER=yubin
+      - POSTGRES_DB=yubin
+
+  redis:
+    image: redis:7.0-alpine
+    ports:
+      - "6379:6379"
+
+  mail:
+    image: python:3.10-alpine
+    command: 'python -m smtpd -n -c DebuggingServer 0.0.0.0:1025'
+    ports:
+      - "1025:1025"

@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 DEBUG = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
@@ -12,12 +10,12 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'demo.sqlite',           # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'yubin',
+        'USER': 'yubin',
+        'PASSWORD': 'yubin',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -170,8 +168,8 @@ EMAIL_BACKEND = 'django_yubin.backends.QueuedEmailBackend'
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 1025
 
-MAILER_USE_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+MAILER_USE_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 # Celery settings
-# CELERY_ALWAYS_EAGER = True
+CELERY_ALWAYS_EAGER = False
 BROKER_URL = 'redis://localhost:6379/0'

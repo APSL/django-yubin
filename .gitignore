@@ -8,6 +8,8 @@
 .eggs/
 .DS_Store
 demo.*.sqlite
+demo/postgres
+demo/postgres-data
 
 # tests related
 .tox
