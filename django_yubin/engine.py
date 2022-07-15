@@ -55,7 +55,7 @@ def send_db_message(message, blacklist=None, log=True):
         except (SocketError,
                 smtplib.SMTPSenderRefused, smtplib.SMTPRecipientsRefused, smtplib.SMTPAuthenticationError,
                 UnicodeDecodeError, UnicodeEncodeError) as e:
-            logger.exception("Message sending has failed", extra={'message': message})
+            logger.exception("Message sending has failed", extra={'email_message': message})
             log_message = str(e)
             message.mark_as(models.Message.STATUS_FAILED)
 

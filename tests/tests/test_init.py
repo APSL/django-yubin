@@ -1,16 +1,15 @@
-import unittest
+from unittest.mock import patch
 
 from django.conf import settings as django_settings
 from django.core.mail import EmailMessage
+from django.test import TestCase
 
 from django_yubin import settings, queue_email_message, send_mail, mail_admins, mail_managers
 from django_yubin.models import Message
 
-from .base import MailerTestCase
 
-
-@unittest.mock.patch('django_yubin.models.Message.enqueue')
-class TestInit(MailerTestCase):
+@patch('django_yubin.models.Message.enqueue')
+class TestInit(TestCase):
     """
     Yubin tests for __init__.py.
     """
