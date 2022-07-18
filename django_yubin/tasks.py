@@ -1,3 +1,4 @@
+from collections import namedtuple
 import logging
 
 from celery import shared_task
@@ -39,6 +40,9 @@ def send_email(message_pk):
             logger.exception('Error sending email', extra={'message_pk': message_pk})
 
 
+EnqueuedFailed = namedtuple('EnqueuedFailed', 'enqueued, failed')
+
+
 @shared_task()
 def retry_emails(max_retries=3):
     """
@@ -53,7 +57,9 @@ def retry_emails(max_retries=3):
             message.enqueue('Retry sending the email.')
             enqueued += 1
         except KombuError:
-            logger.exception('Error enqueuing again an email', extra={'message': message})
+            logger.exception('Error enqueuing again an email', extra={'email_message': message})
+    failed = len(messages) - enqueued
 
     msg = '%s messages have been queued again, %s failed.'
-    logger.info(msg % (enqueued, len(messages) - enqueued))
+    logger.info(msg % (enqueued, failed))
+    return EnqueuedFailed(enqueued, failed)

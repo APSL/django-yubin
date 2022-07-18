@@ -44,6 +44,5 @@ class SendDBMessageTest(MailerTestCase):
 
     @patch('django_yubin.engine.get_connection', side_effect=SocketError)
     def testSendDBMessageFail(self, get_connection_mock):
-        get_connection_mock.return_value
         send_db_message(self.message)
         self.assertEqual(self.message.status, Message.STATUS_FAILED)

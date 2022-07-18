@@ -21,7 +21,7 @@ class MessageQuerySet(models.QuerySet):
         return self.filter(status__in=self.model.QUEUEABLE_STATUSES)
 
     def retryable(self, max_retries=0):
-        qs = self.filter(status__gt=self.model.STATUS_SENT)
+        qs = self.filter(status__gte=self.model.STATUS_FAILED)
         if max_retries > 0:
             qs = qs.filter(enqueued_count__lt=max_retries)
         return qs

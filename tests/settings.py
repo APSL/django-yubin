@@ -50,5 +50,4 @@ EMAIL_PORT = 1025
 EMAIL_BACKEND = 'django_yubin.backends.QueuedEmailBackend'
 MAILER_USE_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# Celery settings
-# CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_ALWAYS_EAGER = True
