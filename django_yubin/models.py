@@ -7,7 +7,6 @@ from django.db.models import F
 from django.utils.encoding import force_bytes
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
-from kombu.exceptions import KombuError
 import mailparser
 
 from . import mailparser_utils, tasks
@@ -17,9 +16,6 @@ logger = logging.getLogger(__name__)
 
 
 class MessageQuerySet(models.QuerySet):
-    def queueable(self):
-        return self.filter(status__in=self.model.QUEUEABLE_STATUSES)
-
     def retryable(self, max_retries=0):
         qs = self.filter(status__gte=self.model.STATUS_FAILED)
         if max_retries > 0:
@@ -30,9 +26,6 @@ class MessageQuerySet(models.QuerySet):
 class MessageManager(models.Manager):
     def get_queryset(self):
         return MessageQuerySet(self.model, using=self._db)
-
-    def queueable(self):
-        return self.get_queryset().queueable()
 
     def retryable(self, max_retries=0):
         return self.get_queryset().retryable(max_retries=max_retries)
@@ -63,8 +56,6 @@ class Message(models.Model):
         (STATUS_BLACKLISTED, _('Blacklisted')),
         (STATUS_DISCARDED, _('Discarded')),
     )
-    QUEUEABLE_STATUSES = (STATUS_CREATED, STATUS_FAILED, STATUS_BLACKLISTED, STATUS_DISCARDED)
-    SENDABLE_STATUSES = (*QUEUEABLE_STATUSES, STATUS_QUEUED)
 
     to_address = models.CharField(_('to address'), max_length=200)
     from_address = models.CharField(_('from address'), max_length=200)
@@ -92,21 +83,6 @@ class Message(models.Model):
 
     def __str__(self):
         return '%s: %s' % (self.to_address, self.subject)
-
-    def can_be_sent(self):
-        return self.status in self.SENDABLE_STATUSES
-
-    def mark_as(self, status, log_message=None):
-        self.status = status
-        if status is self.STATUS_SENT:
-            self.date_sent = now()
-            self.sent_count = F('sent_count') + 1
-        elif status is self.STATUS_QUEUED:
-            self.date_enqueued = now()
-            self.enqueued_count = F('enqueued_count') + 1
-        self.save()
-        if log_message:
-            self.add_log(log_message)
 
     def get_message(self):
         try:
@@ -148,6 +124,52 @@ class Message(models.Model):
     def add_log(self, log_message):
         Log.objects.create(message=self, action=self.status, log_message=log_message)
 
+    def mark_as(self, status, log_message=None):
+        self.status = status
+        if status is self.STATUS_SENT:
+            self.date_sent = now()
+            self.sent_count = F('sent_count') + 1
+        elif status is self.STATUS_QUEUED:
+            self.date_enqueued = now()
+            self.enqueued_count = F('enqueued_count') + 1
+        self.save()
+        if log_message:
+            self.add_log(log_message)
+
+    def can_be_enqueued(self):
+        return self.status in (
+            self.STATUS_CREATED,
+            self.STATUS_FAILED,
+            self.STATUS_BLACKLISTED,
+            self.STATUS_DISCARDED
+        )
+
+    def enqueue(self, log_message=None):
+        """
+        Sends the task to enqueue itself taking care of undoing changes if the delivery fails.
+        """
+        if not self.can_be_enqueued():
+            self.add_log("Message can not be enqueued in it's current status")
+            return False
+
+        backup = {
+            'date_enqueued': self.date_enqueued,
+            'enqueued_count': self.enqueued_count,
+            'status': self.status,
+        }
+        self.mark_as(self.STATUS_QUEUED, log_message)
+
+        try:
+            tasks.send_email.delay(self.pk)
+            return True
+        except Exception as e:
+            self.date_enqueued = backup['date_enqueued']
+            self.enqueued_count = backup['enqueued_count']
+            self.status = backup['status']
+            self.save()
+            self.add_log('Error enqueuing email: {}'.format(e))
+        return False
+
     @classmethod
     def delete_old(cls, days=90):
         """
@@ -158,26 +180,6 @@ class Message(models.Model):
         cutoff_date = now() - datetime.timedelta(days)
         deleted = cls.objects.filter(date_created__lt=cutoff_date).delete()
         return deleted, cutoff_date
-
-    def enqueue(self, log_message=None):
-        """
-        Sends the task to enqueue itself taking care of undoing changes if the delivery fails.
-        """
-        backup = {
-            'date_enqueued': self.date_enqueued,
-            'enqueued_count': self.enqueued_count,
-            'status': self.status,
-        }
-        self.mark_as(self.STATUS_QUEUED, log_message)
-        try:
-            tasks.send_email.delay(self.pk)
-        except KombuError:
-            self.date_enqueued = backup['date_enqueued']
-            self.enqueued_count = backup['enqueued_count']
-            self.status = backup['status']
-            self.save()
-            self.add_log('Error enqueuing email.')
-            raise
 
 
 class Blacklist(models.Model):

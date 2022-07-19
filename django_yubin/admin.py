@@ -6,7 +6,6 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.clickjacking import xframe_options_sameorigin
-from kombu.exceptions import KombuError
 
 from . import mailparser_utils, models, settings
 
@@ -43,30 +42,17 @@ class MessageAdmin(admin.ModelAdmin):
     inlines = [LogInline]
 
     def enqueue_action(self, request, queryset):
-        if settings.PAUSE_SEND:
-            msg = _("Sending emails is paused by settings, no email has been sent.")
-            self.message_user(request, msg, level=dj_messages.INFO)
-            return
-
-        if queryset.count() != queryset.queueable().count():
-            msg = _('Messages with "Queued", "In process" or "Sent" statuses can not be enqueued.')
-            self.message_user(request, msg, level=dj_messages.WARNING)
-            return
-
         failed, queued = [], []
         for message in queryset:
-            try:
-                message.enqueue('Enqueued from the admin.')
+            if message.enqueue('Enqueued from the admin.'):
                 queued.append(str(message.pk))
-            except KombuError:
+            else:
                 failed.append(str(message.pk))
 
-        msg = _("{queued_count} emails enqueued: {queued} | "
-                "{failed_count} emails failed: {failed}".format(
-                    queued_count=len(queued), queued=','.join(queued),
-                    failed_count=len(failed), failed=','.join(failed),
-                    )
-                )
+        msg = _("{q_count} emails enqueued: {q} | {f_count} emails failed: {f}".format(
+                    q_count=len(queued), q=','.join(queued),
+                    f_count=len(failed), f=','.join(failed),
+                ))
         if failed and queued:
             level = dj_messages.WARNING
         elif failed:

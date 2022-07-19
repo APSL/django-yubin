@@ -4,8 +4,6 @@ High level functions to queue emails.
 
 import logging
 
-from kombu.exceptions import KombuError
-
 
 logger = logging.getLogger(__name__)
 
@@ -33,11 +31,10 @@ def queue_email_message(email_message, fail_silently=False):
             from_address=email_message.from_email,
             subject=email_message.subject,
             encoded_message=email_message.message().as_string())
-        try:
-            message.enqueue('Enqueued from a Backend or django-yubin itself.')
+        if message.enqueue('Enqueued from a Backend or django-yubin itself.'):
             count += 1
-        except KombuError:
-            logger.exception('Error enqueuing an email', extra={'message': message})
+        else:
+            logger.exception('Error enqueuing an email', extra={'email_message': message})
     return count
 
 
