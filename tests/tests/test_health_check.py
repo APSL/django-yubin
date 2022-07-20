@@ -4,7 +4,7 @@ from django.urls import reverse
 
 class TestHealthCheck(TestCase):
 
-    def testHealthCheckView(self):
+    def test_health_check_view(self):
         c = Client()
         url = reverse('yubin_health')
         response = c.get(url)

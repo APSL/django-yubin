@@ -14,7 +14,7 @@ class TestInit(TestCase):
     Yubin tests for __init__.py.
     """
 
-    def testQueueEmailMessage(self, enqueue_email_mock):
+    def test_queue_email_message(self, enqueue_email_mock):
         email = EmailMessage(subject='subject', body='body', from_email='mail_from@abc.com',
                              to=['mail_to@abc.com'])
         queued = queue_email_message(email)
@@ -22,7 +22,7 @@ class TestInit(TestCase):
         self.assertEqual(enqueue_email_mock.call_count, queued)
         self.assertTrue(Message.objects.filter(from_address='mail_from@abc.com').exists())
 
-    def testQueueEmailMessageTestMode(self, enqueue_email_mock):
+    def test_queue_email_message_test_mode(self, enqueue_email_mock):
         settings.MAILER_TEST_MODE = True
         settings.MAILER_TEST_EMAIL = 'test_email@abc.com'
 
@@ -41,7 +41,7 @@ class TestInit(TestCase):
 
         settings.MAILER_TEST_MODE = False
 
-    def testSendMail(self, enqueue_email_mock):
+    def test_send_mail(self, enqueue_email_mock):
         recipient_list = ['mail_to@abc.com']
         send_mail(subject='subject', message='body', from_email='mail_from@abc.com',
                   recipient_list=recipient_list)
@@ -53,7 +53,7 @@ class TestInit(TestCase):
         self.assertEqual(recipient_list[0], messages[0].to_address)
         self.assertTrue(recipient_list[0] in messages[0].encoded_message)
 
-    def testSendMessageAdmin(self, enqueue_email_mock):
+    def test_send_message_admin(self, enqueue_email_mock):
         mail_admins(subject='subject', message='message')
 
         messages = Message.objects.all()
@@ -65,7 +65,7 @@ class TestInit(TestCase):
             self.assertEqual(recipient, messages[i].to_address)
             self.assertTrue(recipient in messages[i].encoded_message)
 
-    def testSendMessageManagers(self, enqueue_email_mock):
+    def test_send_message_managers(self, enqueue_email_mock):
         mail_managers(subject='subject', message='message')
 
         messages = Message.objects.all()

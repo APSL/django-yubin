@@ -8,7 +8,7 @@ from django_yubin.models import Blacklist, Message
 from .base import MailerTestCase
 
 
-class SendDBMessageTest(MailerTestCase):
+class TestSendDBMessage(MailerTestCase):
     """
     Tests engine function that sends db messages.
     """
@@ -20,20 +20,20 @@ class SendDBMessageTest(MailerTestCase):
             encoded_message="Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
         )
 
-    def testSendDBMessage(self):
+    def test_send_db_message(self):
         send_db_message(self.message)
         self.assertEqual(self.message.status, Message.STATUS_SENT)
 
-    def testSendDBMessageBlacklistParam(self):
+    def test_send_db_message_blacklist_param(self):
         send_db_message(self.message, blacklist=[self.message.to_address])
         self.assertEqual(self.message.status, Message.STATUS_BLACKLISTED)
 
-    def testSendDBMessageBlacklistDB(self):
+    def test_send_db_message_blacklist_db(self):
         Blacklist.objects.create(email=self.message.to_address)
         send_db_message(self.message)
         self.assertEqual(self.message.status, Message.STATUS_BLACKLISTED)
 
-    def testSendDBMessagePause(self):
+    def test_send_db_message_pause(self):
         pause_send_backup = settings.PAUSE_SEND
         settings.PAUSE_SEND = True
 
@@ -43,6 +43,6 @@ class SendDBMessageTest(MailerTestCase):
         settings.PAUSE_SEND = pause_send_backup
 
     @patch('django_yubin.engine.get_connection', side_effect=SocketError)
-    def testSendDBMessageFail(self, get_connection_mock):
+    def test_send_db_message_fail(self, get_connection_mock):
         send_db_message(self.message)
         self.assertEqual(self.message.status, Message.STATUS_FAILED)

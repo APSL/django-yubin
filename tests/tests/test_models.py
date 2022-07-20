@@ -16,14 +16,14 @@ class TestMessage(TestCase):
             encoded_message="Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
         )
 
-    def testMarkAsWithoutLog(self):
+    def test_mark_as_without_log(self):
         self.message.mark_as(Message.STATUS_FAILED)
         self.assertEqual(self.message.status, Message.STATUS_FAILED)
 
         logs_count = self.message.log_set.all().count()
         self.assertEqual(logs_count, 0)
 
-    def testMarkAsWithLog(self):
+    def test_mark_as_with_log(self):
         log_message = "test mark"
 
         self.message.mark_as(Message.STATUS_FAILED, log_message)
@@ -33,7 +33,7 @@ class TestMessage(TestCase):
         self.assertEqual(len(logs), 1)
         self.assertEqual(logs[0].log_message, log_message)
 
-    def testMarkAsSent(self):
+    def test_mark_as_sent(self):
         now = timezone.now()
         sent_count = self.message.sent_count
         self.message.mark_as(Message.STATUS_SENT)
@@ -41,7 +41,7 @@ class TestMessage(TestCase):
         self.assertGreater(self.message.date_sent, now)
         self.assertEqual(self.message.sent_count, sent_count+1)
 
-    def testMarkAsQueued(self):
+    def test_mark_as_queued(self):
         now = timezone.now()
         enqueued_count = self.message.enqueued_count
         self.message.mark_as(Message.STATUS_QUEUED)
@@ -49,12 +49,12 @@ class TestMessage(TestCase):
         self.assertGreater(self.message.date_enqueued, now)
         self.assertEqual(self.message.enqueued_count, enqueued_count+1)
 
-    def testEnqueueWrongStatus(self):
+    def test_enqueue_wrong_status(self):
         self.message.mark_as(Message.STATUS_QUEUED)
         self.assertFalse(self.message.enqueue())
 
     @patch("django_yubin.tasks.send_email.delay", side_effect=Exception)
-    def testEnqueueException(self, send_email_mock):
+    def test_enqueue_exception(self, send_email_mock):
         backup = {
             'date_enqueued': self.message.date_enqueued,
             'enqueued_count': self.message.enqueued_count,
@@ -66,6 +66,6 @@ class TestMessage(TestCase):
         self.assertEqual(self.message.status, backup["status"])
 
     @patch("django_yubin.tasks.send_email.delay")
-    def testEnqueueOK(self, send_email_mock):
+    def test_enqueue_ok(self, send_email_mock):
         self.assertTrue(self.message.enqueue())
         self.assertEqual(self.message.status, Message.STATUS_QUEUED)

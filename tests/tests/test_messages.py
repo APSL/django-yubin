@@ -12,6 +12,7 @@ from django_yubin.message_views import (
     TemplatedAttachmentEmailMessageView, template_from_string,
     TemplatedMultipleAttachmentsEmailMessageView)
 
+
 using_test_templates = override_settings(
     TEMPLATE_DIRS=(
         os.path.join(os.path.dirname(__file__), 'templates/mail'),
@@ -23,29 +24,29 @@ using_test_templates = override_settings(
 )
 
 
-class EmailMessageViewTestCase(TestCase):
+class TestEmailMessageView(TestCase):
     def run(self, *args, **kwargs):
         with using_test_templates:
-            return super(EmailMessageViewTestCase, self).run(*args, **kwargs)
+            return super().run(*args, **kwargs)
 
-    def assertTemplateExists(self, name):
+    def assert_template_exists(self, name):
         try:
             get_template(name)
         except TemplateDoesNotExist:
             raise AssertionError('Template does not exist: %s' % name)
 
-    def assertTemplateDoesNotExist(self, name):
+    def assert_template_does_not_exist(self, name):
         try:
-            self.assertTemplateExists(name)
+            self.assert_template_exists(name)
         except AssertionError:
             return
         raise AssertionError('Template exists: %s' % name)
 
-    def assertOutboxLengthEquals(self, length):
+    def assert_outbox_length_equals(self, length):
         self.assertEqual(len(mail.outbox), length)
 
 
-class TemplatedEmailMessageViewTestCase(EmailMessageViewTestCase):
+class TestTemplatedEmailMessageView(TestEmailMessageView):
     message_class = TemplatedEmailMessageView
 
     def setUp(self):
@@ -79,14 +80,14 @@ class TemplatedEmailMessageViewTestCase(EmailMessageViewTestCase):
 
     def test_subject_invalid_template_name(self):
         template = 'invalid.txt'
-        self.assertTemplateDoesNotExist(template)
+        self.assert_template_does_not_exist(template)
 
         self.message.subject_template_name = template
         self.assertRaises(TemplateDoesNotExist, self.render_subject)
 
     def test_subject_template_name(self):
         template = 'subject.txt'
-        self.assertTemplateExists(template)
+        self.assert_template_exists(template)
 
         self.message.subject_template_name = template
         self.assertEqual(self.render_subject(), self.subject)
@@ -100,14 +101,14 @@ class TemplatedEmailMessageViewTestCase(EmailMessageViewTestCase):
 
     def test_body_invalid_template_name(self):
         template = 'invalid.txt'
-        self.assertTemplateDoesNotExist(template)
+        self.assert_template_does_not_exist(template)
 
         self.message.body_template_name = template
         self.assertRaises(TemplateDoesNotExist, self.render_body)
 
     def test_body_template_name(self):
         template = 'body.txt'
-        self.assertTemplateExists(template)
+        self.assert_template_exists(template)
 
         self.message.body_template_name = template
         self.assertEqual(self.render_body(), u"%s\n" % self.body)
@@ -125,7 +126,7 @@ class TemplatedEmailMessageViewTestCase(EmailMessageViewTestCase):
     def test_send(self):
         self.add_templates_to_message()
         self.message.send(self.context, to=('ted@disqus.com',))
-        self.assertOutboxLengthEquals(1)
+        self.assert_outbox_length_equals(1)
 
     def test_custom_headers(self):
         self.add_templates_to_message()
@@ -143,11 +144,11 @@ class TemplatedEmailMessageViewTestCase(EmailMessageViewTestCase):
         self.assertEqual(rendered.extra_headers['References'], 'foo')
 
 
-class TemplatedHTMLEmailMessageViewTestCase(TemplatedEmailMessageViewTestCase):
+class TestTemplatedHTMLEmailMessageView(TestTemplatedEmailMessageView):
     message_class = TemplatedHTMLEmailMessageView
 
     def setUp(self):
-        super(TemplatedHTMLEmailMessageViewTestCase, self).setUp()
+        super().setUp()
 
         self.html_body = 'html body ✉️ 🙂 àäá.'
         self.html_body_template = template_from_string('{{ html }}')
@@ -160,7 +161,7 @@ class TemplatedHTMLEmailMessageViewTestCase(TemplatedEmailMessageViewTestCase):
         """
         Adds templates to the fixture message, ensuring it can be rendered.
         """
-        super(TemplatedHTMLEmailMessageViewTestCase, self) \
+        super(TestTemplatedHTMLEmailMessageView, self) \
             .add_templates_to_message()
         self.message.html_body_template = self.html_body_template
 
@@ -169,14 +170,14 @@ class TemplatedHTMLEmailMessageViewTestCase(TemplatedEmailMessageViewTestCase):
 
     def test_html_body_invalid_template_name(self):
         template = 'invalid.txt'
-        self.assertTemplateDoesNotExist(template)
+        self.assert_template_does_not_exist(template)
 
         self.message.html_body_template_name = template
         self.assertRaises(TemplateDoesNotExist, self.render_html_body)
 
     def test_html_body_template_name(self):
         template = 'body.html'
-        self.assertTemplateExists(template)
+        self.assert_template_exists(template)
 
         self.message.html_body_template_name = template
         self.assertEqual(self.render_html_body(), u"%s\n" % self.html_body)
@@ -195,14 +196,14 @@ class TemplatedHTMLEmailMessageViewTestCase(TemplatedEmailMessageViewTestCase):
     def test_send(self):
         self.add_templates_to_message()
         self.message.send(self.context, to=('ted@disqus.com',))
-        self.assertOutboxLengthEquals(1)
+        self.assert_outbox_length_equals(1)
 
 
-class TemplatedAttachmentEmailMessageViewTestCase(TemplatedEmailMessageViewTestCase):
+class TestTemplatedAttachmentEmailMessageView(TestTemplatedEmailMessageView):
     message_class = TemplatedAttachmentEmailMessageView
 
     def setUp(self):
-        super(TemplatedAttachmentEmailMessageViewTestCase, self).setUp()
+        super().setUp()
 
         self.html_body = 'html body ✉️ 🙂 àäá.'
         self.html_body_template = template_from_string('{{ html }}')
@@ -216,7 +217,7 @@ class TemplatedAttachmentEmailMessageViewTestCase(TemplatedEmailMessageViewTestC
         """
         Adds templates to the fixture message, ensuring it can be rendered.
         """
-        super(TemplatedAttachmentEmailMessageViewTestCase, self) \
+        super(TestTemplatedAttachmentEmailMessageView, self) \
             .add_templates_to_message()
         self.message.html_body_template = self.html_body_template
 
@@ -241,10 +242,10 @@ class TemplatedAttachmentEmailMessageViewTestCase(TemplatedEmailMessageViewTestC
                           attachment=attachment,
                           mimetype="application/pdf",
                           to=('attachment@example.com',))
-        self.assertOutboxLengthEquals(1)
+        self.assert_outbox_length_equals(1)
 
 
-class TemplatedMultipleAttachmentsEmailMessageViewTestCase(TemplatedAttachmentEmailMessageViewTestCase):
+class TestTemplatedMultipleAttachmentsEmailMessageView(TestTemplatedAttachmentEmailMessageView):
     message_class = TemplatedMultipleAttachmentsEmailMessageView
 
     def test_send_message(self):
@@ -258,7 +259,7 @@ class TemplatedMultipleAttachmentsEmailMessageViewTestCase(TemplatedAttachmentEm
         self.message.send(self.context,
                           attachments=attachments,
                           to=('attachment@example.com',))
-        self.assertOutboxLengthEquals(1)
+        self.assert_outbox_length_equals(1)
 
     def render_to_message(self, attach_number):
         self.add_templates_to_message()
@@ -284,7 +285,7 @@ class TemplatedMultipleAttachmentsEmailMessageViewTestCase(TemplatedAttachmentEm
         self.render_to_message(10)
 
 
-class TestEmailOptions(EmailMessageViewTestCase):
+class TestEmailOptions(TestEmailMessageView):
     message_class = TemplatedEmailMessageView
 
     def setUp(self):
@@ -316,7 +317,7 @@ class TestEmailOptions(EmailMessageViewTestCase):
     def test_send(self):
         self.add_templates_to_message()
         self.message.send(self.context, to=('ted@disqus.com',))
-        self.assertOutboxLengthEquals(1)
+        self.assert_outbox_length_equals(1)
 
     def test_custom_headers(self):
         self.add_templates_to_message()

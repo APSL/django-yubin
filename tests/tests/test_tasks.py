@@ -10,11 +10,11 @@ from django_yubin.tasks import send_email, retry_emails, EnqueuedFailed
 @patch('django_yubin.engine.send_db_message', side_effect=send_db_message)
 class TestSendEmailTask(TestCase):
 
-    def testSendEmailNotFound(self, send_db_message_mock):
+    def test_send_email_not_found(self, send_db_message_mock):
         send_email(-1)
         self.assertFalse(send_db_message_mock.called)
 
-    def testSendEmailSuccess(self, send_db_message_mock):
+    def test_send_email_success(self, send_db_message_mock):
         message = Message.objects.create(
             to_address='johndoe@acmecorp.com',
             from_address='no-reply@acmecorp.com',
@@ -29,7 +29,7 @@ class TestSendEmailTask(TestCase):
 
 class TestRetryEmailsTask(TestCase):
 
-    def testRetryEmailsEmpty(self):
+    def test_retry_emails_empty(self):
         self.assertEqual(retry_emails(), EnqueuedFailed(0, 0))
 
     def testRetryEmailsNoRetrayable(self):
@@ -41,7 +41,7 @@ class TestRetryEmailsTask(TestCase):
         )
         self.assertEqual(retry_emails(), EnqueuedFailed(0, 0))
 
-    def testRetryEmailsMaxRetries(self):
+    def test_retry_emails_max_retries(self):
         retries = 2
         Message.objects.create(
             to_address='',
@@ -53,7 +53,7 @@ class TestRetryEmailsTask(TestCase):
         )
         self.assertEqual(retry_emails(max_retries=retries), EnqueuedFailed(0, 0))
 
-    def testRetryEmailsSuccess(self):
+    def test_retry_emails_success(self):
         emails_count = 2
         for i in range(emails_count):
             Message.objects.create(
@@ -66,7 +66,7 @@ class TestRetryEmailsTask(TestCase):
         self.assertEqual(retry_emails(), EnqueuedFailed(emails_count, 0))
 
     @patch("django_yubin.tasks.send_email.delay", side_effect=Exception)
-    def testRetryEmailsFailed(self, send_email_mock):
+    def test_retry_emails_failed(self, send_email_mock):
         Message.objects.create(
             to_address='johndoe@acmecorp.com',
             from_address='no-reply@acmecorp.com',
