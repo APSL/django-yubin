@@ -5,6 +5,7 @@ from django.core.mail.message import EmailMessage, EmailMultiAlternatives
 from django.db import models
 from django.db.models import F
 from django.utils.encoding import force_bytes
+from django.utils.text import Truncator
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 import mailparser
@@ -125,14 +126,21 @@ class Message(models.Model):
         Log.objects.create(message=self, action=self.status, log_message=log_message)
 
     def mark_as(self, status, log_message=None):
+        should_refresh_from_db = False
+
         self.status = status
         if status is self.STATUS_SENT:
             self.date_sent = now()
             self.sent_count = F('sent_count') + 1
+            should_refresh_from_db = True
         elif status is self.STATUS_QUEUED:
             self.date_enqueued = now()
             self.enqueued_count = F('enqueued_count') + 1
+            should_refresh_from_db = True
+
         self.save()
+        if should_refresh_from_db:
+            self.refresh_from_db()
         if log_message:
             self.add_log(log_message)
 
@@ -215,3 +223,6 @@ class Log(models.Model):
         ordering = ('-date',)
         verbose_name = _('log')
         verbose_name_plural = _('logs')
+
+    def __str__(self):
+        return Truncator(self.log_message).chars(30)
