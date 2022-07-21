@@ -137,11 +137,12 @@ class Message(models.Model):
             self.date_enqueued = now()
             self.enqueued_count = F('enqueued_count') + 1
             should_refresh_from_db = True
-
         self.save()
+
         if should_refresh_from_db:
             self.refresh_from_db()
-        if log_message:
+
+        if log_message is not None:
             self.add_log(log_message)
 
     def can_be_enqueued(self):
@@ -225,4 +226,4 @@ class Log(models.Model):
         verbose_name_plural = _('logs')
 
     def __str__(self):
-        return Truncator(self.log_message).chars(30)
+        return Truncator(self.log_message).chars(50)
