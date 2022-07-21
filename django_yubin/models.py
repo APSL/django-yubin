@@ -180,6 +180,15 @@ class Message(models.Model):
         return False
 
     @classmethod
+    def retry_messages(cls, max_retries=3):
+        enqueued = 0
+        messages = cls.objects.retryable(max_retries)
+        for message in messages:
+            enqueued += message.enqueue('Retry sending the email.')
+        failed = len(messages) - enqueued
+        return enqueued, failed
+
+    @classmethod
     def delete_old(cls, days=90):
         """
         Deletes mails created before `days` days.

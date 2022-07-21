@@ -69,3 +69,27 @@ class TestMessage(TestCase):
     def test_enqueue_ok(self, send_email_mock):
         self.assertTrue(self.message.enqueue())
         self.assertEqual(self.message.status, Message.STATUS_QUEUED)
+
+    def test_retry_messages_none(self):
+        enqueued, failed = Message.retry_messages()
+        self.assertEqual((enqueued, failed), (0, 0))
+
+    def test_retry_messages(self):
+        self.message.status = Message.STATUS_FAILED
+        self.message.save()
+        enqueued, failed = Message.retry_messages()
+        self.assertEqual((enqueued, failed), (1, 0))
+
+    def test_retry_messages_max_retries(self):
+        self.message.status = Message.STATUS_FAILED
+        self.message.enqueued_count = 3
+        self.message.save()
+        enqueued, failed = Message.retry_messages()
+        self.assertEqual((enqueued, failed), (0, 0))
+
+    @patch("django_yubin.tasks.send_email.delay", side_effect=Exception('Mock exception'))
+    def test_retry_messages_enqueue_failed(self, send_mail_mock):
+        self.message.status = Message.STATUS_FAILED
+        self.message.save()
+        enqueued, failed = Message.retry_messages()
+        self.assertEqual((enqueued, failed), (0, 1))
