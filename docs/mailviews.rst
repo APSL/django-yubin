@@ -8,7 +8,7 @@ Rendering and sending emails in Django can quickly become repetitive and
 error-prone. By encapsulating message rendering within view classes, you can
 easily compose messages in a structured and clear manner.
 
-The idea behind the method is identhical to the template class based view: you can select the template to use, in our
+The idea behind the method is identical to the template class based view: you can select the template to use, in our
 case one for the subject and one for the body (and one extra for the html), you can pass the data you need overriding
 the ``get_context_data`` method and the message rendering is made in ``render_to_message`` where you can also customize
 the parameters as sender, cc, cco, etc. or delay the decision to the ``send`` method.

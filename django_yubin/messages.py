@@ -260,7 +260,7 @@ class TemplatedHTMLEmailMessageView(TemplatedEmailMessageView):
 
     def get_context_data(self, **kwargs):
         """
-        As is quite commont to have images in an HTML e-mail add MEDIA_URL
+        As is quite common to have images in an HTML e-mail add MEDIA_URL
         and STATIC_URL to the context with its full path
         """
 
