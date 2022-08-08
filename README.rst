@@ -54,7 +54,7 @@ Advantages
 
 * Yubin allows to define prioritary queues, resend e-mails
 
-* Yubin helps in your development.  It's a good way to work when you're developping
+* Yubin helps in your development.  It's a good way to work when you're developing
   the application and you don't want to flood your test users with
   e-mails. With Django Yubin, and without running the cron commands, you can see how
   your e-mails are, retrieve them and even delete them with out sending it.
@@ -66,7 +66,7 @@ someting like
 
 This will send the queued e-mail every minute.
 
-Django Yubin is a fork from django-mailer2 with some addtions from django-mailviews and
+Django Yubin is a fork from django-mailer2 with some additions from django-mailviews and
 additional improvements made from apsl.net that we need for our daly basis workd. It
 has also contributions from other people, so don't heasitate to read the humans.txt.
 
@@ -94,7 +94,7 @@ Changelog
 * 1.4.1       Detecting if messages are encoding using different encoding headers to be able to preview them (now base64, quoted-printable).
 * 1.4.0       Option added in status_mail command to return the output in json format.
 * 1.3.1       Fix unicode and encode errors: sending queued and non queued emails and in admin detail view.
-* 1.3.0       Allow to send emails inmediatly without being saved in database (priority «now-not-queued»). Add support for Python 3.7 and Django 2.1. Remove old code for Django < 1.3.
+* 1.3.0       Allow to send emails immediately without being saved in database (priority «now-not-queued»). Add support for Python 3.7 and Django 2.1. Remove old code for Django < 1.3.
 * 1.2.0       Fix is_base64 detection. Add a «send_test_email» command to check connection parameters. New health check view. Don't open a connection if there are no messages in queue to send. Add a "date_sent" field to detect when the mail was sent.
 * 1.1.0       Fix attachment headers in TemplateAttachmentEmailMessagView making both "attachment" and "filename" args mandatory.
 * 1.0.5       Add missing paths in MANIFEST.in.

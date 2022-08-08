@@ -39,7 +39,7 @@ class Message(admin.ModelAdmin):
 
     def re_send(self, request, queryset):
         """
-        Re sends a previus sent e-mail. The messages shouldn't be in the queue and
+        Re sends a previous sent e-mail. The messages shouldn't be in the queue and
         is put in the NORMAL priority
         """
         messages_sent = 0

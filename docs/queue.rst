@@ -82,7 +82,7 @@ executing it with cron.
 Health Check
 ============
 
-Go to ``http://yourproject/yubin/health`` for see the health output result. You can see shomething like that:
+Go to ``http://yourproject/yubin/health`` for see the health output result. You can see something like that:
 
 .. code:: text
 

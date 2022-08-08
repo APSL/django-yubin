@@ -2,7 +2,7 @@
 Contributing
 ============
 
-django-yubin is an open source project and imporvements and bug reports are
+django-yubin is an open source project and improvements and bug reports are
 very appreciated.
 
 You can contribute in many ways:
@@ -18,7 +18,7 @@ Please follow the PEP8 coventions and in case you write additional features don'
 forget to write the tests for them.
 
 At http://apsl.net we use yubin for most of our own projects, so we'll try to
-mantain it as bug free as stable as possible. That said we can't not guarantee
+maintain it as bug free as stable as possible. That said we can't not guarantee
 that we could patch the program in the way you like, add that new feature, etc.
 
 
