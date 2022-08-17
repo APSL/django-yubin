@@ -4,9 +4,6 @@ django-yubin
 .. image:: https://travis-ci.org/APSL/django-yubin.svg
     :target: https://travis-ci.org/APSL/django-yubin
 
-.. image:: https://codecov.io/github/APSL/django-yubin/coverage.svg?branch=master
-    :target: https://codecov.io/github/APSL/django-yubin?branch=master
-
 .. image:: https://coveralls.io/repos/APSL/django-yubin/badge.svg
   :target: https://coveralls.io/r/APSL/django-yubin
 
