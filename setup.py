@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-# encoding: utf-8
-# ----------------------------------------------------------------------------
+#!/usr/bin/env python3
 
 from setuptools import setup
 
@@ -35,8 +33,6 @@ setup(
         'django_yubin.migrations',
     ],
     include_package_data=True,
-    # tests
-    test_suite='runtests.runtests',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
