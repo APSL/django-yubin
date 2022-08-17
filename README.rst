@@ -1,8 +1,8 @@
 django-yubin
 ============
 
-.. image:: https://travis-ci.org/APSL/django-yubin.svg
-    :target: https://travis-ci.org/APSL/django-yubin
+.. image:: https://github.com/APSL/django-yubin/actions/workflows/test.yml/badge.svg
+    :target: https://github.com/APSL/django-yubin/actions/workflows/test.yml
 
 .. image:: https://coveralls.io/repos/APSL/django-yubin/badge.svg
   :target: https://coveralls.io/r/APSL/django-yubin
