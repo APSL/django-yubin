@@ -155,7 +155,7 @@ class LogAdmin(admin.ModelAdmin):
     message__subject.admin_order_field = 'message__subject'
 
     list_select_related = True
-    list_display = ('id', 'action', 'message__to_address', 'message__subject', 'date', 'message_link')
+    list_display = ('id', 'date', 'action', 'log_message', 'message__to_address', 'message__subject', 'message_link')
     list_filter = ('action', 'date')
     list_display_links = ('id',)
     date_hierarchy = 'date'
