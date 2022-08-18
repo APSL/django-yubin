@@ -19,6 +19,7 @@ Index
     mailviews
     settings
     contributing
+    changelog
 
 
 It's a fork!
