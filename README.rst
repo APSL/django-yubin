@@ -35,18 +35,18 @@ name.
 How it works
 ------------
 
-For creating and composing emails, Yubin provides class based views that use standard Django
+For creating and composing emails, Yubin provides class-based views that use standard Django
 templates.
 
 For sending and queuing emails, Yubin replaces the standard Django Email Backend with its own.
 Instead of sending emails synchronously trough a SMTP server, Yubin saves emails in your database
-and send them asynchronously using the `Celery <https://docs.celeryq.dev/en/stable/>`_ distributed
+and sends them asynchronously using the `Celery <https://docs.celeryq.dev/en/stable/>`_ distributed
 task queue.
 
 Advantages
 ----------
 
-* Create and compose emails reusing your code easily with class based views.
+* Create and compose emails reusing your code easily with class-based views.
 * Your app can respond requests faster because other process/worker is managing the connection with
   the SMTP server for sending emails.
 * Scale out easily adding more Celery workers.
