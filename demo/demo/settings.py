@@ -130,6 +130,8 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django_yubin',
     'django_extensions',
+    'django_celery_beat',
+    'django_celery_results',
     'demo',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
@@ -171,5 +173,8 @@ EMAIL_PORT = 1025
 MAILER_USE_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 # Celery settings
-CELERY_ALWAYS_EAGER = False
 BROKER_URL = 'redis://localhost:6379/0'
+CELERY_ALWAYS_EAGER = False
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_RESULT_EXPIRES = 604800
+CELERYBEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'

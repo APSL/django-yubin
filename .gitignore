@@ -10,6 +10,7 @@
 demo.*.sqlite
 demo/postgres
 demo/postgres-data
+celerybeat-schedule
 
 # tests related
 .tox

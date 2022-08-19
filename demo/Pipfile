@@ -8,12 +8,16 @@ python_version = "3.10"
 
 [packages]
 Django = "<4.0"
+django-celery-beat = "==2.3.0"
+django-celery-results = "==2.4.0"
 django-extensions = "==3.1.5"
-redis = "==4.3.1"
 django-yubin = {editable = true, path = "./.."}
+redis = "==4.3.1"
 psycopg2 = "==2.9.3"
 
 [dev-packages]
-ipython = "==8.4"
-ipdb = "==0.13.9"
 flake8 = ">=4.0.1"
+ipdb = "==0.13.9"
+ipython = "==8.4"
+sphinx = "==5.1.1"
+tox = "==3.25.1"
