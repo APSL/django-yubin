@@ -1,4 +1,4 @@
-django_yubin
+Django Yubin
 ============
 
 Django Yubin allows you to create, send and manage emails in your Django projects. It follows the
@@ -45,18 +45,19 @@ to add our own features.
 Differences
 ^^^^^^^^^^^
 
-Some of the larger differences in django_yubin:
+Some of the larger differences in django yubin:
 
 * It's integrated with django-mailviews classes.
 * It saves a rendered version of the email, so HTML and other attachments are handled fine.
 * Models have been completely refactored for a better logical separation of data.
 * Provides replacements for ``send_mail``, ``mail_admins`` and ``mail_managers`` Django functions.
 * Uses Celery distributed task queue instead of Cron.
-* Added a management command to remove old emails, so the database does not increase so much.
+* Task to remove old emails so the database does not increase so much.
 * Improved admin configuration.
 * Added a demo project for development and to see it in action in the admin.
 * Support for runing tests without having to install and configure a Django application.
 * Added CI and code coverage.
+* Added a health check view.
 
 Credit
 ------

@@ -1,3 +1,4 @@
+from datetime import timedelta
 from unittest.mock import patch
 
 from django.test import TestCase
@@ -93,3 +94,20 @@ class TestMessage(TestCase):
         self.message.save()
         enqueued, failed = Message.retry_messages()
         self.assertEqual((enqueued, failed), (0, 1))
+
+    def test_delete_old(self):
+        days = 7
+        message = Message.objects.create(
+            to_address="johndoe@acmecorp.com",
+            from_address="no-reply@acmecorp.com",
+            subject="Lorem ipsum dolor sit amet",
+            encoded_message="Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
+        )
+        message.date_created = timezone.now() - timedelta(days=days + 1)
+        message.save()
+
+        Message.delete_old(days)
+
+        messages = Message.objects.all()
+        self.assertEqual(len(messages), 1)
+        self.assertGreaterEqual(messages[0].date_created, timezone.now() - timedelta(days=days))

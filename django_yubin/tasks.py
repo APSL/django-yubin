@@ -18,3 +18,13 @@ def retry_emails(max_retries=3):
     from .models import Message
     enqueued, failed = Message.retry_messages(max_retries)
     return enqueued, failed
+
+
+@shared_task()
+def delete_old_emails(days=90):
+    """
+    Delete emails created before `days` days (default 90).
+    """
+    from .models import Message
+    deleted, cutoff_date = Message.delete_old(days)
+    return deleted, cutoff_date
