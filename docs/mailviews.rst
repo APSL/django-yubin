@@ -17,8 +17,8 @@ mail templates in folders and use the mailview classes to provide them with the 
 Using inheritance in templates, mixins and inheritance will give you again the control.
 
 
-Sending your first e-mail
---------------------------
+Your first email
+----------------
 
 Let's suppose we want to send a notificantion message to a mailing list. We don't have a customized
 email, but we want to be able to render the e-mail
@@ -103,8 +103,8 @@ just write
 
     MonthlyNewsletterView().send()
 
-Sending HTML Emails
--------------------
+HTML emails
+-----------
 
 In the previous example we have sent just text emails. If we want to send HTML email we need also
 an additional template to render the HTML content. You just have to inherit your class from
@@ -218,8 +218,8 @@ Sending multiple attachments works the same way but using the class
     ]
     NewsletterView().send(attachments=attachments)
 
-Sending mail to a user
-----------------------
+Email to a user
+---------------
 
 The ``send`` method can receive any extra context that you need to create your emails. Even it can
 be usefull as a quick shortcut, it's not e good pattern

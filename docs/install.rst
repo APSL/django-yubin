@@ -3,7 +3,7 @@ Installation
 
 An obvious prerequisite of django-yubin is Django.
 
-Installing django_yubin
+Installing Django Yubin
 -----------------------
 
 You can install the latest stable version from PyPI::

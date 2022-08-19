@@ -1,6 +1,5 @@
-=====
-Usage
-=====
+Send and equeue
+===============
 
 django-yubin is asynchronous so in addition to putting mail on the queue you
 need to periodically tell it to clear the queue and actually send the mail.
@@ -9,7 +8,7 @@ The latter is done via a command extension.
 
 
 Putting Mail On The Queue
-=================================================
+-------------------------
 
 In settings.py, configure Django's EMAIL_BACKEND setting like so:
 
@@ -38,7 +37,7 @@ If you don't specify a priority, the message is sent at 'normal' priority.
 
 
 Command Extensions
-===================================
+------------------
 
 With mailer in your INSTALLED_APPS, there will be four new manage.py commands
 you can run:
@@ -80,7 +79,7 @@ this command from the virtualenv. The same, naturally, applies also if you're
 executing it with cron.
 
 Health Check
-============
+------------
 
 Go to ``http://yourproject/yubin/health`` for see the health output result. You can see shomething like that:
 
