@@ -82,8 +82,8 @@ Index
     :maxdepth: 2
 
     install
-    queue
     mailviews
+    queue
     settings
     contributing
     changelog
