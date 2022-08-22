@@ -11,8 +11,10 @@ Starting from version 2.0.0, the format is based on `Keep a Changelog <https://k
 Changed
 ^^^^^^^
 * Send and queue emails with Celery instead of with Cron.
+* Dropped priority headers (useless with queues).
 * Minimum versions: Python 3.7, Django 3.2, Celery 5.0.
 * Migrate CI/CD from Travis to Github Actions.
+* Docker Compose for external dependencies in development environment.
 * Update docs.
 
 
