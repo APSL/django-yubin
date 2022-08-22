@@ -181,7 +181,7 @@ newsletter a pdf file we could do
 
 As an attachment you must provide the full file path or the data stream.
 
-Multiple Attachments
+Multiple attachments
 --------------------
 
 Sending multiple attachments works the same way but using the class

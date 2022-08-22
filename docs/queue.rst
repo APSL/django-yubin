@@ -1,99 +1,75 @@
-Send and equeue
-===============
+Enqueue and send
+================
 
-django-yubin is asynchronous so in addition to putting mail on the queue you
-need to periodically tell it to clear the queue and actually send the mail.
+Putting emails on the queue
+---------------------------
 
-The latter is done via a command extension.
-
-
-Putting Mail On The Queue
--------------------------
-
-In settings.py, configure Django's EMAIL_BACKEND setting like so:
+Yubin replaces the standard Django Email Backend with its own. Instead of sending emails
+synchronously trough a SMTP server, Yubin saves and equeues emails in your database and creates
+Celery tasks to send them asynchronously using "the real" Django Email Backend.
 
 .. code:: python
 
+    # settings.py
+
+    # Yubin email backend that enqueue emails
     EMAIL_BACKEND = 'django_yubin.smtp_queue.EmailBackend'
 
-If you don't need message priority support you can call send_mail like
-you normally would in Django
+    # "The real" email backend for sending emails
+    MAILER_USE_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+Now, you can call ``send_mail`` like you normally do in Django or using
+:doc:`mail views <mailviews>`
 
 .. code:: python
 
     send_mail(subject, message_body, settings.DEFAULT_FROM_EMAIL, recipients)
+    # ...
+    WelcomeMessageView(user).send()
 
-If you need prioritized messages, create an instance of EmailMessage
-and specify ``{'X-Mail-Queue-Priority': '<value>'}`` in the ``headers`` parameter,
-where <value> is one of:
+Tasks
+-----
 
-    - 'now-not-queued' - do not queue, send immediately.
-    - 'now' - send immediately.
-    - 'high' - high priority.
-    - 'normal' - standard priority - this is the default.
-    - 'low' - low priority.
+Once you have your emails queued in the database, you can send, retry or delete them using the
+following Celery tasks:
 
-If you don't specify a priority, the message is sent at 'normal' priority.
+- **send_email(message_pk)** Sends the email from the database with the given primay key.
+- **retry_emails(max_retries=3)** Retry sending retryable emails (failed, blacklisted or discarded)
+  enqueueing them again.
+- **delete_old_emails(days=90)** Delete emails created before `days` days.
 
+You don't usually need to create a ``send_email`` task, Yubin email backend does it automatically. For ``retry_emails`` and ``delete_old_emails``, you can use `Celery Beat <https://django-celery-beat.readthedocs.io/en/latest/>`_ to schedule periodic task.
 
-Command Extensions
-------------------
+Remember to have at least one `Celery worker <https://django-celery-beat.readthedocs.io/en/latest/#example-running-periodic-tasks>`_ listening for tasks.
 
-With mailer in your INSTALLED_APPS, there will be four new manage.py commands
-you can run:
+Commands
+--------
 
- - ``send_mail`` will clear the current message queue. If there are any
-   failures, they will be marked deferred and will not be attempted again by
-   ``send_mail``.
+In addition to tasks, Yubin also provides a couple of commands to facilitate the development:
 
- - ``retry_deferred`` will move any deferred mail back into the normal queue
-   (so it will be attempted again on the next ``send_mail``).
+- **send_test_mail** Sends a single HTML email. Ideal for checking connection parameters.
+- **create_email** Creates fake mails for testing unicode, emojis and attachments.
 
- - ``cleanup_mail`` will delete mails created before an X number of days
-   (defaults to 90).
+Execute ``python manage.py THE_COMMAND --help`` to see optional arguments.
 
- - ``status_mail`` command allows systems like Nagios to able to check the queue status.
-   It returns a string that can be parsed as (?P<queued>\d+)/(?P<deferred>\d+)/(?P<seconds>\d+).
-   Adding ``--json-format option``, the output will be in JSON format.
-
- - ``send_test_mail`` send a simple email in order to check connection
-   parameters.
-
- - ``create_email`` create fake mails for testing.
-
-You may want to set these up via cron to run regularly::
-
-    * * * * * (cd $PROJECT; python manage.py send_mail >> $PROJECT/cron_mail.log 2>&1)
-    0,20,40 * * * * (cd $PROJECT; python manage.py retry_deferred >> $PROJECT/cron_mail_deferred.log 2>&1)
-    0 1 * * * (cd $PROJECT; python manage.py cleanup_mail --days=30 >> $PROJECT/cron_mail_cleanup.log 2>&1)
-
-This attempts to send mail every minute with a retry on failure every 20 minutes
-and will run a cleanup task every day cleaning all the messaged created before
-30 days.
-
-``manage.py send_mail`` uses a lock file in case clearing the queue takes
-longer than the interval between calling ``manage.py send_mail``.
-
-Note that if your project lives inside a virtualenv, you also have to execute
-this command from the virtualenv. The same, naturally, applies also if you're
-executing it with cron.
-
-Health Check
+Health check
 ------------
 
-Go to ``http://yourproject/yubin/health`` for see the health output result. You can see shomething like that:
+If you have added ``url(r'^yubin/', include('django_yubin.urls'))`` to your ``urls.py``, you can go
+to ``http://localhost:8000/yubin/health`` and see the health output result:
 
 .. code:: text
 
     oldest_queued_email: 1 mins
     emails_queued_too_old: no
+    settings.MAILER_HC_QUEUED_LIMIT_OLD: 30 mins
 
-or...
+or if you have emails that have been too long enqueued:
 
 .. code:: text
 
     oldest_queued_email: 45 mins
     emails_queued_too_old: yes
+    settings.MAILER_HC_QUEUED_LIMIT_OLD: 30 mins
 
-You can use this view's response in your check system.
-
+You can parse this view's response in your check system.
