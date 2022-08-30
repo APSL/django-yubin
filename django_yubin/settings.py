@@ -12,11 +12,11 @@ USE_BACKEND = getattr(settings, 'MAILER_USE_BACKEND', 'django.core.mail.backends
 MAILER_TEST_MODE = getattr(settings, "MAILER_TEST_MODE", False)
 MAILER_TEST_EMAIL = getattr(settings, "MAILER_TEST_EMAIL", '')
 
-# If there are emails to be enqueued or sent for more than x minutes, HealthCheck will mark an error
+# If there are emails created, enqueued or in progress for more than x minutes, the HealthCheck
+# view will show an error
 MAILER_HC_QUEUED_LIMIT_OLD = getattr(settings, "MAILER_HC_QUEUED_LIMIT_OLD", 30)
 
-# Tuple of strings with the fields to use in ``admin.Message.search_fields``
-# attribute.
+# Tuple of strings with the fields to use in ``admin.Message.search_fields`` attribute.
 MAILER_MESSAGE_SEARCH_FIELDS = getattr(
     settings,
     "MAILER_MESSAGE_SEARCH_FIELDS",

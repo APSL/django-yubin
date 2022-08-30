@@ -1,7 +1,7 @@
 Enqueue and send
 ================
 
-Putting emails on the queue
+Putting emails in the queue
 ---------------------------
 
 Yubin replaces the standard Django Email Backend with its own. Instead of sending emails

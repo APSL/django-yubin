@@ -16,8 +16,7 @@ def queue_email_message(email_message, fail_silently=False):
     ``EmailMessage`` class.
 
     The ``fail_silently`` argument is not used and is only provided to match
-    the signature of the ``EmailMessage.send`` function which it may emulate
-    (see ``queue_django_mail``).
+    the signature of the ``EmailMessage.send`` function which it may emulate.
     """
     from . import models, settings
 
