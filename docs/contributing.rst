@@ -35,23 +35,24 @@ virtualenv.
 
 **Usage**
 
-* Start servers
-
-  .. code:: bash
-
-    $ cd demo
-    $ docker compose up -d
-
 * Create virtualenv and install dependencies
 
   .. code:: bash
 
+    $ cd demo
     $ pipenv sync --dev
+
+* Start servers
+
+  .. code:: bash
+
+    $ docker compose up -d
 
 * The first time you need to run database migrations and create a superuser
 
   .. code:: bash
 
+    $ pipenv shell
     $ python manage.py migrate
     $ python manage.py createsuperuser
 
