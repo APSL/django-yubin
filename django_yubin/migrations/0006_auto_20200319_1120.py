@@ -27,7 +27,17 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='log',
             name='action',
-            field=models.PositiveSmallIntegerField(choices=[(0, 'created'), (1, 'queued'), (2, 'in process'), (3, 'sent'), (4, 'failed'), (5, 'blacklisted')], default=0, verbose_name='action'),
+            field=models.PositiveSmallIntegerField(choices=[(0, 'Created'), (1, 'Queued'), (2, 'In process'), (3, 'Sent'), (4, 'Failed'), (5, 'Blacklisted'), (6, 'Discarded')], default=0, verbose_name='action'),
+        ),
+        migrations.AddField(
+            model_name='message',
+            name='date_enqueued',
+            field=models.DateTimeField(blank=True, null=True, verbose_name='date enqueued'),
+        ),
+        migrations.AddField(
+            model_name='message',
+            name='enqueued_count',
+            field=models.PositiveSmallIntegerField(default=0, help_text='Times the message has been enqueued', verbose_name='enqueued count'),
         ),
         migrations.AddField(
             model_name='message',
@@ -37,7 +47,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='message',
             name='status',
-            field=models.PositiveSmallIntegerField(choices=[(0, 'created'), (1, 'queued'), (2, 'in process'), (3, 'sent'), (4, 'failed'), (5, 'blacklisted')], default=0),
+            field=models.PositiveSmallIntegerField(choices=[(0, 'Created'), (1, 'Queued'), (2, 'In process'), (3, 'Sent'), (4, 'Failed'), (5, 'Blacklisted'), (6, 'Discarded')], default=0),
         ),
         migrations.AlterField(
             model_name='blacklist',
@@ -57,7 +67,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='log',
             name='log_message',
-            field=models.TextField(verbose_name='log'),
+            field=models.TextField(blank=True, verbose_name='log'),
         ),
         migrations.AlterField(
             model_name='log',
@@ -72,7 +82,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='message',
             name='date_created',
-            field=models.DateTimeField(default=django.utils.timezone.now, verbose_name='date created'),
+            field=models.DateTimeField(auto_now_add=True, verbose_name='date created'),
         ),
         migrations.AlterField(
             model_name='message',

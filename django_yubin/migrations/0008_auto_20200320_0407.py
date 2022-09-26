@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('django_yubin', '0008_auto_20200319_1158'),
+        ('django_yubin', '0007_auto_20200319_1158'),
     ]
 
     operations = [
