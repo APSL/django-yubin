@@ -5,8 +5,8 @@ This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.htm
 
 Starting from version 2.0.0, the format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_.
 
-[Unreleased]
-------------
+[2.0.0] - Unreleased
+--------------------
 
 Changed
 ^^^^^^^
@@ -18,8 +18,8 @@ Changed
 * Update docs.
 
 
-Older versions -  2022-01-17
-----------------------------
+Older versions - 2022-01-17
+---------------------------
 
 * 1.7.1 - Remove abandoned ``pyzmail36`` dependency with ``mail-parser``.
 * 1.7.0 - Add optional ``MAILER_MESSAGE_SEARCH_FIELDS`` setting. It's a tuple of strings with the fields to use in ``admin.Message.search_fields`` attribute.

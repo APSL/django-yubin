@@ -39,20 +39,21 @@ Note that yubin doesn't queue all email by default, you must configure the email
 
 More yubin settings can be found in the :doc:`Settings sections <settings>`.
 
-Also, you need to setup `Celery <https://docs.celeryq.dev/en/stable/>`_ in your
-`Django project <https://docs.celeryq.dev/en/stable/django/first-steps-with-django.html>`_.
-
 Add ``yubin`` urls in your main ``urls.py`` for using the health check
 
 .. code:: python
 
     url(r'^yubin/', include('django_yubin.urls')),
 
+Also, you need to setup `Celery <https://docs.celeryq.dev/en/stable/>`_ in your
+`Django project <https://docs.celeryq.dev/en/stable/django/first-steps-with-django.html>`_ and have
+at least one worker listening to the queue.
+
 Finally, run database migrations
 
 .. code:: python
 
-    python manage.py migrate django_yubin
+    python manage.py migrate
 
 Upgrading from previous versions
 --------------------------------
