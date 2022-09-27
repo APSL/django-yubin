@@ -57,12 +57,23 @@ Finally, run database migrations
 Upgrading from previous versions
 --------------------------------
 
-Version 0.1.8 added support for Django 1.9 and syncdb command no longer exists. If you are
-upgrading from a version < 0.1.8 and your models are already created you should execute::
+**Upgrading from versions < 0.1.8 to < 2.0.0**
 
-    python manage.py migrate django_yubin --fake-initial
+Version 0.1.8 added support for Django 1.9 and syncdb command no longer exists. If you are
+upgrading from a version < 0.1.8 and your models are already created you should execute
+
+.. code:: bash
+
+    $ python manage.py migrate django_yubin --fake-initial
 
 More details in https://docs.djangoproject.com/en/1.9/topics/migrations/#adding-migrations-to-apps
 
 
-Version 2.0.0 TODO...
+**Upgrading from versions >= 0.1.8 to >= 2.0.0**
+
+Version 2.0.0 is a big reimplementation that uses Celery tasks instead of Cron jobs. This change
+needed considerable database schema changes but the database migrations take care of all. Just keep
+in mind that:
+
+* These database schema changes can not be undone. Once you migrate to version >= 2 you can not go backwards and use again a version < 2 unless you have a previous database backup.
+* It's advisable to stop sending emails before doing the migration and enable it again after.
