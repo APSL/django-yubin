@@ -15,6 +15,7 @@ Changed
 * Minimum versions: Python 3.7, Django 3.2, Celery 5.0.
 * Migrate CI/CD from Travis to Github Actions.
 * Docker Compose for external dependencies in development environment.
+* Get django_yubin version programmatically.
 * Update docs.
 
 

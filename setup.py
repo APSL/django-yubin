@@ -14,9 +14,16 @@ with open('README.rst') as docs_index:
     long_description = docs_index.read()
 
 
+def get_version():
+    version_globals = {}
+    with open('django_yubin/version.py') as f:
+        exec(f.read(), version_globals)
+    return version_globals['__version__']
+
+
 setup(
     name='django-yubin',
-    version='2.0.0',
+    version=get_version(),
     description=("A reusable Django app for composing and queueing emails "
                  "django-mailviews + Celery + others"),
     long_description=long_description,
