@@ -13,7 +13,7 @@ Celery tasks to send them asynchronously using "the real" Django Email Backend.
     # settings.py
 
     # Yubin email backend that enqueue emails
-    EMAIL_BACKEND = 'django_yubin.smtp_queue.EmailBackend'
+    EMAIL_BACKEND = 'django_yubin.backends.QueuedEmailBackend'
 
     # "The real" email backend for sending emails
     MAILER_USE_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
