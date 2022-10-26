@@ -69,7 +69,6 @@ class TestInit(TestCase):
         mail_managers(subject='subject', message='message')
 
         messages = Message.objects.all()
-        messages = Message.objects.all()
         recipient_list = [recipient[1] for recipient in django_settings.MANAGERS]
         self.assertEqual(len(messages), len(recipient_list))
         self.assertEqual(enqueue_email_mock.call_count, len(recipient_list))
