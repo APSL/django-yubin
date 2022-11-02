@@ -5,12 +5,13 @@ from django.core.mail.message import EmailMessage, EmailMultiAlternatives
 from django.db import models
 from django.db.models import F
 from django.utils.encoding import force_bytes
+from django.utils.module_loading import import_string
 from django.utils.text import Truncator
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 import mailparser
 
-from . import mailparser_utils, tasks
+from . import mailparser_utils, settings, tasks
 
 
 logger = logging.getLogger(__name__)
@@ -62,7 +63,7 @@ class Message(models.Model):
     from_address = models.CharField(_('from address'), max_length=200)
     subject = models.CharField(_('subject'), max_length=255)
 
-    encoded_message = models.TextField(_('encoded message'))
+    _encoded_message = models.TextField(_('encoded message'), db_column='encoded_message')
     date_created = models.DateTimeField(_('date created'), auto_now_add=True)
 
     date_sent = models.DateTimeField(_('date sent'), null=True, blank=True)
@@ -84,6 +85,16 @@ class Message(models.Model):
 
     def __str__(self):
         return '%s: %s' % (self.to_address, self.subject)
+
+    @property
+    def encoded_message(self):
+        backend = import_string(settings.MAILER_STORAGE_BACKEND)
+        return backend.get_encoded_message(self)
+
+    @encoded_message.setter
+    def encoded_message(self, value):
+        backend = import_string(settings.MAILER_STORAGE_BACKEND)
+        backend.set_encoded_message(self, value)
 
     def get_message(self):
         try:

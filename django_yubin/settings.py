@@ -16,9 +16,9 @@ MAILER_TEST_EMAIL = getattr(settings, "MAILER_TEST_EMAIL", '')
 # view will show an error
 MAILER_HC_QUEUED_LIMIT_OLD = getattr(settings, "MAILER_HC_QUEUED_LIMIT_OLD", 30)
 
-# Tuple of strings with the fields to use in ``admin.Message.search_fields`` attribute.
-MAILER_MESSAGE_SEARCH_FIELDS = getattr(
+# Storage to save full emails encoded
+MAILER_STORAGE_BACKEND = getattr(
     settings,
-    "MAILER_MESSAGE_SEARCH_FIELDS",
-    ('to_address', 'subject', 'from_address', 'encoded_message'),
+    "MAILER_STORAGE_BACKEND",
+    "django_yubin.storage_backends.DatabaseStorageBackend",
 )

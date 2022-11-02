@@ -38,12 +38,3 @@ Email address where all mail is sent when ``MAILER_TEST_MODE`` is ``True``. Defa
 
 If there are mails created or enqueued or in progress for more than ``MAILER_HC_QUEUED_LIMIT_OLD``
 minutes, the HealthCheck view will show an error. Default is ``30`` minutes.
-
-
-**MAILER_MESSAGE_SEARCH_FIELDS**
-
-Tuple of strings with the fields to use in ``admin.Message.search_fields`` attribute. Defaults is
-all the text fields: ``('to_address', 'subject', 'from_address', 'encoded_message')``.
-
-If you have a lot of emails with attachments, you may want to remove ``encoded_message`` to improve
-performance and avoid possible timeouts.

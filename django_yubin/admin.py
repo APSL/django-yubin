@@ -26,16 +26,26 @@ class LogInline(admin.TabularInline):
 
 @admin.register(models.Message)
 class MessageAdmin(admin.ModelAdmin):
-    def message_link(self, obj):
-        url = reverse('admin:mail_detail', args=(obj.id,))
-        return mark_safe("""<a href="%s" onclick="return showAddAnotherPopup(this);">show</a>""" % url)
-    message_link.allow_tags = True
-    message_link.short_description = _('Show')
+
+    @admin.display(description=_('Show'))
+    def message_link(self, instance):
+        url = reverse('admin:mail_detail', args=(instance.id,))
+        return mark_safe(f'<a href="{url}" onclick="return showAddAnotherPopup(this);">Show</a>')
+
+    @admin.display(description=_('Encoded message'))
+    def encoded_message(self, instance):
+        return mark_safe(f'''
+            <textarea class="vLargeTextField" cols="40" rows="15" style="width: 99%;" disabled
+            >{instance.encoded_message}</textarea>
+        '''.strip())
 
     list_display = ('from_address', 'to_address', 'subject', 'date_created', 'date_sent',
                     'date_enqueued', 'status', 'message_link')
     list_filter = ('date_created', 'date_sent', 'date_enqueued', 'status')
-    search_fields = settings.MAILER_MESSAGE_SEARCH_FIELDS
+    fields = ('from_address', 'to_address', 'subject', 'encoded_message', 'date_sent', 'sent_count',
+              'date_enqueued', 'enqueued_count', 'status')
+    readonly_fields = ('to_address', 'from_address', 'subject', 'encoded_message', 'date_created')
+    search_fields = ('to_address', 'subject', 'from_address')
     date_hierarchy = 'date_created'
     ordering = ('-date_created',)
     actions = ['enqueue_action', 'mark_as_sent_action', 'mark_as_created_action']
