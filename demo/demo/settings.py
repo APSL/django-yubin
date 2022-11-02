@@ -1,3 +1,6 @@
+import os
+
+
 DEBUG = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
@@ -44,12 +47,12 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'media/')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = ''
+MEDIA_URL = '/media/'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
@@ -171,7 +174,7 @@ EMAIL_HOST = 'localhost'
 EMAIL_PORT = 1025
 
 MAILER_USE_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# MAILER_STORAGE_BACKEND = 'django_yubin.storage_backends.DatabaseStorageBackend'
+MAILER_STORAGE_BACKEND = 'django_yubin.storage_backends.FileStorageBackend'
 
 # Celery settings
 BROKER_URL = 'redis://localhost:6379/0'

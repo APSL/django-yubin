@@ -1,6 +1,7 @@
 import datetime
 import logging
 
+from django.core.exceptions import FieldError
 from django.core.mail.message import EmailMessage, EmailMultiAlternatives
 from django.db import models
 from django.db.models import F
@@ -82,6 +83,11 @@ class Message(models.Model):
         ordering = ('date_created',)
         verbose_name = _('message')
         verbose_name_plural = _('messages')
+
+    def __init__(self, *args, **kwargs):
+        if '_encoded_message' in kwargs:
+            raise FieldError("_encoded_message can not be used for creating instances, use encoded_messaged.")
+        return super().__init__(*args, **kwargs)
 
     def __str__(self):
         return '%s: %s' % (self.to_address, self.subject)

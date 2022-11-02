@@ -22,3 +22,6 @@ MAILER_STORAGE_BACKEND = getattr(
     "MAILER_STORAGE_BACKEND",
     "django_yubin.storage_backends.DatabaseStorageBackend",
 )
+
+# Subdirectory to save encoded emails when using the FileStorageBackend
+MAILER_FILE_STORAGE_DIR = getattr(settings, "MAILER_FILE_STORAGE_DIR", 'yubin')
