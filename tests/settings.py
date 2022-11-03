@@ -4,6 +4,8 @@ import tempfile
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
 ROOT_URLCONF = 'tests.urls'
 
 SECRET_KEY = 'yo secret yo'
