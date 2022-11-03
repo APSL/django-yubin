@@ -174,7 +174,7 @@ EMAIL_HOST = 'localhost'
 EMAIL_PORT = 1025
 
 MAILER_USE_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-MAILER_STORAGE_BACKEND = 'django_yubin.storage_backends.FileStorageBackend'
+# MAILER_STORAGE_BACKEND = 'django_yubin.storage_backends.FileStorageBackend'
 
 # Celery settings
 BROKER_URL = 'redis://localhost:6379/0'
