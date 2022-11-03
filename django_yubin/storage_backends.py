@@ -9,22 +9,29 @@ from . import settings
 
 
 class BaseStorageBackend(ABC):
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def get_encoded_message(message): pass
+    def get_encoded_message(cls, message): pass
 
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def set_encoded_message(message, value): pass
+    def set_encoded_message(cls, message, value): pass
+
+    @classmethod
+    def admin_display_encoded_message(cls, model_admin, message):
+        return f'''
+            <textarea class="vLargeTextField" cols="40" rows="15" style="width: 99%;" disabled
+            readonly>{message.encoded_message}</textarea>
+        '''.strip()
 
 
 class DatabaseStorageBackend(BaseStorageBackend):
-    @staticmethod
-    def get_encoded_message(message):
+    @classmethod
+    def get_encoded_message(cls, message):
         return message._encoded_message
 
-    @staticmethod
-    def set_encoded_message(message, value):
+    @classmethod
+    def set_encoded_message(cls, message, value):
         message._encoded_message = value
 
 
@@ -48,3 +55,15 @@ class FileStorageBackend(BaseStorageBackend):
     def get_path(message):
         return message._encoded_message or \
             os.path.join(settings.MAILER_FILE_STORAGE_DIR, f"{str(uuid4())}.msg")
+
+    @classmethod
+    def admin_display_encoded_message(cls, model_admin, message):
+        return f'''
+            <div>
+                <a href="{default_storage.url(message._encoded_message)}">
+                    {message._encoded_message}
+                </a>
+            </div>
+            <br>
+            {super(cls, cls).admin_display_encoded_message(model_admin, message)}
+        '''.strip()

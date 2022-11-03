@@ -3,6 +3,7 @@ from django.contrib import admin, messages as dj_messages
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils.module_loading import import_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.clickjacking import xframe_options_sameorigin
@@ -34,10 +35,8 @@ class MessageAdmin(admin.ModelAdmin):
 
     @admin.display(description=_('Encoded message'))
     def encoded_message(self, instance):
-        return mark_safe(f'''
-            <textarea class="vLargeTextField" cols="40" rows="15" style="width: 99%;" disabled
-            >{instance.encoded_message}</textarea>
-        '''.strip())
+        backend = import_string(settings.MAILER_STORAGE_BACKEND)
+        return mark_safe(backend.admin_display_encoded_message(self, instance))
 
     list_display = ('from_address', 'to_address', 'subject', 'date_created', 'date_sent',
                     'date_enqueued', 'status', 'message_link')
