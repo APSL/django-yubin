@@ -2,6 +2,7 @@ import os
 from abc import ABC, abstractmethod
 from uuid import uuid4
 
+from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 
 from . import settings
@@ -38,10 +39,10 @@ class FileStorageBackend(BaseStorageBackend):
     @classmethod
     def set_encoded_message(cls, message, value):
         path = cls.get_path(message)
-        file = default_storage.open(path, 'w')
-        file.write(value)
-        file.close()
-        message._encoded_message = path
+        new_path = default_storage.save(path, ContentFile(value))
+        if message._encoded_message:
+            default_storage.delete(message._encoded_message)
+        message._encoded_message = new_path
 
     @staticmethod
     def get_path(message):

@@ -8,7 +8,7 @@
 .eggs/
 .DS_Store
 demo.*.sqlite
-demo/demo/media/
+demo/demo/media/*
 demo/postgres
 demo/postgres-data
 celerybeat-schedule

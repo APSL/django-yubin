@@ -1,4 +1,6 @@
 import os
+import tempfile
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -46,8 +48,11 @@ TEMPLATES = [
     },
 ]
 
+MEDIA_ROOT = tempfile.TemporaryDirectory().name
+
 EMAIL_PORT = 1025
 EMAIL_BACKEND = 'django_yubin.backends.QueuedEmailBackend'
 MAILER_USE_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+# MAILER_STORAGE_BACKEND = 'django_yubin.storage_backends.FileStorageBackend'
 
 CELERY_ALWAYS_EAGER = True
