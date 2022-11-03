@@ -58,7 +58,7 @@ MEDIA_URL = '/media/'
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = ''
+STATIC_ROOT = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'static/')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -174,7 +174,7 @@ EMAIL_HOST = 'localhost'
 EMAIL_PORT = 1025
 
 MAILER_USE_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# MAILER_STORAGE_BACKEND = 'django_yubin.storage_backends.FileStorageBackend'
+MAILER_STORAGE_BACKEND = 'django_yubin.storage_backends.FileStorageBackend'
 
 # Celery settings
 BROKER_URL = 'redis://localhost:6379/0'
