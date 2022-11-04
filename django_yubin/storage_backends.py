@@ -38,15 +38,15 @@ class DatabaseStorageBackend(BaseStorageBackend):
 class FileStorageBackend(BaseStorageBackend):
     @classmethod
     def get_encoded_message(cls, message):
-        file = default_storage.open(cls.get_path(message), 'r')
-        content = file.read()
+        file = default_storage.open(cls.get_path(message), 'rb')
+        content = file.read().decode('utf-8')
         file.close()
         return content
 
     @classmethod
     def set_encoded_message(cls, message, value):
         path = cls.get_path(message)
-        new_path = default_storage.save(path, ContentFile(value))
+        new_path = default_storage.save(path, ContentFile(value.encode('utf-8')))
         if message._encoded_message:
             default_storage.delete(message._encoded_message)
         message._encoded_message = new_path

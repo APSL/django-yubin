@@ -103,12 +103,13 @@ class Message(models.Model):
         backend.set_encoded_message(self, value)
 
     def get_message(self):
+        encoded_message = self.encoded_message
         try:
-            msg = mailparser.parse_from_string(self.encoded_message)
+            msg = mailparser.parse_from_string(encoded_message)
         except UnicodeEncodeError:
-            msg = mailparser.parse_from_string(force_bytes(self.encoded_message))
+            msg = mailparser.parse_from_string(force_bytes(encoded_message))
         except (TypeError, AttributeError):
-            msg = mailparser.parse_from_bytes(self.encoded_message)
+            msg = mailparser.parse_from_bytes(encoded_message)
         return msg
 
     def get_email_message(self):

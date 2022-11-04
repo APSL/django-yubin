@@ -35,7 +35,7 @@ class TestDatabaseStorageBackend(TestBaseStorageBackend):
         self.assertEqual(self.message._encoded_message, backend_message)
 
     def test_set_encoded_message(self):
-        new_value = 'Foo bar message'
+        new_value = 'Foo 🙂 mèssage'
         DatabaseStorageBackend.set_encoded_message(self.message, new_value)
         updated_value = DatabaseStorageBackend.get_encoded_message(self.message)
         self.assertEqual(updated_value, new_value)
@@ -51,7 +51,7 @@ class TestFileStorageBackend(TestBaseStorageBackend):
         self.assertEqual(self.message._encoded_message, FileStorageBackend.get_path(self.message))
 
     def test_set_encoded_message(self):
-        new_value = 'Foo bar message'
+        new_value = 'Foo 🙂 mèssage'
         FileStorageBackend.set_encoded_message(self.message, new_value)
         updated_value = FileStorageBackend.get_encoded_message(self.message)
         self.assertEqual(updated_value, new_value)

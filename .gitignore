@@ -11,6 +11,7 @@ demo.*.sqlite
 demo/demo/media/*
 demo/postgres
 demo/postgres-data
+demo/minio-data
 celerybeat-schedule
 
 # tests related
