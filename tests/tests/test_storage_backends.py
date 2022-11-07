@@ -1,11 +1,12 @@
 from django.test import TestCase
 
 from django_yubin import settings
-from django_yubin.models import Message
 from django_yubin.storage_backends import DatabaseStorageBackend, FileStorageBackend
 
+from .base import MessageMixin
 
-class TestBaseStorageBackend(TestCase):
+
+class TestBaseStorageBackend(MessageMixin, TestCase):
     storage_backend = NotImplemented
 
     @classmethod
@@ -18,12 +19,7 @@ class TestBaseStorageBackend(TestCase):
         settings.MAILER_STORAGE_BACKEND = cls.storage_backend_backup
 
     def setUp(self):
-        self.message = Message.objects.create(
-            to_address="johndoe@acmecorp.com",
-            from_address="no-reply@acmecorp.com",
-            subject="Lorem ipsum dolor sit amet",
-            encoded_message="Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
-        )
+        self.message = self.create_message()
 
 
 class TestDatabaseStorageBackend(TestBaseStorageBackend):

@@ -6,16 +6,13 @@ from django.utils import timezone
 
 from django_yubin.models import Message
 
+from .base import MessageMixin
 
-class TestMessage(TestCase):
+
+class TestMessage(MessageMixin, TestCase):
 
     def setUp(self):
-        self.message = Message.objects.create(
-            to_address="johndoe@acmecorp.com",
-            from_address="no-reply@acmecorp.com",
-            subject="Lorem ipsum dolor sit amet",
-            encoded_message="Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
-        )
+        self.message = self.create_message()
 
     def test_mark_as_without_log(self):
         self.message.mark_as(Message.STATUS_FAILED)
@@ -97,12 +94,7 @@ class TestMessage(TestCase):
 
     def test_delete_old(self):
         days = 7
-        message = Message.objects.create(
-            to_address="johndoe@acmecorp.com",
-            from_address="no-reply@acmecorp.com",
-            subject="Lorem ipsum dolor sit amet",
-            encoded_message="Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
-        )
+        message = self.create_message()
         message.date_created = timezone.now() - timedelta(days=days + 1)
         message.save()
 

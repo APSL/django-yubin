@@ -3,11 +3,10 @@ from six import StringIO
 from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from django.test import TestCase
 
-from .base import MailerTestCase
 
-
-class TestCommands(MailerTestCase):
+class TestCommands(TestCase):
     """
     A test case for management commands provided by django-mailer.
     """

@@ -1,19 +1,22 @@
-from django.core import mail
-from django.test import TestCase
+from django.core.mail import EmailMessage
 
-from django_yubin import queue_email_message
+from django_yubin.models import Message
 
 
-class MailerTestCase(TestCase):
-    """
-    Base class for Django Mailer test cases.
-    """
-
-    def queue_message(self, subject='test', message='a test message',
-                      from_email='sender@djangoyubin.com',
-                      recipient_list=('recipient@djangomailer',)):
-        """
-        Easy way to queue a simple message.
-        """
-        email_message = mail.EmailMessage(subject, message, from_email, recipient_list)
-        return queue_email_message(email_message)
+class MessageMixin:
+    @staticmethod
+    def create_message(
+        subject="Lorem ipsum dolor sit amet",
+        body="Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
+        from_address="no-reply@acmecorp.com",
+        to_address="johndoe@acmecorp.com",
+        status=Message.STATUS_CREATED,
+    ):
+        email = EmailMessage(subject, body, to=[to_address], from_email=from_address)
+        return Message.objects.create(
+            to_address=email.to[0],
+            from_address=email.from_email,
+            subject=email.subject,
+            encoded_message=email.message().as_string(),
+            status=status,
+        )

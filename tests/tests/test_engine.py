@@ -6,19 +6,15 @@ from django_yubin import settings
 from django_yubin.engine import send_db_message
 from django_yubin.models import Blacklist, Message
 
+from .base import MessageMixin
 
-class TestSendDBMessage(TestCase):
+
+class TestSendDBMessage(MessageMixin, TestCase):
     """
     Tests engine function that sends db messages.
     """
     def setUp(self):
-        self.message = Message.objects.create(
-            to_address="johndoe@acmecorp.com",
-            from_address="no-reply@acmecorp.com",
-            subject="Lorem ipsum dolor sit amet",
-            encoded_message="Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
-            status=Message.STATUS_QUEUED,
-        )
+        self.message = self.create_message(status=Message.STATUS_QUEUED)
 
     def test_send_email_not_found(self):
         self.assertFalse(send_db_message(-1))
