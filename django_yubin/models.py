@@ -5,7 +5,6 @@ from django.core.exceptions import FieldError
 from django.core.mail.message import EmailMessage, EmailMultiAlternatives
 from django.db import models
 from django.db.models import F
-from django.utils.encoding import force_bytes
 from django.utils.module_loading import import_string
 from django.utils.text import Truncator
 from django.utils.timezone import now
@@ -39,7 +38,7 @@ class Message(models.Model):
     An email message.
 
     The ``to_address``, ``from_address`` and ``subject`` fields are merely for
-    easy of access for these common values. The ``encoded_message`` field
+    easy of access for these common values. The ``_encoded_message`` field
     contains the entire encoded email message ready to be sent to an SMTP
     connection.
     """
@@ -104,13 +103,7 @@ class Message(models.Model):
 
     def get_message(self):
         encoded_message = self.encoded_message
-        try:
-            msg = mailparser.parse_from_string(encoded_message)
-        except UnicodeEncodeError:
-            msg = mailparser.parse_from_string(force_bytes(encoded_message))
-        except (TypeError, AttributeError):
-            msg = mailparser.parse_from_bytes(encoded_message)
-        return msg
+        return mailparser.parse_from_string(encoded_message)
 
     def get_email_message(self):
         """

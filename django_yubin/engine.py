@@ -55,7 +55,7 @@ def send_db_message(message_pk):
         logger.info(msg)
         message.mark_as(models.Message.STATUS_SENT, msg)
         return True
-    except (OSError, ValueError) as e:
+    except Exception as e:
         logger.exception("Message sending has failed", extra={'email_message': message})
         message.mark_as(models.Message.STATUS_FAILED, str(e))
         return False
