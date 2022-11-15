@@ -2,10 +2,11 @@ import os
 from abc import ABC, abstractmethod
 from uuid import uuid4
 
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 
-from . import settings
+from . import settings as yubin_settings
 
 
 class BaseStorageBackend(ABC):
@@ -39,14 +40,14 @@ class FileStorageBackend(BaseStorageBackend):
     @classmethod
     def get_encoded_message(cls, message):
         file = default_storage.open(cls.get_path(message), 'rb')
-        content = file.read().decode('utf-8')
+        content = file.read().decode(settings.DEFAULT_CHARSET)
         file.close()
         return content
 
     @classmethod
     def set_encoded_message(cls, message, value):
         path = cls.get_path(message)
-        new_path = default_storage.save(path, ContentFile(value.encode('utf-8')))
+        new_path = default_storage.save(path, ContentFile(value.encode(settings.DEFAULT_CHARSET)))
         if message._encoded_message:
             default_storage.delete(message._encoded_message)
         message._encoded_message = new_path
@@ -54,7 +55,7 @@ class FileStorageBackend(BaseStorageBackend):
     @staticmethod
     def get_path(message):
         return message._encoded_message or \
-            os.path.join(settings.MAILER_FILE_STORAGE_DIR, f"{str(uuid4())}.msg")
+            os.path.join(yubin_settings.MAILER_FILE_STORAGE_DIR, f"{str(uuid4())}.msg")
 
     @classmethod
     def admin_display_encoded_message(cls, model_admin, message):
