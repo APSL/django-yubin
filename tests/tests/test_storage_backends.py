@@ -25,31 +25,31 @@ class TestBaseStorageBackend(MessageMixin, TestCase):
 class TestDatabaseStorageBackend(TestBaseStorageBackend):
     storage_backend = 'django_yubin.storage_backends.DatabaseStorageBackend'
 
-    def test_get_encoded_message(self):
-        backend_message = DatabaseStorageBackend.get_encoded_message(self.message)
-        self.assertEqual(self.message.encoded_message, backend_message)
-        self.assertEqual(self.message._encoded_message, backend_message)
+    def test_get_message_data(self):
+        backend_message = DatabaseStorageBackend.get_message_data(self.message)
+        self.assertEqual(self.message.message_data, backend_message)
+        self.assertEqual(self.message._message_data, backend_message)
 
-    def test_set_encoded_message(self):
+    def test_set_message_data(self):
         new_value = 'Foo 🙂 mèssage'
-        DatabaseStorageBackend.set_encoded_message(self.message, new_value)
-        updated_value = DatabaseStorageBackend.get_encoded_message(self.message)
+        DatabaseStorageBackend.set_message_data(self.message, new_value)
+        updated_value = DatabaseStorageBackend.get_message_data(self.message)
         self.assertEqual(updated_value, new_value)
-        self.assertEqual(self.message.encoded_message, new_value)
+        self.assertEqual(self.message.message_data, new_value)
 
 
 class TestFileStorageBackend(TestBaseStorageBackend):
     storage_backend = 'django_yubin.storage_backends.FileStorageBackend'
 
-    def test_get_encoded_message(self):
-        backend_message = FileStorageBackend.get_encoded_message(self.message)
-        self.assertEqual(self.message.encoded_message, backend_message)
-        self.assertEqual(self.message._encoded_message, FileStorageBackend.get_path(self.message))
+    def test_get_message_data(self):
+        backend_message = FileStorageBackend.get_message_data(self.message)
+        self.assertEqual(self.message.message_data, backend_message)
+        self.assertEqual(self.message._message_data, FileStorageBackend.get_path(self.message))
 
-    def test_set_encoded_message(self):
+    def test_set_message_data(self):
         new_value = 'Foo 🙂 mèssage'
-        FileStorageBackend.set_encoded_message(self.message, new_value)
-        updated_value = FileStorageBackend.get_encoded_message(self.message)
+        FileStorageBackend.set_message_data(self.message, new_value)
+        updated_value = FileStorageBackend.get_message_data(self.message)
         self.assertEqual(updated_value, new_value)
-        self.assertEqual(self.message.encoded_message, new_value)
-        self.assertEqual(self.message._encoded_message, FileStorageBackend.get_path(self.message))
+        self.assertEqual(self.message.message_data, new_value)
+        self.assertEqual(self.message._message_data, FileStorageBackend.get_path(self.message))

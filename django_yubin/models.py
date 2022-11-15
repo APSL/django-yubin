@@ -36,11 +36,6 @@ class MessageManager(models.Manager):
 class Message(models.Model):
     """
     An email message.
-
-    The ``to_address``, ``from_address`` and ``subject`` fields are merely for
-    easy of access for these common values. The ``_encoded_message`` field
-    contains the entire encoded email message ready to be sent to an SMTP
-    connection.
     """
     STATUS_CREATED = 0
     STATUS_QUEUED = 1
@@ -59,21 +54,33 @@ class Message(models.Model):
         (STATUS_DISCARDED, _('Discarded')),
     )
 
+    # These 3 fields are to easy access, filtering and searching without parsing the email.
     to_address = models.CharField(_('to address'), max_length=200)
     from_address = models.CharField(_('from address'), max_length=200)
     subject = models.CharField(_('subject'), max_length=255)
 
-    _encoded_message = models.TextField(_('encoded message'), db_column='encoded_message')
-    date_created = models.DateTimeField(_('date created'), auto_now_add=True)
+    # This field is for internal use in storage backends. They can use it to save the email
+    # like the DatabaseSorageBackend, the file path like the FileStorageBackend, etc.
+    # Other users must access this data through the ``message_data`` property.
+    _message_data = models.TextField(_('message data'), db_column='encoded_message')
 
+    @property
+    def message_data(self):
+        backend = import_string(settings.MAILER_STORAGE_BACKEND)
+        return backend.get_message_data(self)
+
+    @message_data.setter
+    def message_data(self, data):
+        backend = import_string(settings.MAILER_STORAGE_BACKEND)
+        backend.set_message_data(self, data)
+
+    date_created = models.DateTimeField(_('date created'), auto_now_add=True)
     date_sent = models.DateTimeField(_('date sent'), null=True, blank=True)
     sent_count = models.PositiveSmallIntegerField(_('sent count'), default=0,
                                                   help_text=_('Times the message has been sent'))
-
     date_enqueued = models.DateTimeField(_('date enqueued'), null=True, blank=True)
     enqueued_count = models.PositiveSmallIntegerField(_('enqueued count'), default=0,
                                                       help_text=_('Times the message has been enqueued'))
-
     status = models.PositiveSmallIntegerField(choices=STATUS_CHOICES, default=STATUS_CREATED)
 
     objects = MessageManager()
@@ -84,32 +91,21 @@ class Message(models.Model):
         verbose_name_plural = _('messages')
 
     def __init__(self, *args, **kwargs):
-        if '_encoded_message' in kwargs:
-            raise FieldError("_encoded_message can not be used for creating instances, use encoded_messaged.")
+        if '_message_data' in kwargs:
+            raise FieldError("_message_data can not be used for creating instances, use message_data.")
         return super().__init__(*args, **kwargs)
 
     def __str__(self):
         return '%s: %s' % (self.to_address, self.subject)
 
-    @property
-    def encoded_message(self):
-        backend = import_string(settings.MAILER_STORAGE_BACKEND)
-        return backend.get_encoded_message(self)
-
-    @encoded_message.setter
-    def encoded_message(self, value):
-        backend = import_string(settings.MAILER_STORAGE_BACKEND)
-        backend.set_encoded_message(self, value)
-
-    def get_message(self):
-        encoded_message = self.encoded_message
-        return mailparser.parse_from_string(encoded_message)
+    def get_message_parser(self):
+        return mailparser.parse_from_string(self.message_data)
 
     def get_email_message(self):
         """
         Returns EmailMultiAlternatives or EmailMessage depending on whether the email is multipart or not.
         """
-        msg = self.get_message()
+        msg = self.get_message_parser()
 
         Email = EmailMultiAlternatives if msg.text_html else EmailMessage
         email = Email(

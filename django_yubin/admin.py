@@ -33,17 +33,17 @@ class MessageAdmin(admin.ModelAdmin):
         url = reverse('admin:mail_detail', args=(instance.id,))
         return mark_safe(f'<a href="{url}" onclick="return showAddAnotherPopup(this);">Show</a>')
 
-    @admin.display(description=_('Encoded message'))
-    def encoded_message(self, instance):
+    @admin.display(description=_('Message data'))
+    def message_data(self, instance):
         backend = import_string(settings.MAILER_STORAGE_BACKEND)
-        return mark_safe(backend.admin_display_encoded_message(self, instance))
+        return mark_safe(backend.admin_display_message_data(self, instance))
 
     list_display = ('from_address', 'to_address', 'subject', 'date_created', 'date_sent',
                     'date_enqueued', 'status', 'message_link')
     list_filter = ('date_created', 'date_sent', 'date_enqueued', 'status')
-    fields = ('from_address', 'to_address', 'subject', 'encoded_message', 'date_sent', 'sent_count',
+    fields = ('from_address', 'to_address', 'subject', 'message_data', 'date_sent', 'sent_count',
               'date_enqueued', 'enqueued_count', 'status')
-    readonly_fields = ('to_address', 'from_address', 'subject', 'encoded_message', 'date_created')
+    readonly_fields = ('to_address', 'from_address', 'subject', 'message_data', 'date_created')
     search_fields = ('to_address', 'subject', 'from_address')
     date_hierarchy = 'date_created'
     ordering = ('-date_created',)
@@ -103,7 +103,7 @@ class MessageAdmin(admin.ModelAdmin):
 
     def detail_view(self, request, pk):
         instance = models.Message.objects.get(pk=pk)
-        msg = instance.get_message()
+        msg = instance.get_message_parser()
         context = {
             "subject": msg.subject,
             "from": mailparser_utils.get_address(msg.from_),
@@ -127,7 +127,7 @@ class MessageAdmin(admin.ModelAdmin):
 
     def download_view(self, request, pk, signature):
         instance = models.Message.objects.get(pk=pk)
-        msg = instance.get_message()
+        msg = instance.get_message_parser()
         attachment = mailparser_utils.get_attachment(msg, signature)
         response = HttpResponse(content_type=attachment['mail_content_type'])
         response['Content-Disposition'] = attachment['content-disposition']
@@ -137,7 +137,7 @@ class MessageAdmin(admin.ModelAdmin):
     @xframe_options_sameorigin
     def html_view(self, request, pk):
         instance = models.Message.objects.get(pk=pk)
-        msg = instance.get_message()
+        msg = instance.get_message_parser()
         context = {"msg_html": "</br>".join(msg.text_html)}
         return render(request, "django_yubin/html_detail.html", context)
 

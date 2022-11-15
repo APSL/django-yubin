@@ -29,7 +29,7 @@ def queue_email_message(email_message, fail_silently=False):
             to_address=to_email,
             from_address=email_message.from_email,
             subject=email_message.subject,
-            encoded_message=email_message.message().as_string())
+            message_data=email_message.message().as_string())
         if message.enqueue('Enqueued from a Backend or django-yubin itself.'):
             count += 1
         else:

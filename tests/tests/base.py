@@ -17,6 +17,6 @@ class MessageMixin:
             to_address=email.to[0],
             from_address=email.from_email,
             subject=email.subject,
-            encoded_message=email.message().as_string(),
+            message_data=email.message().as_string(),
             status=status,
         )

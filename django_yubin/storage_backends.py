@@ -12,59 +12,59 @@ from . import settings as yubin_settings
 class BaseStorageBackend(ABC):
     @classmethod
     @abstractmethod
-    def get_encoded_message(cls, message): pass
+    def get_message_data(cls, message): pass
 
     @classmethod
     @abstractmethod
-    def set_encoded_message(cls, message, value): pass
+    def set_message_data(cls, message, data): pass
 
     @classmethod
-    def admin_display_encoded_message(cls, model_admin, message):
+    def admin_display_message_data(cls, model_admin, message):
         return f'''
             <textarea class="vLargeTextField" cols="40" rows="15" style="width: 99%;" disabled
-            readonly>{message.encoded_message}</textarea>
+            readonly>{message.message_data}</textarea>
         '''.strip()
 
 
 class DatabaseStorageBackend(BaseStorageBackend):
     @classmethod
-    def get_encoded_message(cls, message):
-        return message._encoded_message
+    def get_message_data(cls, message):
+        return message._message_data
 
     @classmethod
-    def set_encoded_message(cls, message, value):
-        message._encoded_message = value
+    def set_message_data(cls, message, data):
+        message._message_data = data
 
 
 class FileStorageBackend(BaseStorageBackend):
     @classmethod
-    def get_encoded_message(cls, message):
+    def get_message_data(cls, message):
         file = default_storage.open(cls.get_path(message), 'rb')
         content = file.read().decode(settings.DEFAULT_CHARSET)
         file.close()
         return content
 
     @classmethod
-    def set_encoded_message(cls, message, value):
+    def set_message_data(cls, message, data):
         path = cls.get_path(message)
-        new_path = default_storage.save(path, ContentFile(value.encode(settings.DEFAULT_CHARSET)))
-        if message._encoded_message:
-            default_storage.delete(message._encoded_message)
-        message._encoded_message = new_path
+        new_path = default_storage.save(path, ContentFile(data.encode(settings.DEFAULT_CHARSET)))
+        if message._message_data:
+            default_storage.delete(message._message_data)
+        message._message_data = new_path
 
     @staticmethod
     def get_path(message):
-        return message._encoded_message or \
+        return message._message_data or \
             os.path.join(yubin_settings.MAILER_FILE_STORAGE_DIR, f"{str(uuid4())}.msg")
 
     @classmethod
-    def admin_display_encoded_message(cls, model_admin, message):
+    def admin_display_message_data(cls, model_admin, message):
         return f'''
             <div>
-                <a href="{default_storage.url(message._encoded_message)}">
-                    {message._encoded_message}
+                <a href="{default_storage.url(message._message_data)}">
+                    {message._message_data}
                 </a>
             </div>
             <br>
-            {super(cls, cls).admin_display_encoded_message(model_admin, message)}
+            {super(cls, cls).admin_display_message_data(model_admin, message)}
         '''.strip()

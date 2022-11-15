@@ -36,8 +36,8 @@ class TestInit(TestCase):
         self.assertEqual(len(messages), 1)
 
         self.assertEqual(settings.MAILER_TEST_EMAIL, messages[0].to_address)
-        self.assertTrue(settings.MAILER_TEST_EMAIL in messages[0].encoded_message)
-        self.assertTrue('X-Yubin-Test-Original: %s' % to[0] in messages[0].encoded_message)
+        self.assertTrue(settings.MAILER_TEST_EMAIL in messages[0].message_data)
+        self.assertTrue('X-Yubin-Test-Original: %s' % to[0] in messages[0].message_data)
 
         settings.MAILER_TEST_MODE = False
 
@@ -51,7 +51,7 @@ class TestInit(TestCase):
         self.assertEqual(len(messages), 1)
 
         self.assertEqual(recipient_list[0], messages[0].to_address)
-        self.assertTrue(recipient_list[0] in messages[0].encoded_message)
+        self.assertTrue(recipient_list[0] in messages[0].message_data)
 
     def test_send_message_admin(self, enqueue_email_mock):
         mail_admins(subject='subject', message='message')
@@ -63,7 +63,7 @@ class TestInit(TestCase):
 
         for i, recipient in enumerate(recipient_list):
             self.assertEqual(recipient, messages[i].to_address)
-            self.assertTrue(recipient in messages[i].encoded_message)
+            self.assertTrue(recipient in messages[i].message_data)
 
     def test_send_message_managers(self, enqueue_email_mock):
         mail_managers(subject='subject', message='message')
@@ -75,4 +75,4 @@ class TestInit(TestCase):
 
         for i, recipient in enumerate(recipient_list):
             self.assertEqual(recipient, messages[i].to_address)
-            self.assertTrue(recipient in messages[i].encoded_message)
+            self.assertTrue(recipient in messages[i].message_data)
