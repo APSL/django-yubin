@@ -37,9 +37,11 @@ class DatabaseStorageBackend(BaseStorageBackend):
 
 
 class FileStorageBackend(BaseStorageBackend):
+    storage = default_storage
+
     @classmethod
     def get_message_data(cls, message):
-        file = default_storage.open(cls.get_path(message), 'rb')
+        file = cls.storage.open(cls.get_path(message), 'rb')
         content = file.read().decode(settings.DEFAULT_CHARSET)
         file.close()
         return content
@@ -47,9 +49,9 @@ class FileStorageBackend(BaseStorageBackend):
     @classmethod
     def set_message_data(cls, message, data):
         path = cls.get_path(message)
-        new_path = default_storage.save(path, ContentFile(data.encode(settings.DEFAULT_CHARSET)))
+        new_path = cls.storage.save(path, ContentFile(data.encode(settings.DEFAULT_CHARSET)))
         if message._message_data:
-            default_storage.delete(message._message_data)
+            cls.storage.delete(message._message_data)
         message._message_data = new_path
 
     @staticmethod
@@ -61,10 +63,10 @@ class FileStorageBackend(BaseStorageBackend):
     def admin_display_message_data(cls, model_admin, message):
         return f'''
             <div>
-                <a href="{default_storage.url(message._message_data)}">
+                <a href="{cls.storage.url(message._message_data)}">
                     {message._message_data}
                 </a>
             </div>
             <br>
-            {super(cls, cls).admin_display_message_data(model_admin, message)}
+            {BaseStorageBackend.admin_display_message_data(model_admin, message)}
         '''.strip()
