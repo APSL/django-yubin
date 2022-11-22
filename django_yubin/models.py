@@ -62,7 +62,7 @@ class Message(models.Model):
     # This field is for internal use in storage backends. They can use it to save the email
     # like the DatabaseSorageBackend, the file path like the FileStorageBackend, etc.
     # Other users must access this data through the ``message_data`` property.
-    _message_data = models.TextField(_('message data'), db_column='encoded_message')
+    _message_data = models.TextField(_('message data'), db_column='message_data')
 
     @property
     def message_data(self):
