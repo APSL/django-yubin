@@ -12,8 +12,8 @@ templates.
 
 For sending and queuing emails, Yubin replaces the standard Django Email Backend with its own.
 Instead of sending emails synchronously trough a SMTP server, Yubin saves emails in your database
-and sends them asynchronously using the `Celery <https://docs.celeryq.dev/en/stable/>`_ distributed
-task queue.
+(and optionally in a file storage) and sends them asynchronously using the
+`Celery <https://docs.celeryq.dev/en/stable/>`_ distributed task queue.
 
 Advantages
 ----------
@@ -85,6 +85,7 @@ Index
     install
     mailviews
     queue
+    storages
     settings
     contributing
     changelog

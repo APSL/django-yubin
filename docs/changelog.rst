@@ -12,6 +12,7 @@ Changed
 ^^^^^^^
 * Send and queue emails with Celery instead of with Cron.
 * Drop priority headers (useless with queues).
+* Storage backends to save emails in databases, file storages, etc.
 * Minimum versions: Python 3.7, Django 3.2, Celery 5.0.
 * Migrate CI/CD from Travis to Github Actions.
 * Docker Compose for external dependencies in development environment.

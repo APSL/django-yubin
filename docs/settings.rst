@@ -38,3 +38,14 @@ Email address where all mail is sent when ``MAILER_TEST_MODE`` is ``True``. Defa
 
 If there are mails created or enqueued or in progress for more than ``MAILER_HC_QUEUED_LIMIT_OLD``
 minutes, the HealthCheck view will show an error. Default is ``30`` minutes.
+
+
+**MAILER_STORAGE_BACKEND**
+
+Storage to save full emails. Default is ``django_yubin.storage_backends.DatabaseStorageBackend``.
+You can also use ``django_yubin.storage_backends.FileStorageBackend`` or provide your own.
+
+
+**MAILER_FILE_STORAGE_DIR**
+
+Subdirectory to save emails when using the ``FileStorageBackend``. Default is ``yubin``.

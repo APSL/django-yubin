@@ -16,12 +16,12 @@ MAILER_TEST_EMAIL = getattr(settings, "MAILER_TEST_EMAIL", '')
 # view will show an error
 MAILER_HC_QUEUED_LIMIT_OLD = getattr(settings, "MAILER_HC_QUEUED_LIMIT_OLD", 30)
 
-# Storage to save full emails encoded
+# Storage to save full emails
 MAILER_STORAGE_BACKEND = getattr(
     settings,
     "MAILER_STORAGE_BACKEND",
     "django_yubin.storage_backends.DatabaseStorageBackend",
 )
 
-# Subdirectory to save encoded emails when using the FileStorageBackend
+# Subdirectory to save emails when using the FileStorageBackend
 MAILER_FILE_STORAGE_DIR = getattr(settings, "MAILER_FILE_STORAGE_DIR", 'yubin')

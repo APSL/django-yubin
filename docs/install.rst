@@ -37,7 +37,7 @@ Note that yubin doesn't queue all email by default, you must configure the email
     EMAIL_BACKEND = 'django_yubin.backends.QueuedEmailBackend'
     MAILER_USE_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-More yubin settings can be found in the :doc:`Settings sections <settings>`.
+More Yubin settings can be found in the :doc:`Settings sections <settings>`.
 
 Add ``yubin`` urls in your main ``urls.py`` for using the health check
 
@@ -54,6 +54,9 @@ Finally, run database migrations
 .. code:: python
 
     python manage.py migrate
+
+With this setup emails will be saved entirely in the database. You can also configure Yubin to save
+emails in a different :doc:`storage <storages>`.
 
 Upgrading from previous versions
 --------------------------------
