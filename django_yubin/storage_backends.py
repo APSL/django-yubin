@@ -36,7 +36,7 @@ class DatabaseStorageBackend(BaseStorageBackend):
         message._message_data = data
 
 
-class (BaseStorageBackend):
+class FileStorageBackend(BaseStorageBackend):
     storage = default_storage
 
     @classmethod
