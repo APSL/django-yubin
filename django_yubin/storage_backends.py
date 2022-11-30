@@ -91,9 +91,13 @@ def db2file():
         raise StorageBackendException(
             f'settings.MAILER_STORAGE_BACKEND should be {FileStorageBackend} instead of {backend}')
 
-    for message in Message.objects.all().only('pk', '_message_data'):
+    messages = Message.objects \
+        .filter(storage='django_yubin.storage_backends.DatabaseStorageBackend') \
+        .only('pk', '_message_data', 'storage')
+    for message in messages:
         db_message_data = DatabaseStorageBackend.get_message_data(message)
         DatabaseStorageBackend.set_message_data(message, data='')
+        message.storage = yubin_settings.MAILER_STORAGE_BACKEND
         message.message_data = db_message_data
         message.save()
         logger.info(f'Message {message.pk} migrated. Saved in {message._message_data}')
@@ -109,9 +113,13 @@ def file2db(delete=False):
         raise StorageBackendException(
             f'settings.MAILER_STORAGE_BACKEND should be {DatabaseStorageBackend} instead of {backend}')
 
-    for message in Message.objects.all().only('pk', '_message_data'):
+    messages = Message.objects \
+        .filter(storage='django_yubin.storage_backends.FileStorageBackend') \
+        .only('pk', '_message_data', 'storage')
+    for message in messages:
         file_message_path = FileStorageBackend.get_path(message)
         file_message_data = FileStorageBackend.get_message_data(message)
+        message.storage = yubin_settings.MAILER_STORAGE_BACKEND
         message.message_data = file_message_data
         message.save()
         logger.info(f'Message {message.pk} migrated')

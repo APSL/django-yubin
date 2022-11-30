@@ -72,6 +72,7 @@ class TestMigrations(MessageMixin, TestCase):
         self.assertEqual(file_message.message_data, db_message_data)
 
         settings.MAILER_STORAGE_BACKEND = 'django_yubin.storage_backends.DatabaseStorageBackend'
+        self.assertFalse(Message.objects.filter(storage=settings.MAILER_STORAGE_BACKEND).exists())
 
     def test_db2file_settings(self):
         with self.assertRaises(StorageBackendException):
@@ -90,6 +91,8 @@ class TestMigrations(MessageMixin, TestCase):
 
         db_message = Message.objects.get(pk=file_message.pk)
         self.assertEqual(db_message.message_data, file_message_data)
+        self.assertFalse(Message.objects.filter(
+            storage='django_yubin.storage_backends.FileStorageBackend').exists())
 
     def test_file2db_settings(self):
         settings.MAILER_STORAGE_BACKEND = 'django_yubin.storage_backends.FileStorageBackend'

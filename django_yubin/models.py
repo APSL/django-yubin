@@ -66,13 +66,16 @@ class Message(models.Model):
 
     @property
     def message_data(self):
-        backend = import_string(settings.MAILER_STORAGE_BACKEND)
-        return backend.get_message_data(self)
+        storage_backend = import_string(self.storage)
+        return storage_backend.get_message_data(self)
 
     @message_data.setter
     def message_data(self, data):
-        backend = import_string(settings.MAILER_STORAGE_BACKEND)
-        backend.set_message_data(self, data)
+        storage_backend = import_string(self.storage)
+        storage_backend.set_message_data(self, data)
+
+    storage = models.CharField(_('storage backend'), max_length=200, blank=False,
+                               default="django_yubin.storage_backends.DatabaseStorageBackend")
 
     date_created = models.DateTimeField(_('date created'), auto_now_add=True)
     date_sent = models.DateTimeField(_('date sent'), null=True, blank=True)

@@ -1,5 +1,6 @@
 from django.core.mail import EmailMessage
 
+from django_yubin import settings
 from django_yubin.models import Message
 
 
@@ -18,5 +19,6 @@ class MessageMixin:
             from_address=email.from_email,
             subject=email.subject,
             message_data=email.message().as_string(),
+            storage=settings.MAILER_STORAGE_BACKEND,
             status=status,
         )

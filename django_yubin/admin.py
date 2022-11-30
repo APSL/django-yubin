@@ -38,12 +38,17 @@ class MessageAdmin(admin.ModelAdmin):
         backend = import_string(settings.MAILER_STORAGE_BACKEND)
         return mark_safe(backend.admin_display_message_data(self, instance))
 
+    @admin.display(description=_('Storage'))
+    def storage_class(self, instance):
+        return mark_safe(instance.storage.split('.')[-1])
+
     list_display = ('from_address', 'to_address', 'subject', 'date_created', 'date_sent',
-                    'date_enqueued', 'status', 'message_link')
+                    'date_enqueued', 'status', 'storage_class', 'message_link')
     list_filter = ('date_created', 'date_sent', 'date_enqueued', 'status')
-    fields = ('from_address', 'to_address', 'subject', 'message_data', 'date_sent', 'sent_count',
-              'date_enqueued', 'enqueued_count', 'status')
-    readonly_fields = ('to_address', 'from_address', 'subject', 'message_data', 'date_created')
+    fields = ('from_address', 'to_address', 'subject', 'message_data', 'storage', 'date_sent',
+              'sent_count', 'date_enqueued', 'enqueued_count', 'status')
+    readonly_fields = ('to_address', 'from_address', 'subject', 'message_data', 'storage',
+                       'date_created')
     search_fields = ('to_address', 'subject', 'from_address')
     date_hierarchy = 'date_created'
     ordering = ('-date_created',)

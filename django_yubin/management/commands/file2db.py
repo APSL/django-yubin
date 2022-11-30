@@ -1,6 +1,6 @@
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 
-from ...storage_backends import file2db
+from ...storage_backends import file2db, StorageBackendException
 
 
 class Command(BaseCommand):
@@ -15,4 +15,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         delete = options['delete']
-        file2db(delete)
+        try:
+            file2db(delete)
+        except StorageBackendException as e:
+            raise CommandError(e)
