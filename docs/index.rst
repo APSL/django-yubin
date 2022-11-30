@@ -49,6 +49,8 @@ Some of the larger differences in django yubin:
 
 * It's integrated with django-mailviews classes.
 * It saves a rendered version of the email, so HTML and other attachments are handled fine.
+* This rendered emails can be saved in diferent sotrages: database, file system, AWS S3 or even
+  your own custom storage.
 * Models have been completely refactored for a better logical separation of data.
 * Provides replacements for ``send_mail``, ``mail_admins`` and ``mail_managers`` Django functions.
 * Uses Celery distributed task queue instead of Cron.

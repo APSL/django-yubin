@@ -49,6 +49,8 @@ In addition to tasks, Yubin also provides a couple of commands to facilitate the
 
 - **send_test_mail** Sends a single HTML email. Ideal for checking connection parameters.
 - **create_email** Creates fake mails for testing unicode, emojis and attachments.
+- **db2file** and **file2db** migrate emails between storage backends. Look at the
+  :doc:`Storage backends <storages>` section for more details.
 
 Execute ``python manage.py THE_COMMAND --help`` to see optional arguments.
 
