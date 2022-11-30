@@ -2,6 +2,8 @@
 
 from django.db import migrations
 
+from django_yubin import tasks
+
 
 # To avoid dependeny with constants.py
 RESULT_SENT = 0
@@ -19,15 +21,18 @@ def migrate_to_queues(apps, schema_editor):
     # Messages without a QueueMessage ara sent.
     for message in Message.objects.all():
         queued = QueuedMessage.objects.filter(message=message).only('date_queued').first()
-        if queued is None:
+        if queued:
+            message.status = DBMessage.STATUS_QUEUED
+            message.date_enqueued = queued.date_queued
+            message.enqueued_count = 1
+            message.save()
+            tasks.send_email.delay(message.pk)
+        else:
             message.status = DBMessage.STATUS_SENT
             message.sent_count = 1
             message.date_enqueued = message.date_sent
-        else:
-            message.status = DBMessage.STATUS_QUEUED
-            message.date_enqueued = queued.date_queued
-        message.enqueued_count = 1
-        message.save()
+            message.enqueued_count = 1
+            message.save()
 
     # Set Log actions based on its result
     for log in Log.objects.all():

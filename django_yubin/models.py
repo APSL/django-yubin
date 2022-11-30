@@ -11,7 +11,7 @@ from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 import mailparser
 
-from . import mailparser_utils, settings, tasks
+from . import mailparser_utils, tasks
 
 
 logger = logging.getLogger(__name__)
