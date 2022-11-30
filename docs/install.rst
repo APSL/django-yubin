@@ -79,5 +79,6 @@ Version 2.0.0 is a big reimplementation that uses Celery tasks instead of Cron j
 needed considerable database schema changes but the database migrations take care of all. Just keep
 in mind that:
 
-* These database schema changes can not be undone. Once you migrate to version >= 2 you can not go backwards and use again a version < 2 unless you have a previous database backup.
+* These database schema changes can not be undone. Once you migrate to version >= 2 you can not go
+  backwards and use again a version < 2 unless you have a previous database backup.
 * It's advisable to stop sending emails before doing the migration and enable it again after.
