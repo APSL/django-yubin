@@ -1,7 +1,9 @@
 from django.test import TestCase
 
 from django_yubin import settings
-from django_yubin.storage_backends import DatabaseStorageBackend, FileStorageBackend
+from django_yubin.models import Message
+from django_yubin.storage_backends import (DatabaseStorageBackend, FileStorageBackend,
+                                           StorageBackendException, db2file, file2db)
 
 from .base import MessageMixin
 
@@ -53,3 +55,44 @@ class TestFileStorageBackend(TestBaseStorageBackend):
         self.assertEqual(updated_value, new_value)
         self.assertEqual(self.message.message_data, new_value)
         self.assertEqual(self.message._message_data, FileStorageBackend.get_path(self.message))
+
+
+class TestMigrations(MessageMixin, TestCase):
+    def test_db2file(self):
+        """
+        The ``db2file`` migrates emails from database to filesystem.
+        """
+        db_message = self.create_message()
+        db_message_data = db_message.message_data
+        settings.MAILER_STORAGE_BACKEND = 'django_yubin.storage_backends.FileStorageBackend'
+
+        db2file()
+
+        file_message = Message.objects.get(pk=db_message.pk)
+        self.assertEqual(file_message.message_data, db_message_data)
+
+        settings.MAILER_STORAGE_BACKEND = 'django_yubin.storage_backends.DatabaseStorageBackend'
+
+    def test_db2file_settings(self):
+        with self.assertRaises(StorageBackendException):
+            db2file()
+
+    def test_file2db(self):
+        """
+        The ``file2db`` migrates emails from filesystem to database.
+        """
+        settings.MAILER_STORAGE_BACKEND = 'django_yubin.storage_backends.FileStorageBackend'
+        file_message = self.create_message()
+        file_message_data = file_message.message_data
+        settings.MAILER_STORAGE_BACKEND = 'django_yubin.storage_backends.DatabaseStorageBackend'
+
+        file2db(delete=True)
+
+        db_message = Message.objects.get(pk=file_message.pk)
+        self.assertEqual(db_message.message_data, file_message_data)
+
+    def test_file2db_settings(self):
+        settings.MAILER_STORAGE_BACKEND = 'django_yubin.storage_backends.FileStorageBackend'
+        with self.assertRaises(StorageBackendException):
+            file2db()
+        settings.MAILER_STORAGE_BACKEND = 'django_yubin.storage_backends.DatabaseStorageBackend'

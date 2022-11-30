@@ -1,3 +1,4 @@
+import logging
 import os
 from abc import ABC, abstractmethod
 from uuid import uuid4
@@ -5,8 +6,17 @@ from uuid import uuid4
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
+from django.utils.module_loading import import_string
 
 from . import settings as yubin_settings
+from .models import Message
+
+
+logger = logging.getLogger(__name__)
+
+
+class StorageBackendException(Exception):
+    pass
 
 
 class BaseStorageBackend(ABC):
@@ -70,3 +80,42 @@ class FileStorageBackend(BaseStorageBackend):
             <br>
             {BaseStorageBackend.admin_display_message_data(model_admin, message)}
         '''.strip()
+
+
+def db2file():
+    """
+    Migrate emails from DatabaseStorageBackend to FileStorageBackend.
+    """
+    backend = import_string(yubin_settings.MAILER_STORAGE_BACKEND)
+    if backend != FileStorageBackend:
+        raise StorageBackendException(
+            f'settings.MAILER_STORAGE_BACKEND should be {FileStorageBackend} instead of {backend}')
+
+    for message in Message.objects.all().only('pk', '_message_data'):
+        db_message_data = DatabaseStorageBackend.get_message_data(message)
+        DatabaseStorageBackend.set_message_data(message, data='')
+        message.message_data = db_message_data
+        message.save()
+        logger.info(f'Message {message.pk} migrated. Saved in {message._message_data}')
+
+
+def file2db(delete=False):
+    """
+    Migrate emails from FileStorageBackend to DatabaseStorageBackend optionally deleting the files
+    from the file storage.
+    """
+    backend = import_string(yubin_settings.MAILER_STORAGE_BACKEND)
+    if backend != DatabaseStorageBackend:
+        raise StorageBackendException(
+            f'settings.MAILER_STORAGE_BACKEND should be {DatabaseStorageBackend} instead of {backend}')
+
+    for message in Message.objects.all().only('pk', '_message_data'):
+        file_message_path = FileStorageBackend.get_path(message)
+        file_message_data = FileStorageBackend.get_message_data(message)
+        message.message_data = file_message_data
+        message.save()
+        logger.info(f'Message {message.pk} migrated')
+
+        if delete:
+            FileStorageBackend.storage.delete(file_message_path)
+            logger.info(f'File {file_message_path} deleted from FileStorageBackend')
