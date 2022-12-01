@@ -58,20 +58,26 @@ Health check
 ------------
 
 If you have added ``url(r'^yubin/', include('django_yubin.urls'))`` to your ``urls.py``, you can go
-to ``http://localhost:8000/yubin/health`` and see the health output result:
+to ``http://localhost:8000/yubin/health`` and see the health output result.
+
+Response when there are no problems: HTTP 200
 
 .. code:: text
 
     oldest_queued_email: 1 mins
     emails_queued_too_old: no
-    settings.MAILER_HC_QUEUED_LIMIT_OLD: 30 mins
+    threshold: 30 mins
 
-or if you have emails that have been too long enqueued:
+Response if there are emails that have been too long enqueued: HTTP 500
 
 .. code:: text
 
+    # HTTP 500
     oldest_queued_email: 45 mins
     emails_queued_too_old: yes
-    settings.MAILER_HC_QUEUED_LIMIT_OLD: 30 mins
+    threshold: 30 mins
 
-You can parse this view's response in your check system.
+You can parse this view's response in your check system and check the status code of the response.
+
+Additionally, you can use a different threshold changing ``settings.MAILER_HC_QUEUED_LIMIT_OLD`` or
+passing a GET parameter `t`: http://localhost:8000/yubin/health?t=60
