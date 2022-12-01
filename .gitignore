@@ -1,3 +1,4 @@
+demo/.venv
 *.pyc
 /build/*
 /dist/*

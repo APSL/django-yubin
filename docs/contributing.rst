@@ -40,7 +40,9 @@ virtualenv.
   .. code:: bash
 
     $ cd demo
-    $ pipenv sync --dev
+    $ python3 -m venv .venv
+    $ source .venv/bin/activate
+    $ pip install -r requirements.txt
 
 * Start servers
 
@@ -52,7 +54,6 @@ virtualenv.
 
   .. code:: bash
 
-    $ pipenv shell
     $ python manage.py migrate
     $ python manage.py createsuperuser
 
@@ -66,7 +67,6 @@ virtualenv.
 
   .. code:: bash
 
-    $ pipenv shell
     $ celery -A demo.celery worker -l info -B
 
 Now you can open http://localhost:8000 in your browser and see the demo project running.
