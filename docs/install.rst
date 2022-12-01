@@ -76,9 +76,14 @@ More details in https://docs.djangoproject.com/en/1.9/topics/migrations/#adding-
 **Upgrading from versions >= 0.1.8 to >= 2.0.0**
 
 Version 2.0.0 is a big reimplementation that uses Celery tasks instead of Cron jobs. This change
-needed considerable database schema changes but the database migrations take care of all. Just keep
+needed considerable database schema changes but the database migrations take care of all. Keep
 in mind that:
 
 * These database schema changes can not be undone. Once you migrate to version >= 2 you can not go
   backwards and use again a version < 2 unless you have a previous database backup.
-* It's advisable to stop sending emails before doing the migration and enable it again after.
+* Stop cron jobs before doing the migration to avoid sending emails in an undetermined migration
+  state.
+* Have Celery setup and configuration ready but with no workers running. One of the migrations
+  generates tasks to enqueue emails that were enqueued so they will be sent later.
+* Once the migration finishes and everything is OK, start Celery workers so enqueued emails will
+  be sent.

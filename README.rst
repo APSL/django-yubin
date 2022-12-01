@@ -51,6 +51,7 @@ Advantages
   the SMTP server for sending emails.
 * Scale out easily adding more Celery workers.
 * Emails are saved in the database, you can see, manage and enqueue them from the Django Admin.
+* Optionally you can save only minimum data in the database and full emails in a different storage.
 * Yubin provides settings to avoid sending emails during development.
 
 
