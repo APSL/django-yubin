@@ -39,6 +39,9 @@ class TestDatabaseStorageBackend(TestBaseStorageBackend):
         self.assertEqual(updated_value, new_value)
         self.assertEqual(self.message.message_data, new_value)
 
+    def test_delete_message_data(self):
+        self.assertIsNone(DatabaseStorageBackend.delete_message_data(self.message))
+
 
 class TestFileStorageBackend(TestBaseStorageBackend):
     storage_backend = 'django_yubin.storage_backends.FileStorageBackend'
@@ -55,6 +58,11 @@ class TestFileStorageBackend(TestBaseStorageBackend):
         self.assertEqual(updated_value, new_value)
         self.assertEqual(self.message.message_data, new_value)
         self.assertEqual(self.message._message_data, FileStorageBackend.get_path(self.message))
+
+    def test_delete_message_data(self):
+        FileStorageBackend.delete_message_data(self.message)
+        with self.assertRaises(FileNotFoundError):
+            FileStorageBackend.get_message_data(self.message)
 
 
 class TestMigrations(MessageMixin, TestCase):

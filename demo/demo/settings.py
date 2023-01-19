@@ -176,10 +176,11 @@ EMAIL_PORT = 1025
 MAILER_USE_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # MAILER_STORAGE_BACKEND = 'django_yubin.storage_backends.FileStorageBackend'
 # MAILER_STORAGE_BACKEND = 'demo.storage_backends.InmutableFileStorageBackend'
+# MAILER_STORAGE_DELETE = False
 
 # Celery settings
 BROKER_URL = 'redis://localhost:6379/0'
-CELERY_ALWAYS_EAGER = False
+CELERY_ALWAYS_EAGER = True
 CELERY_RESULT_BACKEND = "django-db"
 CELERY_RESULT_EXPIRES = 604800
 CELERYBEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'

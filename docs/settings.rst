@@ -46,6 +46,12 @@ Storage to save full emails. Default is ``django_yubin.storage_backends.Database
 You can also use ``django_yubin.storage_backends.FileStorageBackend`` or provide your own.
 
 
+**MAILER_STORAGE_DELETE**
+
+When deleting an email from the database, also delete its data from the storage.
+Default is ``True``.
+
+
 **MAILER_FILE_STORAGE_DIR**
 
 Subdirectory to save emails when using the ``FileStorageBackend``. Default is ``yubin``.

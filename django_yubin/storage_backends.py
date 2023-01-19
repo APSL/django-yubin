@@ -29,6 +29,10 @@ class BaseStorageBackend(ABC):
     def set_message_data(cls, message, data): pass
 
     @classmethod
+    @abstractmethod
+    def delete_message_data(cls, message): pass
+
+    @classmethod
     def admin_display_message_data(cls, model_admin, message):
         return f'''
             <textarea class="vLargeTextField" cols="40" rows="15" style="width: 99%;" disabled
@@ -44,6 +48,10 @@ class DatabaseStorageBackend(BaseStorageBackend):
     @classmethod
     def set_message_data(cls, message, data):
         message._message_data = data
+
+    @classmethod
+    def delete_message_data(cls, message):
+        pass
 
 
 class FileStorageBackend(BaseStorageBackend):
@@ -68,6 +76,10 @@ class FileStorageBackend(BaseStorageBackend):
     def get_path(message):
         return message._message_data or \
             os.path.join(yubin_settings.MAILER_FILE_STORAGE_DIR, f"{str(uuid4())}.msg")
+
+    @classmethod
+    def delete_message_data(cls, message):
+        cls.storage.delete(cls.get_path(message))
 
     @classmethod
     def admin_display_message_data(cls, model_admin, message):
