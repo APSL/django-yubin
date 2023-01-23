@@ -1,8 +1,7 @@
-from django.conf.urls import url
 from django.contrib import admin, messages as dj_messages
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.urls import reverse
+from django.urls import re_path, reverse
 from django.utils.module_loading import import_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -94,15 +93,15 @@ class MessageAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = super(MessageAdmin, self).get_urls()
         custom_urls = [
-            url(r'^mail/(?P<pk>\d+)/$',
-                self.admin_site.admin_view(self.detail_view),
-                name='mail_detail'),
-            url(r'^mail/attachment/(?P<pk>\d+)/(?P<signature>[0-9a-f]{32})/$',
-                self.admin_site.admin_view(self.download_view),
-                name="mail_download"),
-            url(r'^mail/html/(?P<pk>\d+)/$',
-                self.admin_site.admin_view(self.html_view),
-                name="mail_html"),
+            re_path(r'^mail/(?P<pk>\d+)/$',
+                    self.admin_site.admin_view(self.detail_view),
+                    name='mail_detail'),
+            re_path(r'^mail/attachment/(?P<pk>\d+)/(?P<signature>[0-9a-f]{32})/$',
+                    self.admin_site.admin_view(self.download_view),
+                    name="mail_download"),
+            re_path(r'^mail/html/(?P<pk>\d+)/$',
+                    self.admin_site.admin_view(self.html_view),
+                    name="mail_html"),
         ]
         return custom_urls + urls
 

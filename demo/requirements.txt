@@ -1,6 +1,6 @@
 # core
-Django<4.0
-django-celery-beat==2.3.0
+Django<4.2
+django-celery-beat==2.4.0
 django-celery-results==2.4.0
 django-extensions==3.1.5
 redis==4.3.1
@@ -17,4 +17,4 @@ flake8==4.0.1
 ipdb==0.13.9
 ipython==8.4
 sphinx==5.1.1
-esbonio-0.14.3
+esbonio==0.14.3
