@@ -12,7 +12,7 @@ boto3==1.26.1
 -e ..
 
 # tests, dev and docs
-tox==3.25.1
+tox>=4.3,<4.4
 flake8==4.0.1
 ipdb==0.13.9
 ipython==8.4

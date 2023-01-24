@@ -16,6 +16,7 @@ demo/minio-data
 celerybeat-schedule
 
 # tests related
+.python-version
 .tox
 .coverage
 cover
