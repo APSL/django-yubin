@@ -1,11 +1,11 @@
 name: Test
 
 on:
-  workflow_dispatch: test.yml
   push:
     branches: ["queues", "_django_4_1"]
   pull_request:
     branches: ["queues", "_django_4_1"]
+  workflow_dispatch:
 
 jobs:
   test:
