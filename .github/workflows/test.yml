@@ -2,9 +2,9 @@ name: Test
 
 on:
   push:
-    branches: ["queues", "_django_4_1"]
+    branches: ["queues"]
   pull_request:
-    branches: ["queues", "_django_4_1"]
+    branches: ["queues"]
   workflow_dispatch:
 
 jobs:
