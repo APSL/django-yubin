@@ -26,7 +26,7 @@ email, but we want to be able to render the e-mail
 .. code:: python
 
     import datetime
-    from django_yubin.messages import TemplatedEmailMessageView
+    from django_yubin.message_views import TemplatedEmailMessageView
 
     class NewsletterView(TemplatedEmailMessageView):
         subject_template_name = 'emails/newsletter/subject.txt'
@@ -70,7 +70,7 @@ In our example, we could write:
 .. code:: python
 
     import datetime
-    from django_yubin.messages import TemplatedEmailMessageView
+    from django_yubin.message_views import TemplatedEmailMessageView
 
     class NewsletterView(TemplatedEmailMessageView):
         subject_template_name = 'emails/newsletter/subject.txt'
@@ -114,7 +114,7 @@ an additional template to render the HTML content. You just have to inherit your
 .. code:: python
 
     import datetime
-    from django_yubin.messages import TemplatedHTMLEmailMessageView
+    from django_yubin.message_views import TemplatedHTMLEmailMessageView
 
     class NewsletterView(TemplatedHTMLEmailMessageView):
         subject_template_name = 'emails/newsletter/subject.txt'
@@ -155,7 +155,7 @@ newsletter a pdf file we could do
 .. code:: python
 
     import datetime
-    from django_yubin.messages import TemplatedAttachmentEmailMessageView
+    from django_yubin.message_views import TemplatedAttachmentEmailMessageView
 
     class NewsletterView(TemplatedAttachmentEmailMessageView):
         subject_template_name = 'emails/newsletter/subject.txt'
@@ -190,7 +190,7 @@ Sending multiple attachments works the same way but using the class
 .. code:: python
 
     import datetime
-    from django_yubin.messages import TemplatedMultipleAttachmentsEmailMessageView
+    from django_yubin.message_views import TemplatedMultipleAttachmentsEmailMessageView
 
     class NewsletterView(TemplatedMultipleAttachmentsEmailMessageView):
         subject_template_name = 'emails/newsletter/subject.txt'
@@ -226,7 +226,7 @@ be usefull as a quick shortcut, it's not e good pattern
 
 .. code:: python
 
-    from django_yubin.messages import TemplatedEmailMessageView
+    from django_yubin.message_views import TemplatedEmailMessageView
 
     # Subclass the TemplatedEmailMessageView adding the templates you want to render.
     class WelcomeMessageView(TemplatedEmailMessageView):
@@ -241,7 +241,7 @@ paameters that you need to generate the context and send the message. Example:
 
 .. code:: python
 
-    from django_yubin.messages import TemplatedEmailMessageView
+    from django_yubin.message_views import TemplatedEmailMessageView
 
     class WelcomeMessageView(TemplatedEmailMessageView):
         subject_template_name = 'emails/welcome/subject.txt'

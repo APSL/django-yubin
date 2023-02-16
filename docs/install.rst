@@ -70,7 +70,7 @@ upgrading from a version < 0.1.8 and your models are already created you should 
 
     $ python manage.py migrate django_yubin --fake-initial
 
-More details in https://docs.djangoproject.com/en/1.9/topics/migrations/#adding-migrations-to-apps
+More details in https://docs.djangoproject.com/en/4.1/topics/migrations/#adding-migrations-to-apps
 
 
 **Upgrading from versions >= 0.1.8 to >= 2.0.0**
