@@ -3,6 +3,8 @@ name: Test
 on:
   push:
     branches: ["queues"]
+    tags:
+      - 2.*
   pull_request:
     branches: ["queues"]
   workflow_dispatch:
