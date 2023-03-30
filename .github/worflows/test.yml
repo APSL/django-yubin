@@ -1,0 +1,46 @@
+name: Test
+
+on:
+  push:
+    branches: ["queues"]
+  pull_request:
+    branches: ["queues"]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "tox>=4.3,<4.4" "tox-gh-actions>=3.0,<3.1" coveralls
+      - name: Test with tox
+        run: tox
+      - name: Upload coverage data to coveralls.io
+        run: coveralls --service=github
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_FLAG_NAME: ${{ matrix.python-version }}
+          COVERALLS_PARALLEL: true
+
+  coveralls:
+    name: Indicate completion to coveralls.io
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Finished
+        run: |
+          python -m pip install --upgrade coveralls
+          coveralls --service=github --finish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
