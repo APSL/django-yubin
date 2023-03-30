@@ -4,6 +4,8 @@ on:
   workflow_run:
     workflows: [Test]
     branches: [queues]
+    tags:
+      - 2.*
     types: [completed]
 
 jobs:
