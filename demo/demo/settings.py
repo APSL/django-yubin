@@ -186,7 +186,10 @@ CELERY_RESULT_EXPIRES = 604800
 CELERYBEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 # Django storages
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+STORAGES = {
+    "default": {"BACKEND": "storages.backends.s3boto3.S3Boto3Storage"},
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+}
 AWS_ACCESS_KEY_ID = 'yubin'
 AWS_SECRET_ACCESS_KEY = 'yubinyubin'
 AWS_STORAGE_BUCKET_NAME = 'yubin'
