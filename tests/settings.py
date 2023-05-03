@@ -4,6 +4,9 @@ import tempfile
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+ADMINS = [("Admin1", "admin1@example.com"), ("Admin2", "admin2@example.com")]
+MANAGERS = [("Manager1", "manager1@example.com"), ("Manager2", "manager2@example.com")]
+
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 ROOT_URLCONF = 'tests.urls'

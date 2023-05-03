@@ -1,9 +1,8 @@
 from six import StringIO
 
-from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from .base import MessageMixin
 
@@ -31,23 +30,13 @@ class TestCommands(MessageMixin, TestCase):
         created = int(out.getvalue().split(':')[1])
         self.assertEqual(1, created)
 
-    def test_send_test_no_email(self):
+    def test_send_test_no_email_and_admins(self):
         """
-        The ``send_test_mail`` without to email. Expect an error.
+        The ``send_test_mail`` without email. Expect an error.
         """
         try:
-            call_command('send_test_mail')
-            self.fail("Should fail without to address")
-        except CommandError:
-            pass
-
-    def test_send_test_no_admins(self):
-        """
-        The ``send_test_mail`` without to email. Expect an error.
-        """
-        settings.ADMINS = []
-        try:
-            call_command('send_test_mail')
+            with override_settings(ADMINS=[]):
+                call_command('send_test_mail')
             self.fail("Should fail without to address")
         except CommandError:
             pass

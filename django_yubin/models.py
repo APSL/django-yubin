@@ -54,8 +54,11 @@ class Message(models.Model):
         (STATUS_DISCARDED, _('Discarded')),
     )
 
-    # These 3 fields are to easy access, filtering and searching without parsing the email.
-    to_address = models.CharField(_('to address'), max_length=200)
+    to_address = models.TextField(_('to addresses'))
+    cc_address = models.TextField(_('cc addresses'), blank=True, default="")
+    bcc_address = models.TextField(_('bcc addresses'), blank=True, default="")
+
+    # These fields are to easy access, filtering and searching without parsing the email.
     from_address = models.CharField(_('from address'), max_length=200)
     subject = models.CharField(_('subject'), max_length=255)
 
@@ -99,7 +102,24 @@ class Message(models.Model):
         return super().__init__(*args, **kwargs)
 
     def __str__(self):
-        return '%s: %s' % (self.to_address, self.subject)
+        recipients = self.to_address
+        if self.cc_address:
+            recipients += ', %s' % self.cc_address
+        if self.bcc_address:
+            recipients += ', %s' % self.bcc_address
+        return '%s: %s' % (recipients, self.subject)
+
+    def to(self):
+        return [email.strip() for email in self.to_address.split(",") if email.strip()]
+
+    def cc(self):
+        return [email.strip() for email in self.cc_address.split(",") if email.strip()]
+
+    def bcc(self):
+        return [email.strip() for email in self.bcc_address.split(",") if email.strip()]
+
+    def recipients(self):
+        return self.to() + self.cc() + self.bcc()
 
     def get_message_parser(self):
         return mailparser.parse_from_string(self.message_data)
@@ -109,15 +129,16 @@ class Message(models.Model):
         Returns EmailMultiAlternatives or EmailMessage depending on whether the email is multipart or not.
         """
         msg = self.get_message_parser()
+        to = self.to() or mailparser_utils.get_addresses(msg.to)
+        cc = self.cc() or mailparser_utils.get_addresses(msg.cc)
+        bcc = self.bcc() or mailparser_utils.get_addresses(msg.bcc)
 
         Email = EmailMultiAlternatives if msg.text_html else EmailMessage
         email = Email(
             subject=msg.subject,
             body='\n'.join(msg.text_plain),
             from_email=mailparser_utils.get_address(msg.from_),
-            to=mailparser_utils.get_addresses(msg.to),
-            cc=mailparser_utils.get_addresses(msg.cc),
-            bcc=mailparser_utils.get_addresses(msg.bcc),
+            to=to, cc=cc, bcc=bcc,
         )
 
         if msg.text_html:

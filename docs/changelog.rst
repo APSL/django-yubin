@@ -13,6 +13,7 @@ Changed
 * Send and queue emails with Celery instead of with Cron.
 * Drop priority headers (useless with queues).
 * Storage backends to save emails in databases, file storages, etc.
+* Cc and Bcc support.
 * Supported versions: Python 3.8~3.11, Django 3.2~4.2, Celery 5.0~5.2.
 * Migrate CI/CD from Travis to Github Actions.
 * Docker Compose for external dependencies in development environment.

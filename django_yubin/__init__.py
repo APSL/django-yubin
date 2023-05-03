@@ -23,19 +23,23 @@ def queue_email_message(email_message, fail_silently=False):
     if settings.MAILER_TEST_MODE and settings.MAILER_TEST_EMAIL:
         email_message = _set_message_test_mode(email_message, settings.MAILER_TEST_EMAIL)
 
-    count = 0
-    for to_email in email_message.recipients():
-        message = models.Message.objects.create(
-            to_address=to_email,
-            from_address=email_message.from_email,
-            subject=email_message.subject,
-            message_data=email_message.message().as_string(),
-            storage=settings.MAILER_STORAGE_BACKEND)
-        if message.enqueue('Enqueued from a Backend or django-yubin itself.'):
-            count += 1
-        else:
-            logger.exception('Error enqueuing an email', extra={'email_message': message})
-    return count
+    if not email_message.recipients():
+        return 0
+
+    message = models.Message.objects.create(
+        to_address=','.join(email_message.to),
+        cc_address=','.join(email_message.cc),
+        bcc_address=','.join(email_message.bcc),
+        from_address=email_message.from_email,
+        subject=email_message.subject,
+        message_data=email_message.message().as_string(),
+        storage=settings.MAILER_STORAGE_BACKEND)
+
+    if message.enqueue('Enqueued from a Backend or django-yubin itself.'):
+        return 1
+    else:
+        logger.exception('Error enqueuing an email', extra={'email_message': message})
+        return 0
 
 
 def _set_message_test_mode(email_message, mailer_test_email):

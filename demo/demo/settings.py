@@ -172,6 +172,12 @@ LOGGING = {
 EMAIL_BACKEND = 'django_yubin.backends.QueuedEmailBackend'
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 1025
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_HOST_USER = 'gmail-user'
+# EMAIL_HOST_PASSWORD = 'app-password'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_USE_SSL = False
 
 MAILER_USE_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # MAILER_STORAGE_BACKEND = 'django_yubin.storage_backends.FileStorageBackend'

@@ -44,10 +44,10 @@ class MessageAdmin(admin.ModelAdmin):
     list_display = ('from_address', 'to_address', 'subject', 'date_created', 'date_sent',
                     'date_enqueued', 'status', 'storage_class', 'message_link')
     list_filter = ('date_created', 'date_sent', 'date_enqueued', 'status')
-    fields = ('from_address', 'to_address', 'subject', 'message_data', 'storage', 'date_sent',
-              'sent_count', 'date_enqueued', 'enqueued_count', 'status')
-    readonly_fields = ('to_address', 'from_address', 'subject', 'message_data', 'storage',
-                       'date_created')
+    fields = ('from_address', 'to_address', 'cc_address', 'bcc_address', 'subject', 'message_data',
+              'storage', 'date_sent', 'sent_count', 'date_enqueued', 'enqueued_count', 'status')
+    readonly_fields = ('to_address', 'cc_address', 'bcc_address', 'from_address', 'subject', 'message_data',
+                       'storage', 'date_created')
     search_fields = ('to_address', 'subject', 'from_address')
     date_hierarchy = 'date_created'
     ordering = ('-date_created',)

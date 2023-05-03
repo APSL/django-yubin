@@ -36,8 +36,9 @@ def send_db_message(message_pk):
 
     message.mark_as(models.Message.STATUS_IN_PROCESS, "Trying to send the message.")
 
-    if models.Blacklist.objects.filter(email=message.to_address).exists():
-        msg = "Not sending to blacklisted email: %s" % message.to_address
+    recipients = message.recipients()
+    if models.Blacklist.objects.filter(email__in=recipients).exists():
+        msg = "Not sending due blacklisted email in: %s" % recipients
         logger.info(msg)
         message.mark_as(models.Message.STATUS_BLACKLISTED, msg)
         return False
