@@ -37,6 +37,10 @@ setup(
         'django_yubin.migrations',
     ],
     include_package_data=True,
+    # optional dependency groups
+    extras_require={
+        "docs": ["sphinx"],
+    },
     # tests
     tests_require=TEST_REQUIREMENTS,
     test_suite='runtests.runtests',
