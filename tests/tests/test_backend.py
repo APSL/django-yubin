@@ -7,7 +7,7 @@ from unittest import skipIf
 from django.conf import settings as django_settings
 from django.core import mail
 from django.core.management import call_command
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 
 from django_yubin import models, constants, settings, mail_admins, mail_managers
 
@@ -137,7 +137,7 @@ class TestBackend(MailerTestCase):
 
         message = msg.message()
         self.assertEqual(message['subject'], '=?utf-8?q?Ch=C3=A8re_maman?=')
-        self.assertEqual(force_text(message.get_payload()), 'Je t\'aime très fort')
+        self.assertEqual(force_str(message.get_payload()), 'Je t\'aime très fort')
 
     @skipIf(not RFC_6532_SUPPORT, 'RFC 6532 not supported')
     def testUnicodePriorityNowNotQueuedMessage(self):
@@ -160,7 +160,7 @@ class TestBackend(MailerTestCase):
         self.assertEqual(num_errors, 0)
         message = msg.message()
         self.assertEqual(message['subject'], '=?utf-8?q?Ch=C3=A8re_maman?=')
-        self.assertEqual(force_text(message.get_payload()), 'Je t\'aime très fort')
+        self.assertEqual(force_str(message.get_payload()), 'Je t\'aime très fort')
 
     def testSendMessageNowPriority(self):
         # NOW priority message

@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls import include, url
+try:
+    from django.urls import include, re_path
+except ImportError:
+    from django.conf.urls import include, url as re_path
 
 
 urlpatterns = [
-    url(r'^yubin/', include('django_yubin.urls')),
+    re_path(r'^yubin/', include('django_yubin.urls')),
 ]

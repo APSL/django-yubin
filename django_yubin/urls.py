@@ -1,7 +1,10 @@
 from django_yubin.views import MailHealthCheckView
-from django.conf.urls import url
+try:
+    from django.urls import re_path
+except ImportError:
+    from django.conf.urls import url as re_path
 
 
 urlpatterns = [
-    url(r'^health$', MailHealthCheckView.as_view(), name='yubin_health'),
+    re_path(r'^health$', MailHealthCheckView.as_view(), name='yubin_health'),
 ]
