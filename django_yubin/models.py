@@ -8,7 +8,6 @@ from django.utils.timezone import now
 from django_yubin import constants, managers
 
 from mailparser import parse_from_string, parse_from_bytes
-from six import python_2_unicode_compatible
 
 
 PRIORITIES = (
@@ -25,7 +24,6 @@ RESULT_CODES = (
 )
 
 
-@python_2_unicode_compatible
 class Message(models.Model):
     """
     An email message.

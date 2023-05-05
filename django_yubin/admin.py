@@ -3,17 +3,10 @@
 # ----------------------------------------------------------------------------
 
 from django.contrib import admin
-
-try:
-    # from django 1.10 and above
-    from django.urls import reverse, re_path
-except ImportError:
-    # until django 1.9
-    from django.core.urlresolvers import reverse
-    from django.conf.urls import url as re_path
 from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.urls import path, reverse
 from django.utils.safestring import mark_safe
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
@@ -56,13 +49,13 @@ class Message(admin.ModelAdmin):
     def get_urls(self):
         urls = super(Message, self).get_urls()
         custom_urls = [
-            re_path(r'^mail/(?P<pk>\d+)/$',
+            path('mail/<int:pk>/',
                 self.admin_site.admin_view(self.detail_view),
                 name='mail_detail'),
-            re_path('^mail/attachment/(?P<pk>\d+)/(?P<firma>[0-9a-f]{32})/$',
+            path('mail/attachment/<int:pk>/<str:firma>/',
                 self.admin_site.admin_view(self.download_view),
                 name="mail_download"),
-            re_path('^mail/html/(?P<pk>\d+)/$',
+            path('mail/html/<int:pk>/',
                 self.admin_site.admin_view(self.html_view),
                 name="mail_html"),
         ]

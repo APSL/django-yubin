@@ -4,12 +4,7 @@
 
 from django.db import models
 from django_yubin import constants
-
-try:
-    from django.utils.timezone import now
-except ImportError:
-    import datetime
-    now = datetime.datetime.now
+from django.utils.timezone import now
 
 
 class QueueMethods(object):

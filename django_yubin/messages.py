@@ -2,10 +2,7 @@
 # encoding: utf-8
 # ----------------------------------------------------------------------------
 
-try:
-    import urlparse
-except ImportError:
-    import urllib.parse as urlparse
+import urllib.parse as urlparse
 
 from django.conf import settings
 from django.contrib.sites.models import Site
