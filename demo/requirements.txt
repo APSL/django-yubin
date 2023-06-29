@@ -15,6 +15,6 @@ boto3==1.26.1
 tox>=4.3,<4.4
 flake8==4.0.1
 ipdb==0.13.9
-ipython==8.4
+ipython==8.10.0
 sphinx==5.1.1
 esbonio==0.14.3
