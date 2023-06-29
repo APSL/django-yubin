@@ -1,11 +1,8 @@
-# encoding: utf-8
-from __future__ import absolute_import, unicode_literals
-
 import os
 
 from django.core.management.base import BaseCommand
 
-from ...messages import BasicHTMLAttachmentEmailMessageView
+from ...message_views import BasicHTMLAttachmentEmailMessageView
 
 
 class Command(BaseCommand):
@@ -23,8 +20,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         number = int(options['quantity'])
 
-        from_email = 'test@example.com'
-        to = ['recipient@example.com']
+        from_email = 'from@example.com'
+        to = ['to1@example.com', 'to2@example.com']
+        cc = ['cc@example.com']
+        bcc = ['bcc@example.com']
 
         for i in range(1, number + 1):
             subject = 'Subject test %s ✉️ 🙂 àäá' % i
@@ -35,7 +34,7 @@ class Command(BaseCommand):
             filename = 'sample.pdf'
             mimetype = 'application/pdf'
             message = BasicHTMLAttachmentEmailMessageView(subject, content, attachment, filename, mimetype)
-            message.send(from_email=from_email, to=to)
+            message.send(from_email=from_email, to=to, cc=cc, bcc=bcc)
 
         # This output is checked in tests.
         self.stdout.write('Created email(s): %d' % number)

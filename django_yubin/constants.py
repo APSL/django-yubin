@@ -1,8 +1,10 @@
-#!/usr/bin/env python
-# encoding: utf-8
-# ----------------------------------------------------------------------------
+"""
+Deprecated module, don't use anything from here.
 
-# Deprecated, keeped here for backward compatibility, use PRIORITY_NOW instead.
+It is maintained for backwards compatibility for Django migrations.
+"""
+
+# Deprecated, keeped here for backwards compatibility, use PRIORITY_NOW instead.
 PRIORITY_EMAIL_NOW = 0
 
 PRIORITY_NOW_NOT_QUEUED = -1

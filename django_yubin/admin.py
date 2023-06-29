@@ -1,187 +1,174 @@
-#!/usr/bin/env python
-# encoding: utf-8
-# ----------------------------------------------------------------------------
-
-from django.conf.urls import url
-from django.contrib import admin
-
-try:
-    # from django 1.10 and above
-    from django.urls import reverse
-except ImportError:
-    # until django 1.9
-    from django.core.urlresolvers import reverse
-from django.db import IntegrityError
+from django.contrib import admin, messages as dj_messages
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.urls import re_path, reverse
+from django.utils.module_loading import import_string
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
-from django_yubin import models, settings
-
-from .mail_utils import get_attachments, get_attachment
+from . import mailparser_utils, models, settings
 
 
-class Message(admin.ModelAdmin):
-    def message_link(self, obj):
-        url = reverse('admin:mail_detail', args=(obj.id,))
-        return mark_safe("""<a href="%s" onclick="return showAddAnotherPopup(this);">show</a>""" % url)
+class LogInline(admin.TabularInline):
+    model = models.Log
+    readonly_fields = ('action', 'date', 'log_message')
 
-    message_link.allow_tags = True
-    message_link.short_description = u'Show'
+    def has_add_permission(self, request, obj=None):
+        return False
 
-    list_display = ('from_address', 'to_address', 'subject', 'date_created', 'date_sent', 'message_link')
-    list_filter = ('date_created', 'date_sent')
-    search_fields = settings.MAILER_MESSAGE_SEARCH_FIELDS
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(models.Message)
+class MessageAdmin(admin.ModelAdmin):
+
+    @admin.display(description=_('Show'))
+    def message_link(self, instance):
+        url = reverse('admin:mail_detail', args=(instance.id,))
+        return mark_safe(f'<a href="{url}" onclick="return showAddAnotherPopup(this);">Show</a>')
+
+    @admin.display(description=_('Message data'))
+    def message_data(self, instance):
+        backend = import_string(settings.MAILER_STORAGE_BACKEND)
+        return mark_safe(backend.admin_display_message_data(self, instance))
+
+    @admin.display(description=_('Storage'))
+    def storage_class(self, instance):
+        return mark_safe(instance.storage.split('.')[-1])
+
+    list_display = ('from_address', 'to_address', 'subject', 'date_created', 'date_sent',
+                    'date_enqueued', 'status', 'storage_class', 'message_link')
+    list_filter = ('date_created', 'date_sent', 'date_enqueued', 'status')
+    fields = ('from_address', 'to_address', 'cc_address', 'bcc_address', 'subject', 'message_data',
+              'storage', 'date_sent', 'sent_count', 'date_enqueued', 'enqueued_count', 'status')
+    readonly_fields = ('to_address', 'cc_address', 'bcc_address', 'from_address', 'subject', 'message_data',
+                       'storage', 'date_created')
+    search_fields = ('to_address', 'subject', 'from_address')
     date_hierarchy = 'date_created'
     ordering = ('-date_created',)
-    actions = ['re_send', ]
+    actions = ['enqueue_action', 'mark_as_sent_action', 'mark_as_created_action']
+    inlines = [LogInline]
 
-    def re_send(self, request, queryset):
-        """
-        Re sends a previous sent e-mail. The messages shouldn't be in the queue and
-        is put in the NORMAL priority
-        """
-        messages_sent = 0
-        for selected_mail in queryset:
-            qm = models.QueuedMessage(message=selected_mail)
-            try:
-                qm.save()
-                messages_sent += 1
-            except IntegrityError:
-                self.message_user(request, 'Message %s is already in the queue' % selected_mail.id)
-        self.message_user(request, "%s messages had been re-sent" % messages_sent)
-    re_send.short_description = 're-send selected emails'
+    def enqueue_action(self, request, queryset):
+        failed, queued = [], []
+        for message in queryset:
+            if message.enqueue('Enqueued from the admin.'):
+                queued.append(str(message.pk))
+            else:
+                failed.append(str(message.pk))
+
+        msg = _("{q_count} emails enqueued: {q} | {f_count} emails failed: {f}".format(
+                    q_count=len(queued), q=','.join(queued),
+                    f_count=len(failed), f=','.join(failed),
+                ))
+        if failed and queued:
+            level = dj_messages.WARNING
+        elif failed:
+            level = dj_messages.ERROR
+        elif queued:
+            level = dj_messages.SUCCESS
+        else:
+            level = dj_messages.INFO
+
+        self.message_user(request, msg, level)
+    enqueue_action.short_description = _('Enqueue selected messages')
+
+    def mark_as_sent_action(self, request, queryset):
+        for message in queryset:
+            message.mark_as(models.Message.STATUS_SENT, 'Marked as sent from the admin.')
+        self.message_user(request, _("Emails marked as sent."), level=dj_messages.SUCCESS)
+    mark_as_sent_action.short_description = _('Mark as sent selected messages')
+
+    def mark_as_created_action(self, request, queryset):
+        for message in queryset:
+            message.mark_as(models.Message.STATUS_CREATED, 'Marked as created from the admin.')
+        self.message_user(request, _("Emails marked as created."), level=dj_messages.SUCCESS)
+    mark_as_created_action.short_description = _('Mark as created selected messages')
 
     def get_urls(self):
-        urls = super(Message, self).get_urls()
+        urls = super(MessageAdmin, self).get_urls()
         custom_urls = [
-            url(r'^mail/(?P<pk>\d+)/$',
-                self.admin_site.admin_view(self.detail_view),
-                name='mail_detail'),
-            url('^mail/attachment/(?P<pk>\d+)/(?P<firma>[0-9a-f]{32})/$',
-                self.admin_site.admin_view(self.download_view),
-                name="mail_download"),
-            url('^mail/html/(?P<pk>\d+)/$',
-                self.admin_site.admin_view(self.html_view),
-                name="mail_html"),
+            re_path(r'^mail/(?P<pk>\d+)/$',
+                    self.admin_site.admin_view(self.detail_view),
+                    name='mail_detail'),
+            re_path(r'^mail/attachment/(?P<pk>\d+)/(?P<signature>[0-9a-f]{32})/$',
+                    self.admin_site.admin_view(self.download_view),
+                    name="mail_download"),
+            re_path(r'^mail/html/(?P<pk>\d+)/$',
+                    self.admin_site.admin_view(self.html_view),
+                    name="mail_html"),
         ]
         return custom_urls + urls
 
     def detail_view(self, request, pk):
         instance = models.Message.objects.get(pk=pk)
-        msg = instance.get_message()
+        msg = instance.get_message_parser()
         context = {
             "subject": msg.subject,
-            "from": msg.from_,
-            "to": msg.to,
-            "cc": msg.cc,
+            "from": mailparser_utils.get_address(msg.from_),
+            "to": mailparser_utils.get_addresses(msg.to),
+            "cc": mailparser_utils.get_addresses(msg.cc),
             "msg_text": "\n".join(msg.text_plain),
             "msg_html": "</br>".join(msg.text_html),
-            "attachments": get_attachments(msg),
+            "attachments": [
+                {
+                    'filename': attachment['filename'],
+                    'content_type': attachment['mail_content_type'],
+                    'size': len(mailparser_utils.get_content(attachment)),
+                    'signature': mailparser_utils.get_signature(attachment),
+                }
+                for attachment in msg.attachments
+            ],
             "is_popup": True,
             "object": instance,
         }
         return render(request, "django_yubin/message_detail.html", context)
 
-    def download_view(self, request, pk, firma):
+    def download_view(self, request, pk, signature):
         instance = models.Message.objects.get(pk=pk)
-        msg = instance.get_message()
-        arx = get_attachment(msg, key=firma)
-        response = HttpResponse(content_type=arx.tipus)
-        response['Content-Disposition'] = 'filename=' + arx.filename
-        response.write(arx.payload)
+        msg = instance.get_message_parser()
+        attachment = mailparser_utils.get_attachment(msg, signature)
+        response = HttpResponse(content_type=attachment['mail_content_type'])
+        response['Content-Disposition'] = attachment['content-disposition']
+        response.write(mailparser_utils.get_content(attachment))
         return response
 
     @xframe_options_sameorigin
     def html_view(self, request, pk):
         instance = models.Message.objects.get(pk=pk)
-        msg = instance.get_message()
+        msg = instance.get_message_parser()
         context = {"msg_html": "</br>".join(msg.text_html)}
         return render(request, "django_yubin/html_detail.html", context)
 
-    @staticmethod
-    def _is_encoding_header(header_name):
-        return header_name in ['base64', 'quoted-printable']
 
-    @staticmethod
-    def is_encoded(msg, part='html_part'):
-        """
-        detect whether the part is encoded or not. We'll check for known encoding headers
-
-        :param msg, part:
-        :return:
-        """
-        if part == 'html_part':
-            return any(Message._is_encoding_header(header[1]) for header in msg.html_part.part._headers)
-        elif part == 'text_part':
-            return any(Message._is_encoding_header(header[1]) for header in msg.text_part.part._headers)
-        return False
-
-
-class MessageRelatedModelAdmin(admin.ModelAdmin):
-    list_select_related = True
-
-    def message__to_address(self, obj):
-        return obj.message.to_address
-
-    message__to_address.admin_order_field = 'message__to_address'
-
-    def message__from_address(self, obj):
-        return obj.message.from_address
-
-    message__from_address.admin_order_field = 'message__from_address'
-
-    def message__subject(self, obj):
-        return obj.message.subject
-
-    message__subject.admin_order_field = 'message__subject'
-
-    def message__date_created(self, obj):
-        return obj.message.date_created
-
-    message__date_created.admin_order_field = 'message__date_created'
-
-
-class QueuedMessage(MessageRelatedModelAdmin):
-    def not_deferred(self, obj):
-        return not obj.deferred
-
-    not_deferred.boolean = True
-    not_deferred.admin_order_field = 'deferred'
-
-    def message_link(self, obj):
-        url = reverse('admin:mail_detail', args=(obj.message.id,))
-        return mark_safe("""<a href="%s" onclick="return showAddAnotherPopup(this);">%s</a>""" % (url, obj.message))
-
-    message_link.allow_tags = True
-    message_link.short_description = u'Message'
-
-    list_display = ('id', 'message_link', 'message__to_address',
-                    'message__from_address', 'message__subject',
-                    'message__date_created', 'priority', 'not_deferred')
-    list_filter = ('priority', 'deferred')
-
-
-class Blacklist(admin.ModelAdmin):
+@admin.register(models.Blacklist)
+class BlacklistAdmin(admin.ModelAdmin):
     list_display = ('email', 'date_added')
 
 
-class Log(MessageRelatedModelAdmin):
+@admin.register(models.Log)
+class LogAdmin(admin.ModelAdmin):
     def message_link(self, obj):
         url = reverse('admin:mail_detail', args=(obj.message.id,))
         return mark_safe("""<a href="%s" onclick="return showAddAnotherPopup(this);">show</a>""" % url)
-
     message_link.allow_tags = True
-    message_link.short_description = u'Message'
+    message_link.short_description = _('Message')
 
-    list_display = ('id', 'result', 'message__to_address', 'message__subject',
-                    'date', 'message_link')
-    list_filter = ('result',)
-    list_display_links = ('id', 'result')
+    def message__to_address(self, obj):
+        return obj.message.to_address
+    message__to_address.admin_order_field = 'message__to_address'
 
+    def message__subject(self, obj):
+        return obj.message.subject
+    message__subject.admin_order_field = 'message__subject'
 
-admin.site.register(models.Message, Message)
-admin.site.register(models.QueuedMessage, QueuedMessage)
-admin.site.register(models.Blacklist, Blacklist)
-admin.site.register(models.Log, Log)
+    list_select_related = True
+    list_display = ('id', 'date', 'action', 'log_message', 'message__to_address', 'message__subject', 'message_link')
+    list_filter = ('action', 'date')
+    list_display_links = ('id',)
+    date_hierarchy = 'date'

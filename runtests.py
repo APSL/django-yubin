@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-# encoding: utf-8
-# ----------------------------------------------------------------------------
+#!/usr/bin/env python3
 
 import os
 import sys
@@ -15,14 +13,13 @@ def runtests(*args):
     from django.test.utils import get_runner
     from django.conf import settings
 
-    django.setup()  # only 1.7 and up are supported
+    django.setup()
 
     TestRunner = get_runner(settings)
     test_runner = TestRunner(verbosity=2, interactive=True, failfast=False)
-    failures = test_runner.run_tests(args)
+    failures = test_runner.run_tests(*args)
     sys.exit(failures)
 
 
 if __name__ == '__main__':
-    # TODO: forward sys.argv?
-    runtests()
+    runtests(sys.argv[1:])

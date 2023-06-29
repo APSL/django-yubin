@@ -1,4 +1,5 @@
-# encoding: utf-8
+import os
+
 
 DEBUG = True
 
@@ -12,12 +13,12 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'demo.sqlite',           # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'yubin',
+        'USER': 'yubin',
+        'PASSWORD': 'yubin',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -46,18 +47,18 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'media/')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = ''
+MEDIA_URL = '/media/'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = ''
+STATIC_ROOT = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'static/')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -132,6 +133,8 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django_yubin',
     'django_extensions',
+    'django_celery_beat',
+    'django_celery_results',
     'demo',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
@@ -152,7 +155,7 @@ LOGGING = {
     },
     'handlers': {
         'mail_admins': {
-            'level': 'ERROR',
+            'level': 'WARNING',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         }
@@ -160,12 +163,40 @@ LOGGING = {
     'loggers': {
         'django.request': {
             'handlers': ['mail_admins'],
-            'level': 'ERROR',
+            'level': 'WARNING',
             'propagate': True,
         },
     }
 }
 
-EMAIL_BACKEND = 'django_yubin.smtp_queue.EmailBackend'
+EMAIL_BACKEND = 'django_yubin.backends.QueuedEmailBackend'
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 1025
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_HOST_USER = 'gmail-user'
+# EMAIL_HOST_PASSWORD = 'app-password'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_USE_SSL = False
+
+MAILER_USE_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# MAILER_STORAGE_BACKEND = 'django_yubin.storage_backends.FileStorageBackend'
+# MAILER_STORAGE_BACKEND = 'demo.storage_backends.InmutableFileStorageBackend'
+# MAILER_STORAGE_DELETE = False
+
+# Celery settings
+BROKER_URL = 'redis://localhost:6379/0'
+CELERY_ALWAYS_EAGER = True
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_RESULT_EXPIRES = 604800
+CELERYBEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+# Django storages
+STORAGES = {
+    "default": {"BACKEND": "storages.backends.s3boto3.S3Boto3Storage"},
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+}
+AWS_ACCESS_KEY_ID = 'yubin'
+AWS_SECRET_ACCESS_KEY = 'yubinyubin'
+AWS_STORAGE_BUCKET_NAME = 'yubin'
+AWS_S3_ENDPOINT_URL = 'http://localhost:9000'

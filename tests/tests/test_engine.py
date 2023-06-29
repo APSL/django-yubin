@@ -1,183 +1,68 @@
-#!/usr/bin/env python
-# encoding: utf-8
-# ----------------------------------------------------------------------------
-from __future__ import absolute_import, unicode_literals
+from unittest.mock import patch
 
-import logging
-import time
-from io import StringIO
-
-from django.conf import settings as django_settings
-from django.core import mail
 from django.test import TestCase
 
-from lockfile import FileLock
+from django_yubin import settings
+from django_yubin.engine import send_db_message
+from django_yubin.models import Blacklist, Message
 
-from django_yubin import engine, settings, models, constants, queue_email_message
-
-from .base import MailerTestCase
+from .base import MessageMixin
 
 
-class LockTest(TestCase):
+class TestSendDBMessage(MessageMixin, TestCase):
     """
-    Tests for Django Mailer trying to send mail when the lock is already in
-    place.
+    Tests engine function that sends db messages.
     """
-
     def setUp(self):
-        # Create somewhere to store the log debug output.
-        self.output = StringIO()
-        # Create a log handler which can capture the log debug output.
-        self.handler = logging.StreamHandler(self.output)
-        self.handler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(message)s')
-        self.handler.setFormatter(formatter)
-        # Add the log handler.
-        logger = logging.getLogger('django_yubin')
-        logger.addHandler(self.handler)
+        self.message = self.create_message(status=Message.STATUS_QUEUED)
 
-        # Set the LOCK_WAIT_TIMEOUT to the default value.
-        self.original_timeout = settings.LOCK_WAIT_TIMEOUT
-        settings.LOCK_WAIT_TIMEOUT = 0
+    def test_send_email_not_found(self):
+        self.assertFalse(send_db_message(-1))
 
-        # Use a test lock-file name in case something goes wrong, then emulate
-        # that the lock file has already been acquired by another process.
-        self.original_lock_path = engine.LOCK_PATH
-        engine.LOCK_PATH += '.mailer-test'
-        self.lock = FileLock(engine.LOCK_PATH)
-        self.lock.unique_name += '.mailer_test'
-        self.lock.acquire(0)
+    def test_send_email_not_queued(self):
+        self.message.status = Message.STATUS_SENT
+        self.message.save()
+        self.assertFalse(send_db_message(self.message.pk))
 
-    def tearDown(self):
-        # Remove the log handler.
-        logger = logging.getLogger('django_yubin')
-        logger.removeHandler(self.handler)
+        last_log_action = self.message.log_set.first().action
+        self.assertEqual(last_log_action, Message.STATUS_SENT)
 
-        # Revert the LOCK_WAIT_TIMEOUT to it's original value.
-        settings.LOCK_WAIT_TIMEOUT = self.original_timeout
+    def test_send_db_message_blacklist(self):
+        Blacklist.objects.create(email=self.message.to_address)
 
-        # Revert the lock file unique name
-        engine.LOCK_PATH = self.original_lock_path
-        self.lock.release()
+        self.assertFalse(send_db_message(self.message.pk))
+        self.message.refresh_from_db()
+        self.assertEqual(self.message.status, Message.STATUS_BLACKLISTED)
 
-    def test_locked(self):
-        # Acquire the lock so that send_all will fail.
-        engine.send_all()
-        self.output.seek(0)
-        self.assertEqual(self.output.readlines()[-1].strip(),
-                         'Lock already in place. Exiting.')
-        # Try with a timeout.
-        settings.LOCK_WAIT_TIMEOUT = .1
-        engine.send_all()
-        self.output.seek(0)
-        self.assertEqual(self.output.readlines()[-1].strip(),
-                         'Waiting for the lock timed out. Exiting.')
+        last_log_action = self.message.log_set.first().action
+        self.assertEqual(last_log_action, Message.STATUS_BLACKLISTED)
 
-    def test_locked_timeoutbug(self):
-        # We want to emulate the lock acquiring taking no time, so the next
-        # three calls to time.time() always return 0 (then set it back to the
-        # real function).
-        original_time = time.time
-        global time_call_count
-        time_call_count = 0
+    def test_send_db_message_pause(self):
+        pause_send_backup = settings.PAUSE_SEND
+        settings.PAUSE_SEND = True
 
-        def fake_time():
-            global time_call_count
-            time_call_count = time_call_count + 1
-            if time_call_count >= 3:
-                time.time = original_time
-            return 0
+        self.assertFalse(send_db_message(self.message.pk))
+        self.message.refresh_from_db()
+        self.assertEqual(self.message.status, Message.STATUS_DISCARDED)
 
-        time.time = fake_time
-        try:
-            engine.send_all()
-            self.output.seek(0)
-            self.assertEqual(self.output.readlines()[-1].strip(),
-                             'Lock already in place. Exiting.')
-        finally:
-            time.time = original_time
+        last_log_action = self.message.log_set.first().action
+        self.assertEqual(last_log_action, Message.STATUS_DISCARDED)
 
+        settings.PAUSE_SEND = pause_send_backup
 
-class SendMessageTest(MailerTestCase):
-    """
-    Tests engine functions that send messages.
-    """
+    @patch('django_yubin.engine.get_connection', side_effect=OSError('Mock error'))
+    def test_send_db_message_fail(self, get_connection_mock):
+        self.assertFalse(send_db_message(self.message.pk))
+        self.message.refresh_from_db()
+        self.assertEqual(self.message.status, Message.STATUS_FAILED)
 
-    def setUp(self):
-        # Set EMAIL_BACKEND
-        super(SendMessageTest, self).setUp()
-        if hasattr(django_settings, 'EMAIL_BACKEND'):
-            self.old_email_backend = django_settings.EMAIL_BACKEND
-        else:
-            self.old_email_backend = None
-        django_settings.EMAIL_BACKEND = 'django.core.mail.backends.smtp.' \
-                                        'EmailBackend'
+        last_log_action = self.message.log_set.first().action
+        self.assertEqual(last_log_action, Message.STATUS_FAILED)
 
-        # Create somewhere to store the log debug output.
-        self.output = StringIO()
+    def test_send_db_message(self):
+        self.assertTrue(send_db_message(self.message.pk))
+        self.message.refresh_from_db()
+        self.assertEqual(self.message.status, Message.STATUS_SENT)
 
-        # Create a log handler which can capture the log debug output.
-        self.handler = logging.StreamHandler(self.output)
-        self.handler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(message)s')
-        self.handler.setFormatter(formatter)
-
-        # Add the log handler.
-        logger = logging.getLogger('django_yubin')
-        logger.addHandler(self.handler)
-
-    def tearDown(self):
-        # Restore EMAIL_BACKEND
-        super(SendMessageTest, self).tearDown()
-        if self.old_email_backend:
-            django_settings.EMAIL_BACKEND = self.old_email_backend
-        else:
-            delattr(django_settings, 'EMAIL_BACKEND')
-
-        # Remove the log handler.
-        logger = logging.getLogger('django_yubin')
-        logger.removeHandler(self.handler)
-
-    def test_send_queued_message(self):
-        self.queue_message()
-        self.assertEqual(models.QueuedMessage.objects.count(), 1)
-        q_message = models.QueuedMessage.objects.first()
-        result = engine.send_queued_message(q_message)
-        self.assertEqual(result, constants.RESULT_SENT)
-
-    def test_pause_queued_message(self):
-        self.queue_message()
-        self.assertEqual(models.QueuedMessage.objects.count(), 1)
-        q_message = models.QueuedMessage.objects.first()
-        _original, settings.PAUSE_SEND = settings.PAUSE_SEND, True
-        result = engine.send_queued_message(q_message)
-        settings.PAUSE_SEND = _original
-        self.assertEqual(result, constants.RESULT_SKIPPED)
-
-    def test_send_message(self):
-        email_message = mail.EmailMessage('subject', 'body', 'from@email.com',
-                                          ['to@email.com'])
-        result = engine.send_message(email_message)
-        self.assertEqual(result, constants.RESULT_SENT)
-
-    def test_pause_send_message(self):
-        email_message = mail.EmailMessage('subject', 'body', 'from@email.com',
-                                          ['to@email.com'])
-        _original, settings.PAUSE_SEND = settings.PAUSE_SEND, True
-        result = engine.send_message(email_message)
-        settings.PAUSE_SEND = _original
-        self.assertEqual(result, constants.RESULT_SKIPPED)
-
-    def test_send_all_non_empty_queue(self):
-        msg = mail.EmailMessage('subject', 'body', 'from@email.com',
-                                ['to@email.com'])
-        queue_email_message(msg)
-        engine.send_all()
-        self.output.seek(0)
-        self.assertEqual(self.output.readlines()[-1].strip()[-8:], 'seconds.')
-
-    def test_send_all_empty_queue(self):
-        engine.send_all()
-        self.output.seek(0)
-        self.assertEqual(self.output.readlines()[2].strip(),
-                         'No messages in queue.')
+        last_log_action = self.message.log_set.first().action
+        self.assertEqual(last_log_action, Message.STATUS_SENT)

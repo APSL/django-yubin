@@ -13,6 +13,7 @@ Carlos Salom (@csalom)
 Juan Luis Garcia (@JuanLuisGarcia)
 Xus Zoyo (@xusy2k)
 Celia Amador (@celdrake)
+Pablo Méndez (@pmendezsuarez)
 Tim Gates (@timgates42)
 
 https://github.com/APSL/django-yubin/graphs/contributors
