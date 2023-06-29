@@ -1,13 +1,6 @@
 name: CI-CD
 
-on:
-  push:
-    branches: ["queues"]
-    tags:
-      - 2.*
-  pull_request:
-    branches: ["queues"]
-  workflow_dispatch:
+on: [push, pull_request, workflow_dispatch]
 
 jobs:
   test:
