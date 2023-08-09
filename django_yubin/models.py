@@ -131,7 +131,7 @@ class Message(models.Model):
         msg = self.get_message_parser()
         to = self.to() or mailparser_utils.get_addresses(msg.to)
         cc = self.cc() or mailparser_utils.get_addresses(msg.cc)
-        bcc = self.bcc() or mailparser_utils.get_addresses(msg.bcc)
+        bcc = self.bcc()
 
         Email = EmailMultiAlternatives if msg.text_html else EmailMessage
         email = Email(
