@@ -1,8 +1,14 @@
 import datetime
 import logging
+from email import encoders as Encoders
+from email.mime.base import MIMEBase
 
 from django.core.exceptions import FieldError
-from django.core.mail.message import EmailMessage, EmailMultiAlternatives
+from django.core.mail.message import (
+        ADDRESS_HEADERS,
+        EmailMessage,
+        EmailMultiAlternatives,
+    )
 from django.db import models
 from django.db.models import F
 from django.utils.module_loading import import_string
@@ -15,6 +21,9 @@ from . import mailparser_utils, tasks
 
 
 logger = logging.getLogger(__name__)
+
+
+PARSED_HEADERS_TO_IGNORE = ADDRESS_HEADERS.union({"content-type", "subject", "mime-version"})
 
 
 class MessageQuerySet(models.QuerySet):
@@ -127,29 +136,71 @@ class Message(models.Model):
     def get_email_message(self):
         """
         Returns EmailMultiAlternatives or EmailMessage depending on whether the email is multipart or not.
+
+        Note that this should reconstruct all the kwargs of EmailMessage/EmailMultiAlternatives
+        to not lose information. See Github issue #66 for more information.
+
+        XXX: perhaps an inspect.signature combined with **kwargs approach could validate
+        against unexpected django changes?
         """
         msg = self.get_message_parser()
         to = self.to() or mailparser_utils.get_addresses(msg.to)
         cc = self.cc() or mailparser_utils.get_addresses(msg.cc)
         bcc = self.bcc()
 
+        # Process headers, but ignore address headers - these are processed explicitly.
+        headers = {
+            header: value
+            for header, value in msg.headers.items()
+            if header.lower() not in PARSED_HEADERS_TO_IGNORE
+        }
+
         Email = EmailMultiAlternatives if msg.text_html else EmailMessage
         email = Email(
             subject=msg.subject,
             body='\n'.join(msg.text_plain),
             from_email=mailparser_utils.get_address(msg.from_),
-            to=to, cc=cc, bcc=bcc,
+            to=to,
+            bcc=bcc,
+            headers=headers,
+            cc=cc,
+            reply_to=mailparser_utils.get_addresses(msg.reply_to),
         )
 
+        # set the multipart subtype
+        content_type = msg.headers["Content-Type"].split(";", 1)[0]  # discard boundary
+        main_type, subtype = content_type.split("/", 1)
+        if main_type == "multipart":
+            email.mixed_subtype = subtype
+
+        # NOTE - mailparser only supports text and HTML, any other content types are
+        # considered not_managed.
         if msg.text_html:
             email.attach_alternative('<br>'.join(msg.text_html), mimetype='text/html')
 
+        # attachment is a dict with fixed keys:
+        # filename, payload, binary, mail_content_type, content-id, content-disposition,
+        # charset and content_transfer_encoding
+        #
+        # This performs generic handling of attachments, respecting the original various
+        # ways the attachment can be used.
         for attachment in msg.attachments:
-            email.attach(
-                attachment['filename'],
-                mailparser_utils.get_content(attachment),
-                attachment['mail_content_type'],
-            )
+            basetype, subtype = attachment["mail_content_type"].split("/", 1)
+            binary = attachment["binary"]
+            content = attachment['payload']
+            transfer_encoding = attachment["content_transfer_encoding"]
+
+            mime_attachment = MIMEBase(basetype, subtype)
+            mime_attachment.set_payload(content)
+            if not binary:
+                Encoders.encode_base64(mime_attachment)
+            else:
+                mime_attachment.add_header("Content-Transfer-Encoding", transfer_encoding)
+            for header in ("Content-ID", "Content-Disposition"):
+                value = attachment[header.lower()]
+                if value:
+                    mime_attachment.add_header(header, value)
+            email.attach(mime_attachment)
 
         return email
 
