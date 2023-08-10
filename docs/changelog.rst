@@ -5,6 +5,13 @@ This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.htm
 
 Starting from version 2.0.0, the format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_.
 
+[2.0.1] - 2023-08-10
+--------------------
+
+Changed
+^^^^^^^
+* Ensure parsed e-mail message doesn't discard information (https://github.com/APSL/django-yubin/pull/67)
+
 [2.0.0] - 2023-06-29
 --------------------
 
