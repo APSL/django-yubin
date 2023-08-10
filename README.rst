@@ -1,9 +1,9 @@
 django-yubin
 ============
 
-.. image:: https://github.com/APSL/django-yubin/actions/workflows/test.yml/badge.svg
-  :target: https://github.com/APSL/django-yubin/actions/workflows/test.yml
-  :alt: Tests status
+.. image:: https://github.com/APSL/django-yubin/actions/workflows/ci-cd.yml/badge.svg
+  :target: https://github.com/APSL/django-yubin/actions/workflows/ci-cd.yml
+  :alt: CI-CD status
 
 .. image:: https://coveralls.io/repos/APSL/django-yubin/badge.svg
   :target: https://coveralls.io/r/APSL/django-yubin
