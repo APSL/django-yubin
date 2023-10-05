@@ -19,7 +19,7 @@ def migrate_to_queues(apps, schema_editor):
     Log = apps.get_model('django_yubin', 'Log')
 
     # Messages without a QueueMessage ara sent.
-    for message in Message.objects.all():
+    for message in Message.objects.defer("encoded_message").iterator():
         queued = QueuedMessage.objects.filter(message=message).only('date_queued').first()
         if queued:
             message.status = DBMessage.STATUS_QUEUED
@@ -35,14 +35,9 @@ def migrate_to_queues(apps, schema_editor):
             message.save()
 
     # Set Log actions based on its result
-    for log in Log.objects.all():
-        if log.result == RESULT_SENT:
-            log.action = DBMessage.STATUS_SENT
-        elif log.result == RESULT_FAILED:
-            log.action = DBMessage.STATUS_FAILED
-        elif log.result == RESULT_SKIPPED:
-            log.action = DBMessage.STATUS_DISCARDED
-        log.save()
+    Log.objects.filter(result=RESULT_SENT).update(action=DBMessage.STATUS_SENT)
+    Log.objects.filter(result=RESULT_FAILED).update(action=DBMessage.STATUS_FAILED)
+    Log.objects.filter(result=RESULT_SKIPPED).update(action=DBMessage.STATUS_DISCARDED)
 
 
 class Migration(migrations.Migration):
