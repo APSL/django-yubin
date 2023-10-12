@@ -1,5 +1,7 @@
 import datetime
 import logging
+import email
+from email import policy
 from email import encoders as Encoders
 from email.mime.base import MIMEBase
 
@@ -15,7 +17,7 @@ from django.utils.module_loading import import_string
 from django.utils.text import Truncator
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
-import mailparser
+from mailparser import MailParser
 
 from . import mailparser_utils, tasks
 
@@ -131,7 +133,8 @@ class Message(models.Model):
         return self.to() + self.cc() + self.bcc()
 
     def get_message_parser(self):
-        return mailparser.parse_from_string(self.message_data)
+        message = email.message_from_string(self.message_data, policy=policy.default)
+        return MailParser(message)
 
     def get_email_message(self):
         """
