@@ -47,5 +47,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(migrate_to_queues),
+        migrations.RunPython(migrate_to_queues, migrations.RunPython.noop),
     ]
