@@ -5,6 +5,17 @@ This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.htm
 
 Starting from version 2.0.0, the format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_.
 
+[2.0.2] - 2023-10-30
+--------------------
+
+Changed
+^^^^^^^
+* Improve performance of data migration when migrating from versions < 2.0 (https://github.com/APSL/django-yubin/pull/69)
+
+Fixed
+^^^^^
+* Perform unfolding of headers when parsing messages (https://github.com/APSL/django-yubin/pull/71)
+
 [2.0.1] - 2023-08-10
 --------------------
 
