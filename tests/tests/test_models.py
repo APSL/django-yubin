@@ -3,7 +3,7 @@ from email.mime.image import MIMEImage
 from email.generator import _fmt
 from unittest.mock import patch
 
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.test import TestCase
 from django.utils import timezone
 
@@ -200,3 +200,26 @@ class TestMessage(MessageMixin, TestCase):
         with self.subTest("compare message as_string"):
             self.assertEqual(reconstructed_msg.as_string(), ref_as_string)
             reset_mock()
+
+    def test_email_with_long_subject(self):
+        email_message = EmailMessage(
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor "
+        "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco "
+        "laboris nisi ut aliquip ex ea commodo consequat.",
+        "Message body",
+        'mail_from@abc.com',
+        ['mail_to@abc.com']
+        )
+
+        message = Message.objects.create(
+            to_address=','.join(email_message.to),
+            cc_address=','.join(email_message.cc),
+            bcc_address=','.join(email_message.bcc),
+            from_address=email_message.from_email,
+            subject=email_message.subject,
+            message_data=email_message.message().as_string(),
+        )
+
+        parsed_message = message.get_email_message()
+
+        self.assertNotIn("\n", parsed_message.subject)
