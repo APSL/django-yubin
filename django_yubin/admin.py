@@ -134,7 +134,7 @@ class MessageAdmin(admin.ModelAdmin):
         msg = instance.get_message_parser()
         attachment = mailparser_utils.get_attachment(msg, signature)
         response = HttpResponse(content_type=attachment['mail_content_type'])
-        response['Content-Disposition'] = attachment['content-disposition']
+        response['Content-Disposition'] = str(attachment['content-disposition'])
         response.write(mailparser_utils.get_content(attachment))
         return response
 
