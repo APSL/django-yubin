@@ -14,12 +14,12 @@ class TestSendDBMessage(MessageMixin, TestCase):
     Tests engine function that sends db messages.
     """
     def setUp(self):
-        self.message = self.create_message(status=Message.STATUS_QUEUED)
+        self.message = self.create_message(status=Message.STATUS_CREATED)
 
     def test_send_email_not_found(self):
         self.assertFalse(send_db_message(-1))
 
-    def test_send_email_not_queued(self):
+    def test_send_email_not_queueable(self):
         self.message.status = Message.STATUS_SENT
         self.message.save()
         self.assertFalse(send_db_message(self.message.pk))

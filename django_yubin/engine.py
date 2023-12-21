@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 @transaction.atomic
-def send_db_message(message_pk):
+def send_db_message(message_pk, log_message=None):
     """
     Sends a django_yubin.models.Message by its PK.
     """
@@ -28,12 +28,13 @@ def send_db_message(message_pk):
         logger.exception(msg, extra={'message_pk': message_pk})
         return False
 
-    if message.status != models.Message.STATUS_QUEUED:
-        msg = "Message is not in queue status, ignoring the email."
+    if not message.can_be_enqueued():
+        msg = "Message can not be enqueued in it's current status."
         logger.warning(msg)
         message.add_log(msg)
         return False
 
+    message.mark_as(models.Message.STATUS_QUEUED, log_message)
     message.mark_as(models.Message.STATUS_IN_PROCESS, "Trying to send the message.")
 
     recipients = message.recipients()
