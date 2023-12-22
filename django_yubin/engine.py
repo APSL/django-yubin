@@ -28,11 +28,14 @@ def send_db_message(message_pk, log_message=None):
         logger.exception(msg, extra={'message_pk': message_pk})
         return False
 
-    if not message.can_be_enqueued():
-        msg = "Message can not be enqueued in it's current status."
-        logger.warning(msg)
-        message.add_log(msg)
-        return False
+    # Messages in STATUS_QUEUED can be sent to keep compatibility with previous yubin version.
+    # In future versions that condition can be removed and only check `can_be_enqueued()`.
+    if message.status != models.Message.STATUS_QUEUED:
+        if not message.can_be_enqueued():
+            msg = "Message can not be enqueued in it's current status."
+            logger.warning(msg)
+            message.add_log(msg)
+            return False
 
     message.mark_as(models.Message.STATUS_QUEUED, log_message)
     message.mark_as(models.Message.STATUS_IN_PROCESS, "Trying to send the message.")

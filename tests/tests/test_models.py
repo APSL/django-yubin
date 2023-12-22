@@ -52,7 +52,7 @@ class TestMessage(MessageMixin, TestCase):
         self.assertEqual(self.message.enqueued_count, enqueued_count+1)
 
     def test_enqueue_wrong_status(self):
-        self.message.mark_as(Message.STATUS_QUEUED)
+        self.message.mark_as(Message.STATUS_IN_PROCESS)
         self.assertFalse(self.message.enqueue())
 
     def test_enqueue_exception(self):
