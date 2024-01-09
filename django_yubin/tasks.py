@@ -2,12 +2,12 @@ from celery import shared_task
 
 
 @shared_task()
-def send_email(message_pk):
+def send_email(message_pk, log_message=None):
     """
     Send an email from a database Message PK.
     """
     from .engine import send_db_message
-    return send_db_message(message_pk)
+    return send_db_message(message_pk, log_message)
 
 
 @shared_task()

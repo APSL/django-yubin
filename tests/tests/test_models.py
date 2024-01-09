@@ -7,6 +7,7 @@ from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.test import TestCase
 from django.utils import timezone
 
+from django_yubin import tasks
 from django_yubin.models import Message
 
 from .base import MessageMixin
@@ -51,11 +52,12 @@ class TestMessage(MessageMixin, TestCase):
         self.assertEqual(self.message.enqueued_count, enqueued_count+1)
 
     def test_enqueue_wrong_status(self):
-        self.message.mark_as(Message.STATUS_QUEUED)
+        self.message.mark_as(Message.STATUS_IN_PROCESS)
         self.assertFalse(self.message.enqueue())
 
-    @patch("django_yubin.tasks.send_email.delay", side_effect=Exception)
-    def test_enqueue_exception(self, send_email_mock):
+    def test_enqueue_exception(self):
+        self.message.status = Message.STATUS_SENT
+        self.message.save()
         backup = {
             'date_enqueued': self.message.date_enqueued,
             'enqueued_count': self.message.enqueued_count,
@@ -66,10 +68,11 @@ class TestMessage(MessageMixin, TestCase):
         self.assertEqual(self.message.enqueued_count, backup["enqueued_count"])
         self.assertEqual(self.message.status, backup["status"])
 
-    @patch("django_yubin.tasks.send_email.delay")
-    def test_enqueue_ok(self, send_email_mock):
-        self.assertTrue(self.message.enqueue())
-        self.assertEqual(self.message.status, Message.STATUS_QUEUED)
+    def test_enqueue_ok(self):
+        with self.captureOnCommitCallbacks() as callbacks:
+            self.assertTrue(self.message.enqueue())
+        self.assertEqual(len(callbacks), 1)
+        self.assertEqual(callbacks[0].func, tasks.send_email.delay)
 
     def test_retry_messages_none(self):
         enqueued, failed = Message.retry_messages()
@@ -87,13 +90,6 @@ class TestMessage(MessageMixin, TestCase):
         self.message.save()
         enqueued, failed = Message.retry_messages()
         self.assertEqual((enqueued, failed), (0, 0))
-
-    @patch("django_yubin.tasks.send_email.delay", side_effect=Exception('Mock exception'))
-    def test_retry_messages_enqueue_failed(self, send_mail_mock):
-        self.message.status = Message.STATUS_FAILED
-        self.message.save()
-        enqueued, failed = Message.retry_messages()
-        self.assertEqual((enqueued, failed), (0, 1))
 
     def test_delete_old(self):
         days = 7
@@ -203,12 +199,12 @@ class TestMessage(MessageMixin, TestCase):
 
     def test_email_with_long_subject(self):
         email_message = EmailMessage(
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor "
-        "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco "
-        "laboris nisi ut aliquip ex ea commodo consequat.",
-        "Message body",
-        'mail_from@abc.com',
-        ['mail_to@abc.com']
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor "
+            "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud "
+            "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+            "Message body",
+            'mail_from@abc.com',
+            ['mail_to@abc.com']
         )
 
         message = Message.objects.create(

@@ -34,6 +34,7 @@ def queue_email_message(email_message, fail_silently=False):
         subject=email_message.subject,
         message_data=email_message.message().as_string(),
         storage=settings.MAILER_STORAGE_BACKEND)
+    message.add_log("Message created")
 
     if message.enqueue('Enqueued from a Backend or django-yubin itself.'):
         return 1

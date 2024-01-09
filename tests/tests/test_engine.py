@@ -14,15 +14,25 @@ class TestSendDBMessage(MessageMixin, TestCase):
     Tests engine function that sends db messages.
     """
     def setUp(self):
-        self.message = self.create_message(status=Message.STATUS_QUEUED)
+        self.message = self.create_message(status=Message.STATUS_CREATED)
 
     def test_send_email_not_found(self):
         self.assertFalse(send_db_message(-1))
 
-    def test_send_email_not_queued(self):
-        self.message.status = Message.STATUS_SENT
+    def test_send_email_not_queueable(self):
+        self.message.status = Message.STATUS_IN_PROCESS
         self.message.save()
         self.assertFalse(send_db_message(self.message.pk))
+
+        last_log_action = self.message.log_set.first().action
+        self.assertEqual(last_log_action, Message.STATUS_IN_PROCESS)
+
+    def test_send_email_queued(self):
+        # Messages in STATUS_QUEUED can be sent to keep compatibility with previous yubin version.
+        # In future versions that condition can be removed with this test.
+        self.message.status = Message.STATUS_QUEUED
+        self.message.save()
+        self.assertTrue(send_db_message(self.message.pk))
 
         last_log_action = self.message.log_set.first().action
         self.assertEqual(last_log_action, Message.STATUS_SENT)

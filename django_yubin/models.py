@@ -4,6 +4,7 @@ import email
 from email import policy
 from email import encoders as Encoders
 from email.mime.base import MIMEBase
+from functools import partial
 
 from django.core.exceptions import FieldError
 from django.core.mail.message import (
@@ -11,7 +12,7 @@ from django.core.mail.message import (
         EmailMessage,
         EmailMultiAlternatives,
     )
-from django.db import models
+from django.db import models, transaction
 from django.db.models import F
 from django.utils.module_loading import import_string
 from django.utils.text import Truncator
@@ -240,29 +241,14 @@ class Message(models.Model):
 
     def enqueue(self, log_message=None):
         """
-        Sends the task to enqueue itself taking care of undoing changes if the delivery fails.
+        Sends the task to enqueue the message on commit.
         """
         if not self.can_be_enqueued():
             self.add_log("Message can not be enqueued in it's current status")
             return False
 
-        backup = {
-            'date_enqueued': self.date_enqueued,
-            'enqueued_count': self.enqueued_count,
-            'status': self.status,
-        }
-        self.mark_as(self.STATUS_QUEUED, log_message)
-
-        try:
-            tasks.send_email.delay(self.pk)
-            return True
-        except Exception as e:
-            self.date_enqueued = backup['date_enqueued']
-            self.enqueued_count = backup['enqueued_count']
-            self.status = backup['status']
-            self.save()
-            self.add_log('Error enqueuing email: {}'.format(e))
-        return False
+        transaction.on_commit(partial(tasks.send_email.delay, message_pk=self.pk, log_message=log_message))
+        return True
 
     @classmethod
     def retry_messages(cls, max_retries=3):
