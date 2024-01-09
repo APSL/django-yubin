@@ -5,6 +5,13 @@ This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.htm
 
 Starting from version 2.0.0, the format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_.
 
+[2.0.3] - 2024-01-09
+--------------------
+
+Fixed
+^^^^^
+* Fix race condition between Celery and database transactions (https://github.com/APSL/django-yubin/pull/74)
+
 [2.0.2] - 2023-10-30
 --------------------
 
