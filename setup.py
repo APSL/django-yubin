@@ -4,7 +4,7 @@ from setuptools import setup
 
 
 INSTALL_REQUIRES = [
-    'celery>=5.0,<5.3',
+    'celery>=5.0',
     'mail-parser',
     'pytz',
 ]
