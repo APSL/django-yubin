@@ -5,6 +5,13 @@ This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.htm
 
 Starting from version 2.0.0, the format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_.
 
+[2.0.5] - 2024-06-21
+--------------------
+
+Fixed
+^^^^^
+* Use ``BigAutoField`` and migrate all existing auto fields to it. This avoids generating a new migration in projects that use ``settings.DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"``.
+
 [2.0.4] - 2024-05-02
 --------------------
 
