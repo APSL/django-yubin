@@ -267,7 +267,7 @@ class Message(models.Model):
         Returns the deletion data from Django and the cuttoff date.
         """
         cutoff_date = now() - datetime.timedelta(days)
-        deleted = cls.objects.filter(date_created__lt=cutoff_date).delete()
+        deleted = cls.objects.defer("_message_data").filter(date_created__lt=cutoff_date).delete()
         return deleted, cutoff_date
 
 
