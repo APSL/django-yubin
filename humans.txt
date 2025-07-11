@@ -17,5 +17,6 @@ Pablo Méndez (@pmendezsuarez)
 Tim Gates (@timgates42)
 Silvia (@SilviaAmAm)
 Viicos (@Viicos)
+Floris Puijk (@Floris272)
 
 https://github.com/APSL/django-yubin/graphs/contributors

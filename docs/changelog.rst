@@ -5,6 +5,13 @@ This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.htm
 
 Starting from version 2.0.0, the format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_.
 
+[2.0.6] - 2025-07-11
+--------------------
+
+Fixed
+^^^^^
+* Reduce memory when deleting a huge number of old messages (https://github.com/APSL/django-yubin/pull/78)
+
 [2.0.5] - 2024-06-21
 --------------------
 
